@@ -67,7 +67,15 @@ import js.parsing.RegExp;
  */
 public final class KeyboardShortcutManager extends BaseObject {
 
-  public KeyboardShortcutManager() {
+  
+
+  public static void setResourceClass(Class klass) {
+    sResourceClass = klass;
+  }
+  private static Class sResourceClass;
+
+  public KeyboardShortcutManager(Class resourceClass) {
+    setResourceClass(resourceClass);
     parseRegistry();
     detectProblems();
   }
@@ -172,7 +180,9 @@ public final class KeyboardShortcutManager extends BaseObject {
   }
 
   private void parseRegistry() {
-    JSMap json = JSMap.fromResource(this.getClass(), "key_shortcut_defaults.json");
+    if (sResourceClass == null)
+      badState("KeyboardShortcutManager.setResourceClass not called");
+    JSMap json = JSMap.fromResource(sResourceClass, "key_shortcut_defaults.json");
     log("parsing hot keys from map:", INDENT, json);
     for (String key : json.keySet()) {
       JSMap m = json.getMap(key);
