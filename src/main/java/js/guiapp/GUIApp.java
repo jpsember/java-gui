@@ -27,6 +27,7 @@ package js.guiapp;
 import javax.swing.SwingUtilities;
 
 import js.app.App;
+import js.app.AppOper;
 import js.system.SystemUtil;
 
 public abstract class GUIApp extends App {
@@ -45,6 +46,16 @@ public abstract class GUIApp extends App {
       SwingUtils.setEventDispatchThread();
       createAndShowGUIMethod.run();
     });
+  }
+
+  /**
+   * Construct the (singleton) AppOper for this GUI app
+   */
+  protected abstract AppOper constructAppOper();
+
+  @Override
+  protected final void registerOperations() {
+    registerOper(constructAppOper());
   }
 
 }
