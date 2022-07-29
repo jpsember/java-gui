@@ -152,7 +152,7 @@ public final class UserEvent extends BaseObject {
   }
 
   private UserEventManager getManager() {
-    return getSource().getManager();
+    return UserEventManager.sharedInstance();
   }
 
   // ------------------------------------------------------------------

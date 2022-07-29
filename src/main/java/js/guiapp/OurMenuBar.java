@@ -35,10 +35,9 @@ import static js.base.Tools.*;
 
 public final class OurMenuBar {
 
-  public OurMenuBar(UserEventManager eventManager, KeyboardShortcutManager hotKeyManager) {
-    todo("event manager can use shared instance");
+  public OurMenuBar(KeyboardShortcutManager hotKeyManager) {
+    todo("KeyboardShortcutManager can use shared instance");
     mMenuBar = new JMenuBar();
-    mEventManager = eventManager;
     mHotKeyManager = hotKeyManager;
   }
 
@@ -85,7 +84,7 @@ public final class OurMenuBar {
    * Add a menu item to the active menu
    */
   public JMenuItem addItem(String hotKeyId, String displayedName, UserOperation operation) {
-    MenuItem menuItem = new MenuItem(displayedName, operation, mActiveMenu, mEventManager);
+    MenuItem menuItem = new MenuItem(displayedName, operation, mActiveMenu);
 
     if (!nullOrEmpty(hotKeyId)) {
       KeyboardShortcutManager mgr = mHotKeyManager;
@@ -97,7 +96,7 @@ public final class OurMenuBar {
         alert("no hot key found with id:", hotKeyId);
       }
     }
-    
+
     if (mSeparatorPending) {
       mSeparatorPending = false;
       mActiveMenu.addSeparator();
@@ -140,7 +139,6 @@ public final class OurMenuBar {
     }
   }
 
-  private final UserEventManager mEventManager;
   private final KeyboardShortcutManager mHotKeyManager;
   private final JMenuBar mMenuBar;
 
@@ -167,9 +165,8 @@ public final class OurMenuBar {
 
   private static class MenuItem extends JMenuItem implements Enableable {
 
-    public MenuItem(String name, UserOperation operation, Menu parentMenu, UserEventManager eventManager) {
+    public MenuItem(String name, UserOperation operation, Menu parentMenu) {
       super(name);
-      mEventManager = eventManager;
       mParentMenu = parentMenu;
       mOperation = operation;
 
@@ -177,7 +174,7 @@ public final class OurMenuBar {
         @Override
         public void actionPerformed(ActionEvent event) {
           if (shouldBeEnabled()) {
-            mEventManager.perform(mOperation);
+            UserEventManager.sharedInstance().perform(mOperation);
           }
         }
       });
@@ -196,7 +193,6 @@ public final class OurMenuBar {
 
     private final UserOperation mOperation;
     private final Menu mParentMenu;
-    private final UserEventManager mEventManager;
   }
 
 }
