@@ -4,7 +4,6 @@ import static js.base.Tools.*;
 
 import javax.swing.JFrame;
 
-import js.app.AppOper;
 import js.guiapp.GUIApp;
 import js.guiapp.KeyboardShortcutManager;
 import js.guiapp.OurAppFrame;
@@ -24,11 +23,6 @@ public class SampleApp extends GUIApp {
   }
 
   @Override
-  protected AppOper constructAppOper() {
-    return new OurOper();
-  }
-
-  @Override
   public String getVersion() {
     return "9.9";
   }
@@ -38,28 +32,9 @@ public class SampleApp extends GUIApp {
     return "js.gui.example";
   }
 
-  // ------------------------------------------------------------------
-  // AppOper implementation
-  // ------------------------------------------------------------------
-  private class OurOper extends AppOper {
 
-    @Override
-    public String userCommand() {
-      return null;
-    }
-
-    @Override
-    public void perform() {
-      startGUI(() -> createAndShowGUI());
-    }
-
-    @Override
-    protected String getHelpDescription() {
-      return "Sample GUIApp implementation";
-    }
-  }
-
-  protected void createAndShowGUI() {
+  public void createAndShowGUI() {
+    todo("Move event manager, keyboard shortcut manager into GUIApp");
     mUserEventManager = new UserEventManager(new UserOperation() {
     });
     //mUserEventManager.setListener(this::processUserEvent);

@@ -71,12 +71,7 @@ public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
 
-  /**
-   * 
-   * @param createAndShowGUIMethod
-   *          method to call from Swing thread to construct the GUI and show it
-   */
-  public void startGUI(Runnable createAndShowGUIMethod) {
+  private void startGUI() {
     SystemUtil.setConsoleAppFlag(false);
 
     // Start app within Swing thread
@@ -93,18 +88,28 @@ public abstract class GUIApp extends App {
           alert("getProcessExpression returned empty string; not killing any existing instances");
       }
 
-      createAndShowGUIMethod.run();
+      createAndShowGUI();
     });
   }
 
-  /**
-   * Construct the (singleton) AppOper for this GUI app
-   */
-  protected abstract AppOper constructAppOper();
+  public abstract void createAndShowGUI();
 
   @Override
   protected final void registerOperations() {
-    registerOper(constructAppOper());
+    registerOper(new SingletonAppOper());
+  }
+
+  private class SingletonAppOper extends AppOper {
+
+    @Override
+    public String userCommand() {
+      return null;
+    }
+
+    @Override
+    public void perform() {
+      startGUI();
+    }
   }
 
 }
