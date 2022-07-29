@@ -35,10 +35,8 @@ import static js.base.Tools.*;
 
 public final class OurMenuBar {
 
-  public OurMenuBar(KeyboardShortcutManager hotKeyManager) {
-    todo("KeyboardShortcutManager can use shared instance");
+  public OurMenuBar() {
     mMenuBar = new JMenuBar();
-    mHotKeyManager = hotKeyManager;
   }
 
   public JMenuBar jmenuBar() {
@@ -87,7 +85,7 @@ public final class OurMenuBar {
     MenuItem menuItem = new MenuItem(displayedName, operation, mActiveMenu);
 
     if (!nullOrEmpty(hotKeyId)) {
-      KeyboardShortcutManager mgr = mHotKeyManager;
+      KeyboardShortcutManager mgr = KeyboardShortcutManager.sharedInstance();
       HotKey hotKey = mgr.opt(hotKeyId);
       if (hotKey != null) {
         mgr.assignHotKeyToOperation(hotKeyId, hotKey);
@@ -139,7 +137,6 @@ public final class OurMenuBar {
     }
   }
 
-  private final KeyboardShortcutManager mHotKeyManager;
   private final JMenuBar mMenuBar;
 
   private Menu mActiveMenu;
