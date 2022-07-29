@@ -26,10 +26,13 @@ package js.guiapp;
 
 import static js.base.Tools.*;
 
+import java.util.List;
+
 import javax.swing.SwingUtilities;
 
 import js.app.App;
 import js.app.AppOper;
+import js.data.AbstractData;
 import js.system.SystemUtil;
 
 public abstract class GUIApp extends App {
@@ -92,6 +95,32 @@ public abstract class GUIApp extends App {
     });
   }
 
+  // ------------------------------------------------------------------
+  // Command line arguments
+  // ------------------------------------------------------------------
+
+  /**
+   * Get default arguments, if any, for this app; default returns null
+   */
+  public AbstractData defaultArgs() {
+    return null;
+  }
+
+  /**
+   * Get a description of any optional arguments; default returns null
+   */
+  public List<Object> getOptionalArgDescriptions() {
+    return null;
+  }
+
+  /**
+   * Process any optional command line arguments
+   */
+  public void processOptionalArgs() {
+  }
+
+  // ------------------------------------------------------------------
+
   public abstract void createAndShowGUI();
 
   @Override
@@ -108,8 +137,19 @@ public abstract class GUIApp extends App {
 
     @Override
     public void perform() {
+
+      processOptionalArgs();
+      if (cmdLineArgs().hasNextArg())
+        throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
+
       startGUI();
     }
+   
+    @Override
+    protected List<Object> getAdditionalArgs() {
+      return getOptionalArgDescriptions();
+    }
+
   }
 
 }
