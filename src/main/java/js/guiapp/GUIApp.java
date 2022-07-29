@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 import js.app.App;
 import js.app.AppOper;
 import js.data.AbstractData;
+import js.json.JSMap;
 import js.system.SystemUtil;
 
 public abstract class GUIApp extends App {
@@ -76,11 +77,11 @@ public abstract class GUIApp extends App {
 
   /**
    * Construct the default operation for the event manager. Default returns
-   * null, in which case it constructs a 'do nothing' operation
+   * a 'do nothing' operation
    */
   public UserOperation getDefaultUserOperation() {
     alert("No getDefaultAppOper implemented");
-    return null;
+    return new UserOperation() {};
   }
 
   /**
@@ -106,14 +107,21 @@ public abstract class GUIApp extends App {
           alert("getProcessExpression returned empty string; not killing any existing instances");
       }
 
-      UserEventManager.construct( getDefaultUserOperation());
+      UserEventManager.construct(getDefaultUserOperation());
       UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
-      mKeyboardShortcutManager = new KeyboardShortcutManager(this.getClass());
+      KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
       createAndShowGUI();
     });
   }
 
-  private KeyboardShortcutManager mKeyboardShortcutManager;
+  /**
+   * Get the JSMap defining the default keyboard shortcuts. Default
+   * implementation returns an empty map
+   */
+  public JSMap getKeyboardShortcutRegistry() {
+    return map();
+    //    throw notSupported("No implementation of keyboard shortcut registry");
+  }
 
   // ------------------------------------------------------------------
   // Command line arguments

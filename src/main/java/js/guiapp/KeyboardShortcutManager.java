@@ -37,7 +37,6 @@ import static js.base.Tools.*;
 
 import js.base.BaseObject;
 import js.data.DataUtil;
-import js.file.FileException;
 import js.gui.gen.HotKey;
 import js.json.JSList;
 import js.json.JSMap;
@@ -68,15 +67,26 @@ import js.parsing.RegExp;
  */
 public final class KeyboardShortcutManager extends BaseObject {
 
-  public static void setResourceClass(Class klass) {
-    sResourceClass = klass;
+  // ------------------------------------------------------------------
+  // Singleton instance
+  // ------------------------------------------------------------------
+
+  public static void construct(JSMap registryMap) {
+    sSharedInstance = new KeyboardShortcutManager(registryMap);
   }
 
-  private static Class sResourceClass;
+  public static KeyboardShortcutManager sharedInstance() {
+    if (sSharedInstance == null)
+      throw badState("no KeyboardShortcutManager constructed");
+    return sSharedInstance;
+  }
 
-  public KeyboardShortcutManager(Class resourceClass) {
-    setResourceClass(resourceClass);
-    parseRegistry();
+  private static KeyboardShortcutManager sSharedInstance;
+
+  // ------------------------------------------------------------------
+
+  private KeyboardShortcutManager(JSMap registryMap) {
+    parseRegistry(registryMap);
     detectProblems();
   }
 
@@ -179,16 +189,7 @@ public final class KeyboardShortcutManager extends BaseObject {
     return hotKey;
   }
 
-  private void parseRegistry() {
-    if (sResourceClass == null)
-      badState("KeyboardShortcutManager.setResourceClass not called");
-    JSMap json = null;
-    try {
-      json = JSMap.fromResource(sResourceClass, "key_shortcut_defaults.json");
-    } catch (FileException e) {
-      alert("Failed to read/parse key_shortcut_defaults.json", e.getMessage());
-      json = map();
-    }
+  private void parseRegistry(JSMap json) {
     log("parsing hot keys from map:", INDENT, json);
     for (String key : json.keySet()) {
       JSMap m = json.getMap(key);

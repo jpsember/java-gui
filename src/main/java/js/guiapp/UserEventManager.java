@@ -78,8 +78,6 @@ public final class UserEventManager extends BaseObject implements UserEvent.List
       oper.start();
     } else {
       oper.start();
-      todo(
-          "If operation doesn't implement UserEvent.Listener, and this is the default operation, this will cause an endless loop");
       if (oper != mDefaultOperation)
         clearOperation();
     }

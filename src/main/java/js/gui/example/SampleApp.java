@@ -5,9 +5,7 @@ import static js.base.Tools.*;
 import javax.swing.JFrame;
 
 import js.guiapp.GUIApp;
-import js.guiapp.KeyboardShortcutManager;
 import js.guiapp.OurAppFrame;
-import js.guiapp.UserEventManager;
 
 public class SampleApp extends GUIApp {
 
@@ -31,17 +29,9 @@ public class SampleApp extends GUIApp {
     return "js.gui.example";
   }
 
-
   public void createAndShowGUI() {
-    //mUserEventManager.setListener(this::processUserEvent);
-    mKeyboardShortcutManager = new KeyboardShortcutManager(this.getClass());
     createFrame();
   }
-
-  // TODO: refactor to make this private
-  public UserEventManager mUserEventManager;
-  // TODO: refactor to make this private
-  public KeyboardShortcutManager mKeyboardShortcutManager;
 
   private void createFrame() {
     mFrame = new OurAppFrame();
