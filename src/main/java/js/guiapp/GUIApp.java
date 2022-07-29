@@ -24,6 +24,8 @@
  **/
 package js.guiapp;
 
+import static js.base.Tools.*;
+
 import javax.swing.SwingUtilities;
 
 import js.app.App;
@@ -31,6 +33,43 @@ import js.app.AppOper;
 import js.system.SystemUtil;
 
 public abstract class GUIApp extends App {
+
+  // ------------------------------------------------------------------
+  // Development mode
+  // ------------------------------------------------------------------
+
+  /**
+   * Determine if we're in development mode
+   */
+  public static boolean devMode() {
+    if (sDevModeFlag == null)
+      setDevMode(true);
+    return sDevModeFlag;
+  }
+
+  /**
+   * Set development mode. This can only be set once. If it hasn't been
+   * explicitly set, it will be set true when devMode() is first called
+   */
+  public static void setDevMode(boolean flag) {
+    checkState(sDevModeFlag == null || sDevModeFlag == flag, "dev mode flag already set");
+    sDevModeFlag = flag;
+  }
+
+  /**
+   * Get a string that can be used to uniquely identify processes representing
+   * this app, so that duplicate processes can be killed (when in development
+   * mode)
+   * 
+   * Default implementation returns null, which will generate a warning
+   */
+  protected String getProcessExpression() {
+    return null;
+  }
+
+  private static Boolean sDevModeFlag;
+
+  // ------------------------------------------------------------------
 
   /**
    * 
@@ -44,6 +83,16 @@ public abstract class GUIApp extends App {
     //
     SwingUtilities.invokeLater(() -> {
       SwingUtils.setEventDispatchThread();
+
+      if (devMode()) {
+        String processExpr = getProcessExpression();
+        if (nonEmpty(processExpr)) {
+          SystemUtil.killProcesses(processExpr);
+          SystemUtil.killAfterDelay(processExpr);
+        } else
+          alert("getProcessExpression returned empty string; not killing any existing instances");
+      }
+
       createAndShowGUIMethod.run();
     });
   }
