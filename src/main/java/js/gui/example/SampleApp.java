@@ -8,7 +8,6 @@ import js.guiapp.GUIApp;
 import js.guiapp.KeyboardShortcutManager;
 import js.guiapp.OurAppFrame;
 import js.guiapp.UserEventManager;
-import js.guiapp.UserOperation;
 
 public class SampleApp extends GUIApp {
 
@@ -34,9 +33,6 @@ public class SampleApp extends GUIApp {
 
 
   public void createAndShowGUI() {
-    todo("Move event manager, keyboard shortcut manager into GUIApp");
-    mUserEventManager = new UserEventManager(new UserOperation() {
-    });
     //mUserEventManager.setListener(this::processUserEvent);
     mKeyboardShortcutManager = new KeyboardShortcutManager(this.getClass());
     createFrame();

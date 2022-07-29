@@ -36,6 +36,7 @@ import static js.base.Tools.*;
 public final class OurMenuBar {
 
   public OurMenuBar(UserEventManager eventManager, KeyboardShortcutManager hotKeyManager) {
+    todo("event manager can use shared instance");
     mMenuBar = new JMenuBar();
     mEventManager = eventManager;
     mHotKeyManager = hotKeyManager;

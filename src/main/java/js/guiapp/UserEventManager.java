@@ -34,7 +34,20 @@ import js.base.BaseObject;
  */
 public final class UserEventManager extends BaseObject implements UserEvent.Listener {
 
-  public UserEventManager(UserOperation defaultOper) {
+  public static UserEventManager sharedInstance() {
+    if (sSharedInstance == null)
+      throw badState("No shared UserEventManager created");
+    return sSharedInstance;
+  }
+
+  private static UserEventManager sSharedInstance;
+
+  public static void construct(UserOperation defaultOper) {
+    checkState(sSharedInstance == null, "already constructed");
+    sSharedInstance = new UserEventManager(defaultOper);
+  }
+
+  private UserEventManager(UserOperation defaultOper) {
     checkArgument(defaultOper != null, "no default operation");
     mDefaultOperation = defaultOper;
     setOperation(defaultOper);

@@ -74,6 +74,21 @@ public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
 
+  /**
+   * Construct the default operation for the event manager. Default returns
+   * null, in which case it constructs a 'do nothing' operation
+   */
+  public UserOperation getDefaultUserOperation() {
+    alert("No getDefaultAppOper implemented");
+    return null;
+  }
+
+  /**
+   * A listener for user events; default does nothing
+   */
+  public void userEventManagerListener(UserEvent event) {
+  }
+
   private void startGUI() {
     SystemUtil.setConsoleAppFlag(false);
 
@@ -91,9 +106,14 @@ public abstract class GUIApp extends App {
           alert("getProcessExpression returned empty string; not killing any existing instances");
       }
 
+      UserEventManager.construct( getDefaultUserOperation());
+      UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
+      mKeyboardShortcutManager = new KeyboardShortcutManager(this.getClass());
       createAndShowGUI();
     });
   }
+
+  private KeyboardShortcutManager mKeyboardShortcutManager;
 
   // ------------------------------------------------------------------
   // Command line arguments
@@ -144,7 +164,7 @@ public abstract class GUIApp extends App {
 
       startGUI();
     }
-   
+
     @Override
     protected List<Object> getAdditionalArgs() {
       return getOptionalArgDescriptions();
