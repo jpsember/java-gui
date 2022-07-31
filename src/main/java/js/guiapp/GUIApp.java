@@ -26,8 +26,14 @@ package js.guiapp;
 
 import static js.base.Tools.*;
 
+import java.awt.Cursor;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 
 import js.app.App;
@@ -76,12 +82,13 @@ public abstract class GUIApp extends App {
   // ------------------------------------------------------------------
 
   /**
-   * Construct the default operation for the event manager. Default returns
-   * a 'do nothing' operation
+   * Construct the default operation for the event manager. Default returns a
+   * 'do nothing' operation
    */
   public UserOperation getDefaultUserOperation() {
     alert("No getDefaultAppOper implemented");
-    return new UserOperation() {};
+    return new UserOperation() {
+    };
   }
 
   /**
@@ -90,29 +97,52 @@ public abstract class GUIApp extends App {
   public void userEventManagerListener(UserEvent event) {
   }
 
-  private void startGUI() {
-    SystemUtil.setConsoleAppFlag(false);
+  //------------------------------------------------------------------
+  // Frame
+  // ------------------------------------------------------------------
 
-    // Start app within Swing thread
-    //
-    SwingUtilities.invokeLater(() -> {
-      SwingUtils.setEventDispatchThread();
-
-      if (devMode()) {
-        String processExpr = getProcessExpression();
-        if (nonEmpty(processExpr)) {
-          SystemUtil.killProcesses(processExpr);
-          SystemUtil.killAfterDelay(processExpr);
-        } else
-          alert("getProcessExpression returned empty string; not killing any existing instances");
-      }
-
-      UserEventManager.construct(getDefaultUserOperation());
-      UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
-      KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
-      createAndShowGUI();
-    });
+  public final OurAppFrame appFrame() {
+    return mFrame;
   }
+
+  /**
+   * Determine if program should quit after user has attempted to close the
+   * window. Default returns true
+   */
+  public boolean requestWindowClose() {
+    return true;
+  }
+
+  /**
+   * Perform any cleaning up prior to program about to quit
+   */
+  public void prepareForProgramQuit() {
+  }
+
+  private void createFrame() {
+    mFrame = new OurAppFrame();
+
+    JFrame jFrame = mFrame.frame();
+
+    // Handle close window requests ourselves
+    //
+    jFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    jFrame.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        if (requestWindowClose()) {
+          prepareForProgramQuit();
+          //closeProject();
+          jFrame.setVisible(false);
+          jFrame.dispose();
+          mFrame = null;
+        }
+      }
+    });
+    jFrame.setVisible(true);
+  }
+
+  private OurAppFrame mFrame;
 
   /**
    * Get the JSMap defining the default keyboard shortcuts. Default
@@ -149,11 +179,87 @@ public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
 
+  private void auxPerform() {
+    processOptionalArgs();
+    if (cmdLineArgs().hasNextArg())
+      throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
+
+    SystemUtil.setConsoleAppFlag(false);
+
+    // Start app within Swing thread
+    //
+    SwingUtilities.invokeLater(() -> {
+      SwingUtils.setEventDispatchThread();
+      prepareGUI();
+    });
+  }
+
+  private void prepareGUI() {
+    if (devMode()) {
+      String processExpr = getProcessExpression();
+      if (nonEmpty(processExpr)) {
+        SystemUtil.killProcesses(processExpr);
+        SystemUtil.killAfterDelay(processExpr);
+      } else
+        alert("getProcessExpression returned empty string; not killing any existing instances");
+    }
+
+    UserEventManager.construct(getDefaultUserOperation());
+    UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
+    KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
+
+    createFrame();
+    createAndShowGUI();
+  }
+
   public abstract void createAndShowGUI();
 
   @Override
   protected final void registerOperations() {
     registerOper(new SingletonAppOper());
+  }
+
+  // ------------------------------------------------------------------
+  // Menu bar
+  // ------------------------------------------------------------------
+
+  public void discardMenuBar() {
+    todo("should this be private?");
+    mMenuBar = null;
+  }
+
+  public void createMenuBarIfNec() {
+    todo("This shouldn't need to be public");
+    if (mMenuBar != null)
+      return;
+    KeyboardShortcutManager.sharedInstance().clearAssignedOperationList();
+    OurMenuBar m = new OurMenuBar();
+    mMenuBar = m;
+    populateMenuBar(m);
+    mFrame.frame().setJMenuBar(m.jmenuBar());
+  }
+
+  public void populateMenuBar(OurMenuBar m) {
+  }
+
+  /**
+   * Add an item to the current menu
+   */
+  public JMenuItem addItem(String hotKeyId, String displayedName, UserOperation operation) {
+    return mMenuBar.addItem(hotKeyId, displayedName, operation);
+  }
+
+ /* private */
+  public
+  OurMenuBar mMenuBar;
+
+  public final JComponent contentPane() {
+    return (JComponent) mFrame.frame().getContentPane();
+  }
+
+  public final void setMouseCursor(int type) {
+    if (mFrame != null)
+      mFrame.frame().setCursor(Cursor.getPredefinedCursor(type));
   }
 
   private class SingletonAppOper extends AppOper {
@@ -165,12 +271,8 @@ public abstract class GUIApp extends App {
 
     @Override
     public void perform() {
+      auxPerform();
 
-      processOptionalArgs();
-      if (cmdLineArgs().hasNextArg())
-        throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
-
-      startGUI();
     }
 
     @Override
