@@ -27,12 +27,9 @@ package js.guiapp;
 import static js.base.Tools.*;
 
 import java.awt.Cursor;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.SwingConstants;
@@ -109,14 +106,6 @@ public abstract class GUIApp extends App {
   }
 
   /**
-   * Determine if program should quit after user has attempted to close the
-   * window. Default returns true
-   */
-  public boolean requestWindowClose() {
-    return true;
-  }
-
-  /**
    * Perform any cleaning up prior to program about to quit
    */
   public void prepareForProgramQuit() {
@@ -124,25 +113,7 @@ public abstract class GUIApp extends App {
 
   private void createFrame() {
     mFrame = new OurAppFrame();
-
-    JFrame jFrame = mFrame.frame();
-
-    // Handle close window requests ourselves
-    //
-    jFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    jFrame.addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(WindowEvent e) {
-        if (requestWindowClose()) {
-          prepareForProgramQuit();
-          //closeProject();
-          jFrame.setVisible(false);
-          jFrame.dispose();
-          mFrame = null;
-        }
-      }
-    });
-    jFrame.setVisible(true);
+    mFrame.frame().setVisible(true);
   }
 
   private OurAppFrame mFrame;
