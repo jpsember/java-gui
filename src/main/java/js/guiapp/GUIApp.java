@@ -31,6 +31,7 @@ import java.awt.Cursor;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -107,14 +108,9 @@ public abstract class GUIApp extends App {
     return mFrame;
   }
 
-  /**
-   * Perform any cleaning up prior to program about to quit
-   */
-  public void prepareForProgramQuit() {
-  }
-
   private void createFrame() {
     mFrame = new OurAppFrame();
+    mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     rebuildFrameContent();
     mFrame.frame().setVisible(true);
   }
@@ -204,7 +200,6 @@ public abstract class GUIApp extends App {
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
     KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
 
-    todo("We need hooks into the Quit menu item and the window close event to allow call to prepareForProgramQuit");
     createFrame();
     startGUI();
   }
