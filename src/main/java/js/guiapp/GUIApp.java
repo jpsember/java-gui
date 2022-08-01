@@ -56,13 +56,80 @@ public abstract class GUIApp extends App {
     return sConfig;
   }
 
-  private static GuiAppConfig.Builder sConfig = GuiAppConfig.DEFAULT_INSTANCE.toBuilder();
-
   @Override
   public final String getVersion() {
     return guiAppConfig().version();
   }
 
+  private static GuiAppConfig.Builder sConfig = GuiAppConfig.DEFAULT_INSTANCE.toBuilder();
+
+  /**
+   * Register the single operation for this application. GUI apps don't support
+   * multiple operations; this singleton operation will forward calls to app
+   * methods for simplicity
+   */
+  @Override
+  protected final void registerOperations() {
+    registerOper(new AppOper() {
+      @Override
+      public String userCommand() {
+        return null;
+      }
+
+      @Override
+      public void perform() {
+        startApplication2();
+      }
+
+      @Override
+      protected List<Object> getAdditionalArgs() {
+        return getOptionalArgDescriptions();
+      }
+    });
+  }
+
+  /**
+   * Perform this app's singleton operation; a continuation of the 'start
+   * application' process
+   */
+  private void startApplication2() {
+    SystemUtil.setConsoleAppFlag(false);
+    
+    processOptionalArgs();
+    if (cmdLineArgs().hasNextArg())
+      throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
+
+    // Continue starting app within the Swing thread
+    //
+    SwingUtilities.invokeLater(() -> {
+      SwingUtils.setEventDispatchThread();
+      startApplication3();
+    });
+  }
+
+  private void startApplication3() {
+    if (guiAppConfig().devMode()) {
+      
+      String appName = 
+      this.getClass().getName();
+      pr("app config:",INDENT,guiAppConfig());
+      pr("appName:",appName);
+      
+      String processExpr = guiAppConfig().processExpression();
+      if (nonEmpty(processExpr)) {
+        SystemUtil.killProcesses(processExpr);
+        SystemUtil.killAfterDelay(processExpr);
+      } else
+        alert("getProcessExpression returned empty string; not killing any existing instances");
+    }
+
+    UserEventManager.construct(getDefaultUserOperation());
+    UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
+    KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
+
+    createFrame();
+    startGUI();
+  }
   // ------------------------------------------------------------------
 
   /**
@@ -152,38 +219,6 @@ public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
 
-  private void auxPerform() {
-    processOptionalArgs();
-    if (cmdLineArgs().hasNextArg())
-      throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
-
-    SystemUtil.setConsoleAppFlag(false);
-
-    // Start app within Swing thread
-    //
-    SwingUtilities.invokeLater(() -> {
-      SwingUtils.setEventDispatchThread();
-      prepareGUI();
-    });
-  }
-
-  private void prepareGUI() {
-    if (guiAppConfig().devMode()) {
-      String processExpr = guiAppConfig().processExpression();
-      if (nonEmpty(processExpr)) {
-        SystemUtil.killProcesses(processExpr);
-        SystemUtil.killAfterDelay(processExpr);
-      } else
-        alert("getProcessExpression returned empty string; not killing any existing instances");
-    }
-
-    UserEventManager.construct(getDefaultUserOperation());
-    UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
-    KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
-
-    createFrame();
-    startGUI();
-  }
 
   public final void updateTitle() {
     String title = name() + " v" + getVersion();
@@ -200,26 +235,6 @@ public abstract class GUIApp extends App {
   }
 
   public abstract void startGUI();
-
-  @Override
-  protected final void registerOperations() {
-    registerOper(new AppOper() {
-      @Override
-      public String userCommand() {
-        return null;
-      }
-
-      @Override
-      public void perform() {
-        auxPerform();
-      }
-
-      @Override
-      protected List<Object> getAdditionalArgs() {
-        return getOptionalArgDescriptions();
-      }
-    });
-  }
 
   // ------------------------------------------------------------------
   // Menu bar
