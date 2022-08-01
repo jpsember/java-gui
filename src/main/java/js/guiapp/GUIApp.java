@@ -42,45 +42,26 @@ import js.app.App;
 import js.app.AppOper;
 import js.data.AbstractData;
 import js.graphics.Paint;
+import js.gui.gen.GuiAppConfig;
 import js.json.JSMap;
 import js.system.SystemUtil;
 
 public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
-  // Development mode
+  // App configuration
   // ------------------------------------------------------------------
 
-  /**
-   * Determine if we're in development mode
-   */
-  public static boolean devMode() {
-    if (sDevModeFlag == null)
-      setDevMode(true);
-    return sDevModeFlag;
+  public static GuiAppConfig.Builder guiAppConfig() {
+    return sConfig;
   }
 
-  /**
-   * Set development mode. This can only be set once. If it hasn't been
-   * explicitly set, it will be set true when devMode() is first called
-   */
-  public static void setDevMode(boolean flag) {
-    checkState(sDevModeFlag == null || sDevModeFlag == flag, "dev mode flag already set");
-    sDevModeFlag = flag;
-  }
+  private static GuiAppConfig.Builder sConfig = GuiAppConfig.DEFAULT_INSTANCE.toBuilder();
 
-  /**
-   * Get a string that can be used to uniquely identify processes representing
-   * this app, so that duplicate processes can be killed (when in development
-   * mode)
-   * 
-   * Default implementation returns null, which will generate a warning
-   */
-  protected String getProcessExpression() {
-    return null;
+  @Override
+  public final String getVersion() {
+    return guiAppConfig().version();
   }
-
-  private static Boolean sDevModeFlag;
 
   // ------------------------------------------------------------------
 
@@ -187,8 +168,8 @@ public abstract class GUIApp extends App {
   }
 
   private void prepareGUI() {
-    if (devMode()) {
-      String processExpr = getProcessExpression();
+    if (guiAppConfig().devMode()) {
+      String processExpr = guiAppConfig().processExpression();
       if (nonEmpty(processExpr)) {
         SystemUtil.killProcesses(processExpr);
         SystemUtil.killAfterDelay(processExpr);
@@ -206,7 +187,7 @@ public abstract class GUIApp extends App {
 
   public final void updateTitle() {
     String title = name() + " v" + getVersion();
-    if (devMode())
+    if (guiAppConfig().devMode())
       title = title + " !!! DEV MODE !!!";
     String auxTitle = getTitleText();
     if (!nullOrEmpty(auxTitle))

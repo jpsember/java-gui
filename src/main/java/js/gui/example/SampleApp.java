@@ -12,20 +12,12 @@ public class SampleApp extends GUIApp {
 
   private SampleApp() {
     loadTools();
-    // To disable development mode, enable this:
-    // setDevMode(false);
+    guiAppConfig() //
+    .appName("example") //
+    .processExpression("js.gui.example");
   }
 
-  @Override
-  public String getVersion() {
-    return "9.9";
-  }
-
-  @Override
-  protected String getProcessExpression() {
-    return "js.gui.example";
-  }
-
+ 
   public void startGUI() {
     todo("add some panels");
   }

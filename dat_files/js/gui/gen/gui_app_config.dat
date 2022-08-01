@@ -1,0 +1,16 @@
+fields {
+
+  // Have this true by default, so we only need to add code when app is 'complete' to disable it
+  //
+  bool dev_mode = true;
+
+  // An optional string that can be used to uniquely identify processes representing
+  // the app, so that duplicate processes can be killed (when in development
+  // mode)
+  //
+  string process_expression;
+
+  string app_name = "***NO NAME DEFINED***";
+
+  string version = "1.0";
+}
