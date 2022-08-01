@@ -13,11 +13,10 @@ public class SampleApp extends GUIApp {
   private SampleApp() {
     loadTools();
     guiAppConfig() //
-    .appName("example") //
-    .processExpression("js.gui.example");
+        .appName("example") //
+    ;
   }
 
- 
   public void startGUI() {
     todo("add some panels");
   }

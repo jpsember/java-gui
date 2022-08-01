@@ -217,6 +217,6 @@ public class RecentFiles extends BaseObject {
   private static final int MAXIMUM_RECENT_FILES = 8;
 
   private Boolean mDirMode;
-  private RecentFilesList.Builder mState;
+  private RecentFilesList.Builder mState = RecentFilesList.newBuilder();
 
 }

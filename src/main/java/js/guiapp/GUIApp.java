@@ -94,7 +94,6 @@ public abstract class GUIApp extends App {
    */
   private void startApplication2() {
     SystemUtil.setConsoleAppFlag(false);
-    
     processOptionalArgs();
     if (cmdLineArgs().hasNextArg())
       throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
@@ -108,27 +107,22 @@ public abstract class GUIApp extends App {
   }
 
   private void startApplication3() {
-    if (guiAppConfig().devMode()) {
-      
-      String appName = 
-      this.getClass().getName();
-      pr("app config:",INDENT,guiAppConfig());
-      pr("appName:",appName);
-      
-      String processExpr = guiAppConfig().processExpression();
-      if (nonEmpty(processExpr)) {
-        SystemUtil.killProcesses(processExpr);
-        SystemUtil.killAfterDelay(processExpr);
-      } else
-        alert("getProcessExpression returned empty string; not killing any existing instances");
+    if (guiAppConfig().devMode() && guiAppConfig().singleInstanceMode()) {
+      String processExpr = getClass().getName();
+      SystemUtil.killProcesses(processExpr);
+      SystemUtil.killAfterDelay(processExpr);
     }
 
     UserEventManager.construct(getDefaultUserOperation());
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
     KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
 
+    prepareForGUI();
     createFrame();
-    startGUI();
+    startedGUI();
+    // TODO: when switching projects, the frame does a quick 'bounce'; it would be better to hide the frame when a project
+    // is closing, and only make it visible again once a new one is loaded (or if no new project is replacing it)
+    mFrame.frame().setVisible(true);
   }
   // ------------------------------------------------------------------
 
@@ -160,10 +154,13 @@ public abstract class GUIApp extends App {
     mFrame = new OurAppFrame();
     mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     rebuildFrameContent();
-    mFrame.frame().setVisible(true);
+    // We need to make this call to ensure a menu bar exists, and to call revalidate() 
+    performRepaint(~0);
   }
 
   public final void rebuildFrameContent() {
+    checkState(mFrame != null, "frame doesn't exist yet");
+
     // Remove any placeholder message (in case no project was open)
     contentPane().removeAll();
 
@@ -219,7 +216,6 @@ public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
 
-
   public final void updateTitle() {
     String title = name() + " v" + getVersion();
     if (guiAppConfig().devMode())
@@ -234,7 +230,17 @@ public abstract class GUIApp extends App {
     return null;
   }
 
-  public abstract void startGUI();
+  /**
+   * Called before GUI is constructed; default does nothing
+   */
+  public void prepareForGUI() {
+  }
+
+  /**
+   * Called after GUI has been constructed; default does nothing
+   */
+  public void startedGUI() {
+  }
 
   // ------------------------------------------------------------------
   // Menu bar

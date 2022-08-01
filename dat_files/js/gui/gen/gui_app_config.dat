@@ -4,11 +4,10 @@ fields {
   //
   bool dev_mode = true;
 
-  // An optional string that can be used to uniquely identify processes representing
-  // the app, so that duplicate processes can be killed (when in development
-  // mode)
+  // If true, and dev_mode is true, other instances of the app are killed when a new one starts; as well,
+  // the current instance will kill itself after ~10 minutes
   //
-  string process_expression;
+  bool single_instance_mode = true;
 
   string app_name = "***NO NAME DEFINED***";
 
