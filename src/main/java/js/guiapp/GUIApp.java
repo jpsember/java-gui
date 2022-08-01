@@ -26,12 +26,14 @@ package js.guiapp;
 
 import static js.base.Tools.*;
 
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -113,7 +115,27 @@ public abstract class GUIApp extends App {
 
   private void createFrame() {
     mFrame = new OurAppFrame();
+    rebuildFrameContent();
     mFrame.frame().setVisible(true);
+  }
+
+  public final void rebuildFrameContent() {
+    // Remove any placeholder message (in case no project was open)
+    contentPane().removeAll();
+
+    // We embed a JPanel that serves as a container for other components, 
+    // the main one being the editor window, but others that may include
+    // control panels or informational windows
+
+    JPanel parentPanel = new JPanel(new BorderLayout());
+    populateFrame(parentPanel);
+    contentPane().add(parentPanel);
+    // WTF, apparently this is necessary to get repainting to occur; see
+    // https://groups.google.com/g/comp.lang.java.gui/c/vCbwLOX9Vow?pli=1
+    contentPane().revalidate();
+  }
+
+  public void populateFrame(JPanel parentPanel) {
   }
 
   private OurAppFrame mFrame;
@@ -182,6 +204,7 @@ public abstract class GUIApp extends App {
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
     KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
 
+    todo("We need hooks into the Quit menu item and the window close event to allow call to prepareForProgramQuit");
     createFrame();
     startGUI();
   }
