@@ -2,10 +2,7 @@ package js.gui.example;
 
 import static js.base.Tools.*;
 
-import javax.swing.JFrame;
-
 import js.guiapp.GUIApp;
-import js.guiapp.OurAppFrame;
 
 public class SampleApp extends GUIApp {
 
@@ -29,16 +26,13 @@ public class SampleApp extends GUIApp {
     return "js.gui.example";
   }
 
-  public void createAndShowGUI() {
-    createFrame();
+  public void startGUI() {
+    todo("add some panels");
   }
 
-  private void createFrame() {
-    mFrame = new OurAppFrame();
-    JFrame jFrame = mFrame.frame();
-    jFrame.setVisible(true);
+  @Override
+  public void repaintPanels(int repaintFlags) {
+    todo("paint some panels");
   }
-
-  private OurAppFrame mFrame;
 
 }

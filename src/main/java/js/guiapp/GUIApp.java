@@ -33,12 +33,15 @@ import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import js.app.App;
 import js.app.AppOper;
 import js.data.AbstractData;
+import js.graphics.Paint;
 import js.json.JSMap;
 import js.system.SystemUtil;
 
@@ -209,14 +212,43 @@ public abstract class GUIApp extends App {
     KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
 
     createFrame();
-    createAndShowGUI();
+    startGUI();
   }
 
-  public abstract void createAndShowGUI();
+  public final void updateTitle() {
+    String title = name() + " v" + getVersion();
+    if (devMode())
+      title = title + " !!! DEV MODE !!!";
+    String auxTitle = getTitleText();
+    if (!nullOrEmpty(auxTitle))
+      title = "(" + title + ") " + auxTitle;
+    appFrame().frame().setTitle(title);
+  }
+
+  public String getTitleText() {
+    return null;
+  }
+
+  public abstract void startGUI();
 
   @Override
   protected final void registerOperations() {
-    registerOper(new SingletonAppOper());
+    registerOper(new AppOper() {
+      @Override
+      public String userCommand() {
+        return null;
+      }
+
+      @Override
+      public void perform() {
+        auxPerform();
+      }
+
+      @Override
+      protected List<Object> getAdditionalArgs() {
+        return getOptionalArgDescriptions();
+      }
+    });
   }
 
   // ------------------------------------------------------------------
@@ -224,12 +256,10 @@ public abstract class GUIApp extends App {
   // ------------------------------------------------------------------
 
   public void discardMenuBar() {
-    todo("should this be private?");
     mMenuBar = null;
   }
 
-  public void createMenuBarIfNec() {
-    todo("This shouldn't need to be public");
+  private void createMenuBarIfNec() {
     if (mMenuBar != null)
       return;
     KeyboardShortcutManager.sharedInstance().clearAssignedOperationList();
@@ -249,9 +279,8 @@ public abstract class GUIApp extends App {
     return mMenuBar.addItem(hotKeyId, displayedName, operation);
   }
 
- /* private */
-  public
-  OurMenuBar mMenuBar;
+  /* private */
+  public OurMenuBar mMenuBar;
 
   public final JComponent contentPane() {
     return (JComponent) mFrame.frame().getContentPane();
@@ -262,24 +291,28 @@ public abstract class GUIApp extends App {
       mFrame.frame().setCursor(Cursor.getPredefinedCursor(type));
   }
 
-  private class SingletonAppOper extends AppOper {
+  public final void performRepaint(int repaintFlags) {
+    // If there is no menu bar, create one
+    createMenuBarIfNec();
 
-    @Override
-    public String userCommand() {
-      return null;
+    String alertText = getAlertText();
+
+    if (alertText != null) {
+      // Add placeholder text (it may get immediately replaced if we are in a close+open project cycle)
+      JLabel message = new JLabel(alertText, SwingConstants.CENTER);
+      message.setFont(Paint.BIG_FONT);
+      contentPane().removeAll();
+      contentPane().add(message);
+      contentPane().revalidate();
+    } else {
+      repaintPanels(repaintFlags);
     }
+  }
 
-    @Override
-    public void perform() {
-      auxPerform();
+  public abstract void repaintPanels(int repaintFlags);
 
-    }
-
-    @Override
-    protected List<Object> getAdditionalArgs() {
-      return getOptionalArgDescriptions();
-    }
-
+  public String getAlertText() {
+    return null;
   }
 
 }

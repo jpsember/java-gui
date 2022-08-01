@@ -37,6 +37,7 @@ public final class OurMenuBar {
 
   public OurMenuBar() {
     mMenuBar = new JMenuBar();
+    //todo("we need some special handling for the Quit menu item, to handle saving etc");
   }
 
   public JMenuBar jmenuBar() {
