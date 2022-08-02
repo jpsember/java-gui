@@ -36,6 +36,7 @@ import static js.base.Tools.*;
 public final class SwingUtils {
 
   public static File displayOpenDirectoryFileRequester(File startDirOrNull, String prompt) {
+    loadTools();
     FileDialog fileChooser = new FileDialog((JFrame) null, prompt, FileDialog.LOAD);
     // See: https://coderanch.com/t/645553/java/JFileChooser-Mac-OSX
     System.setProperty("apple.awt.fileDialogForDirectories", "true");
@@ -49,28 +50,5 @@ public final class SwingUtils {
       return null;
     return new File(directory, filename);
   }
-
-  public static void setEventDispatchThread() {
-    checkState(sSwingThread == null, "already set");
-    sSwingThread = Thread.currentThread();
-  }
-
-  public static Thread getEventDispatchThread() {
-    if (sSwingThread == null)
-      badState("swing event dispatch thread not defined");
-    return sSwingThread;
-  }
-
-  @Deprecated // This seems to not work reliably
-  public static void assertSwingThread() {
-    if (Thread.currentThread() != getEventDispatchThread()) {
-      // Issue #56: display a full(er) stack trace to try to track down the cause
-      IllegalStateException t = new IllegalStateException("Current thread is not the Swing event thread");
-      t.printStackTrace();
-      throw t;
-    }
-  }
-
-  private static Thread sSwingThread;
 
 }

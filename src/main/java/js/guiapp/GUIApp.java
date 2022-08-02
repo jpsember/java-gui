@@ -100,7 +100,6 @@ public abstract class GUIApp extends App {
     // Continue starting app within the Swing thread
     //
     SwingUtilities.invokeLater(() -> {
-      SwingUtils.setEventDispatchThread();
       startApplication3();
     });
   }
