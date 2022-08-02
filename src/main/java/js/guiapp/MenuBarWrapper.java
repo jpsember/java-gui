@@ -33,9 +33,9 @@ import js.gui.gen.HotKey;
 
 import static js.base.Tools.*;
 
-public final class OurMenuBar {
+public final class MenuBarWrapper {
 
-  public OurMenuBar() {
+  public MenuBarWrapper() {
     mMenuBar = new JMenuBar();
     //todo("we need some special handling for the Quit menu item, to handle saving etc");
   }

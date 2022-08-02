@@ -117,10 +117,11 @@ public abstract class GUIApp extends App {
 
     createFrame();
     startedGUI();
-    // TODO: when switching projects, the frame does a quick 'bounce'; it would be better to hide the frame when a project
+    // TODO: when switching projects, the frame does a quick 'bounce'; it might be better to hide the frame when a project
     // is closing, and only make it visible again once a new one is loaded (or if no new project is replacing it)
     mFrame.frame().setVisible(true);
   }
+
   // ------------------------------------------------------------------
 
   /**
@@ -128,9 +129,8 @@ public abstract class GUIApp extends App {
    * 'do nothing' operation
    */
   public UserOperation getDefaultUserOperation() {
-    alert("No getDefaultAppOper implemented");
-    return new UserOperation() {
-    };
+    alert("No default operation implemented");
+    return new UserOperation();
   }
 
   /**
@@ -143,12 +143,12 @@ public abstract class GUIApp extends App {
   // Frame
   // ------------------------------------------------------------------
 
-  public final OurAppFrame appFrame() {
+  public final FrameWrapper appFrame() {
     return mFrame;
   }
 
   private void createFrame() {
-    mFrame = new OurAppFrame();
+    mFrame = new FrameWrapper();
     mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     rebuildFrameContent();
     // We need to make this call to ensure a menu bar exists, and to call revalidate() 
@@ -181,7 +181,7 @@ public abstract class GUIApp extends App {
   public void populateFrame(JPanel parentPanel) {
   }
 
-  private OurAppFrame mFrame;
+  private FrameWrapper mFrame;
 
   // ------------------------------------------------------------------
   // Command line arguments
@@ -241,13 +241,13 @@ public abstract class GUIApp extends App {
     if (mMenuBar != null)
       return;
     KeyboardShortcutManager.sharedInstance().clearAssignedOperationList();
-    OurMenuBar m = new OurMenuBar();
+    MenuBarWrapper m = new MenuBarWrapper();
     mMenuBar = m;
     populateMenuBar(m);
     mFrame.frame().setJMenuBar(m.jmenuBar());
   }
 
-  public void populateMenuBar(OurMenuBar m) {
+  public void populateMenuBar(MenuBarWrapper m) {
   }
 
   /**
@@ -257,8 +257,7 @@ public abstract class GUIApp extends App {
     return mMenuBar.addItem(hotKeyId, displayedName, operation);
   }
 
-  /* private */
-  public OurMenuBar mMenuBar;
+  private MenuBarWrapper mMenuBar;
 
   public final JComponent contentPane() {
     return (JComponent) mFrame.frame().getContentPane();

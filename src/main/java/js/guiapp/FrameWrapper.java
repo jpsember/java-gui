@@ -11,9 +11,9 @@ import js.base.BaseObject;
 import js.geometry.IPoint;
 import js.geometry.IRect;
 
-public class OurAppFrame extends BaseObject {
+public class FrameWrapper extends BaseObject {
 
-  public OurAppFrame() {
+  public FrameWrapper() {
     loadTools();
     JFrame frame = new JFrame();
     // Set a distinctive background color in case no other components are added

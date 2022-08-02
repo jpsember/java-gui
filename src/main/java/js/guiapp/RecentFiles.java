@@ -126,7 +126,7 @@ public class RecentFiles extends BaseObject {
     return mState;
   }
 
-  public OurMenuBar.Menu constructMenu(String title, UserEventManager eventManager,
+  public MenuBarWrapper.Menu constructMenu(String title, UserEventManager eventManager,
       UserOperation userOperation) {
     return new OurMenu(title, eventManager, userOperation);
   }
@@ -134,7 +134,7 @@ public class RecentFiles extends BaseObject {
   /**
    * JMenu subclass for displaying RecentFiles sets
    */
-  private class OurMenu extends OurMenuBar.Menu implements MenuListener, ActionListener, Enableable {
+  private class OurMenu extends MenuBarWrapper.Menu implements MenuListener, ActionListener, Enableable {
 
     public OurMenu(String title, UserEventManager eventManager, UserOperation userOperation) {
       super(title);

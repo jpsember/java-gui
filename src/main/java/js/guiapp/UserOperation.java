@@ -35,7 +35,7 @@ import js.data.IntArray;
  * If operation involves a sequence of user interaction events, it should
  * implement the UserEvent.Listener interface
  */
-public abstract class UserOperation extends BaseObject implements Enableable {
+public class UserOperation extends BaseObject implements Enableable {
 
   @Override
   public boolean shouldBeEnabled() {
@@ -99,7 +99,8 @@ public abstract class UserOperation extends BaseObject implements Enableable {
   }
 
   /**
-   * Display any optional rendering associated with this operation.  Default does nothing
+   * Display any optional rendering associated with this operation. Default does
+   * nothing
    */
   public void paint() {
   }
