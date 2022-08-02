@@ -98,4 +98,10 @@ public abstract class UserOperation extends BaseObject implements Enableable {
     return ~0;
   }
 
+  /**
+   * Display any optional rendering associated with this operation.  Default does nothing
+   */
+  public void paint() {
+  }
+
 }
