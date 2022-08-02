@@ -156,6 +156,7 @@ public abstract class GUIApp extends App {
     rebuildFrameContent();
     // We need to make this call to ensure a menu bar exists, and to call revalidate() 
     performRepaint(~0);
+    startPeriodicBackgroundTask();
   }
 
   public final void rebuildFrameContent() {
@@ -303,5 +304,22 @@ public abstract class GUIApp extends App {
   public String getAlertText() {
     return null;
   }
+
+  // ------------------------------------------------------------------
+  // Performing periodic tasks on the Swing event thread
+  // ------------------------------------------------------------------
+
+  private void startPeriodicBackgroundTask() {
+    mSwingTasks = new SwingTaskManager();
+    mSwingTasks.addTask(() -> swingBackgroundTask()).start();
+  }
+
+  /**
+   * Called every ~3 seconds on the Swing event thread. Default does nothing
+   */
+  public void swingBackgroundTask() {
+  }
+
+  private SwingTaskManager mSwingTasks = new SwingTaskManager();
 
 }
