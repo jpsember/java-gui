@@ -115,9 +115,9 @@ public abstract class GUIApp extends App {
 
     UserEventManager.construct(getDefaultUserOperation());
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
+    todo("move keyboard shortcut registry into app config");
     KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
 
-    prepareForGUI();
     createFrame();
     startedGUI();
     // TODO: when switching projects, the frame does a quick 'bounce'; it would be better to hide the frame when a project
@@ -176,6 +176,10 @@ public abstract class GUIApp extends App {
     contentPane().revalidate();
   }
 
+  /**
+   * Add appropriate components to the app frame's parent panel. Default does
+   * nothing
+   */
   public void populateFrame(JPanel parentPanel) {
   }
 
@@ -228,12 +232,6 @@ public abstract class GUIApp extends App {
 
   public String getTitleText() {
     return null;
-  }
-
-  /**
-   * Called before GUI is constructed; default does nothing
-   */
-  public void prepareForGUI() {
   }
 
   /**
