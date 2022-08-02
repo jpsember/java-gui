@@ -43,7 +43,6 @@ import js.app.AppOper;
 import js.data.AbstractData;
 import js.graphics.Paint;
 import js.gui.gen.GuiAppConfig;
-import js.json.JSMap;
 import js.system.SystemUtil;
 
 public abstract class GUIApp extends App {
@@ -115,8 +114,7 @@ public abstract class GUIApp extends App {
 
     UserEventManager.construct(getDefaultUserOperation());
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
-    todo("move keyboard shortcut registry into app config");
-    KeyboardShortcutManager.construct(getKeyboardShortcutRegistry());
+    KeyboardShortcutManager.construct(guiAppConfig().keyboardShortcutRegistry());
 
     createFrame();
     startedGUI();
@@ -185,15 +183,6 @@ public abstract class GUIApp extends App {
   }
 
   private OurAppFrame mFrame;
-
-  /**
-   * Get the JSMap defining the default keyboard shortcuts. Default
-   * implementation returns an empty map
-   */
-  public JSMap getKeyboardShortcutRegistry() {
-    return map();
-    //    throw notSupported("No implementation of keyboard shortcut registry");
-  }
 
   // ------------------------------------------------------------------
   // Command line arguments

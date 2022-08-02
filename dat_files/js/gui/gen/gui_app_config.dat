@@ -12,4 +12,6 @@ fields {
   string app_name = "***NO NAME DEFINED***";
 
   string version = "1.0";
+
+  JSMap keyboard_shortcut_registry;
 }
