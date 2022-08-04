@@ -51,4 +51,23 @@ public final class SwingUtils {
     return new File(directory, filename);
   }
 
+  public static File displayOpenFileRequester(File startDirOrNull, String prompt) {
+    FileDialog fileChooser = new FileDialog((JFrame) null, prompt, FileDialog.LOAD);
+    todo("why is prompt not showing up?", quote(prompt));
+    if (Files.nonEmpty(startDirOrNull))
+      fileChooser.setDirectory(startDirOrNull.getPath());
+    
+    new PathFilter(Files.EXT_JSON);
+    
+    fileChooser.setFilenameFilter(
+        new PathFilter(Files.EXT_JSON));
+    fileChooser.setVisible(true);
+    String filename = fileChooser.getFile();
+    String directory = fileChooser.getDirectory();
+    fileChooser.setVisible(false);
+    if (filename == null)
+      return null;
+    return new File(directory, filename);
+  }
+
 }

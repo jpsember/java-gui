@@ -37,6 +37,8 @@ public class FrameWrapper extends BaseObject {
       IPoint defaultSize = screenSize.scaledBy(.9f);
       bounds = new IRect((screenSize.x - defaultSize.x) / 2, (screenSize.y - defaultSize.y) / 2,
           defaultSize.x, defaultSize.y);
+      if (alert("setting bounds smaller"))
+        bounds = IRect.withLocAndSize(IPoint.with(300, 150), IPoint.with(1500,800));
     }
     frame().setBounds(bounds.toRectangle());
   }
