@@ -247,8 +247,7 @@ public abstract class GUIApp extends App {
     mFrame.frame().setJMenuBar(m.jmenuBar());
   }
 
-  public void populateMenuBar(MenuBarWrapper m) {
-  }
+  public abstract void populateMenuBar(MenuBarWrapper m);
 
   /**
    * Add an item to the current menu

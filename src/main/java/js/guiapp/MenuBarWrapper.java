@@ -24,6 +24,7 @@
  **/
 package js.guiapp;
 
+import java.awt.AWTEvent;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -34,6 +35,8 @@ import js.gui.gen.HotKey;
 import static js.base.Tools.*;
 
 public final class MenuBarWrapper {
+
+  public static final boolean ISSUE_2 = true && alert("ISSUE_2 File/Next in effect");
 
   public MenuBarWrapper() {
     mMenuBar = new JMenuBar();
@@ -90,7 +93,14 @@ public final class MenuBarWrapper {
       HotKey hotKey = mgr.opt(hotKeyId);
       if (hotKey != null) {
         mgr.assignHotKeyToOperation(hotKeyId, hotKey);
-        menuItem.setAccelerator(KeyboardShortcutManager.compileKeystroke(hotKey));
+        KeyStroke s = KeyboardShortcutManager.compileKeystroke(hotKey);
+        if (ISSUE_2) {
+          if (hotKeyId.equals("script_step_fwd")) {
+            pr("set accelerator for:", hotKeyId, TAB(40), "to:", s);
+            menuItem.setAccelerator(s);
+          }
+        } else
+          menuItem.setAccelerator(s);
       } else {
         alert("no hot key found with id:", hotKeyId);
       }
@@ -162,6 +172,31 @@ public final class MenuBarWrapper {
   }
 
   private static class MenuItem extends JMenuItem implements Enableable {
+
+    @Override
+    public void processMenuKeyEvent(MenuKeyEvent e) {
+      alert("unnecessary override for issue #2");
+      if (ISSUE_2)
+        pr("processMenuKeyEvent:", e, "for:", this.getLabelText());
+      super.processMenuKeyEvent(e);
+    }
+
+    @Override
+    protected void processEvent(AWTEvent e) {
+      alert("unnecessary override for issue #2");
+      if (ISSUE_2)
+        pr("processEvent:", e);
+      super.processEvent(e);
+    }
+
+    @Override
+    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
+      //if ("Next".equals(getLabelText()))
+      if (false)
+        pr("processKeyBinding:", getLabelText() //,e,INDENT,ST
+        );
+      return super.processKeyBinding(ks, e, condition, pressed);
+    }
 
     public MenuItem(String name, UserOperation operation, Menu parentMenu) {
       super(name);
