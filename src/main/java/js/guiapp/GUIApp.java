@@ -120,7 +120,18 @@ public abstract class GUIApp extends App {
     // TODO: when switching projects, the frame does a quick 'bounce'; it might be better to hide the frame when a project
     // is closing, and only make it visible again once a new one is loaded (or if no new project is replacing it)
     mFrame.frame().setVisible(true);
+    mAppStarted = true;
   }
+
+  /**
+   * Determine if app initialization is complete and app is showing (used to
+   * avoid handling events before safe to do so)
+   */
+  public boolean appStarted() {
+    return mAppStarted;
+  }
+
+  private boolean mAppStarted;
 
   // ------------------------------------------------------------------
 
