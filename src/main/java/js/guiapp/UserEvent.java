@@ -42,6 +42,7 @@ public final class UserEvent extends BaseObject {
   public static final int CODE_UP = 3;
   public static final int CODE_MOVE = 4;
   public static final int CODE_STOP = 5;
+  public static final int CODE_WIDGET = 6;
 
   public static final int FLAG_RIGHT = (1 << 0);
   public static final int FLAG_CTRL = (1 << 1);
@@ -50,17 +51,27 @@ public final class UserEvent extends BaseObject {
   public static final int FLAG_META = (1 << 4);
   public static final int FLAG_MULTITOUCH = (1 << 5);
 
-  public static final UserEvent DEFAULT_INSTANCE = new UserEvent(CODE_NONE, null, IPoint.DEFAULT_INSTANCE, 0);
+  public static final UserEvent DEFAULT_INSTANCE = new UserEvent(CODE_NONE, null, IPoint.DEFAULT_INSTANCE, 0,
+      0);
 
-  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags) {
+  public static UserEvent widgetEvent(int widgetId) {
+    return new UserEvent(CODE_WIDGET, null, null, 0, widgetId);
+  }
+
+  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags, int widgetId) {
     mCode = code;
     mSource = source;
     mViewLocation = viewLocation;
     mModifierFlags = modifierFlags;
+    mWidgetId = widgetId;
   }
 
   public int getCode() {
     return mCode;
+  }
+
+  public int widgetId() {
+    return mWidgetId;
   }
 
   public UserEventSource getSource() {
@@ -167,7 +178,7 @@ public final class UserEvent extends BaseObject {
       return sCodeStrings[mCode];
   }
 
-  private static String sCodeStrings[] = { "NONE", "DOWN", "DRAG", "UP  ", "MOVE", "STOP", };
+  private static String sCodeStrings[] = { "NONE", "DOWN", "DRAG", "UP  ", "MOVE", "STOP", "WIDGET", };
 
   @Override
   public JSMap toJson() {
@@ -206,6 +217,7 @@ public final class UserEvent extends BaseObject {
   private final UserEventSource mSource;
   private final IPoint mViewLocation;
   private final int mModifierFlags;
+  private final int mWidgetId;
 
   public boolean withLogging() {
     return mCode != CODE_DRAG && mCode != CODE_MOVE;

@@ -120,18 +120,8 @@ public abstract class GUIApp extends App {
     // TODO: when switching projects, the frame does a quick 'bounce'; it might be better to hide the frame when a project
     // is closing, and only make it visible again once a new one is loaded (or if no new project is replacing it)
     mFrame.frame().setVisible(true);
-    mAppStarted = true;
+    //    mAppStarted = true;
   }
-
-  /**
-   * Determine if app initialization is complete and app is showing (used to
-   * avoid handling events before safe to do so)
-   */
-  public boolean appStarted() {
-    return mAppStarted;
-  }
-
-  private boolean mAppStarted;
 
   // ------------------------------------------------------------------
 
@@ -161,6 +151,8 @@ public abstract class GUIApp extends App {
   private void createFrame() {
     mFrame = new FrameWrapper();
     mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    // Add a gadget to persist the frame bounds
     rebuildFrameContent();
     // We need to make this call to ensure a menu bar exists, and to call revalidate() 
     performRepaint(~0);
@@ -168,6 +160,7 @@ public abstract class GUIApp extends App {
   }
 
   public final void rebuildFrameContent() {
+  
     checkState(mFrame != null, "frame doesn't exist yet");
 
     // Remove any placeholder message (in case no project was open)
