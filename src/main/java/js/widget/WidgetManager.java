@@ -104,7 +104,7 @@ public final class WidgetManager extends BaseObject {
   //  /**
   //   * Read enable state of gadget
   //   */
-  //  public boolean enabled(int id) {
+  //  public boolean enabled(String id) {
   //    Gadget c = get(id);
   //    return c.getComponent().isEnabled();
   //  }
@@ -117,7 +117,7 @@ public final class WidgetManager extends BaseObject {
   //   * @param state
   //   *          : true to enable, false to disable
   //   */
-  //  public void setEnable(int id, boolean state) {
+  //  public void setEnable(String id, boolean state) {
   //    Gadget c = get(id);
   //    c.getComponent().setEnabled(state);
   //  }
@@ -236,7 +236,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Set boolean value of gadget
    */
-  public boolean setb(int id, boolean boolvalue) {
+  public boolean setb(String id, boolean boolvalue) {
     setValue(id, boolvalue);
     return boolvalue;
   }
@@ -246,25 +246,25 @@ public final class WidgetManager extends BaseObject {
    * 
    * @return new value
    */
-  public boolean toggle(int id) {
+  public boolean toggle(String id) {
     return setb(id, !vb(id));
   }
 
   /**
    * Get (double) value of gadget
    */
-  public double vd(int id) {
+  public double vd(String id) {
     return numValue(id).doubleValue();
   }
 
-  public float vf(int id) {
+  public float vf(String id) {
     return ((Number) get(id).readValue()).floatValue();
   }
 
   /**
    * Set double value of gadget
    */
-  public double setd(int id, double v) {
+  public double setd(String id, double v) {
     setValue(id, v);
     return v;
   }
@@ -272,7 +272,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Set float value of gadget
    */
-  public double set(int id, float v) {
+  public double set(String id, float v) {
     setValue(id, v);
     return v;
   }
@@ -280,7 +280,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Get (string) value of gadget
    */
-  public String vs(int id) {
+  public String vs(String id) {
     return stringValue(id);
   }
 
@@ -495,11 +495,6 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  /**
-   * Pop view from the stack
-   */
-  public abstract WidgetManager close();
-
   public final WidgetManager tooltip(String tip) {
     if (mTooltip != null)
       alert("Tooltip was ignored:", mTooltip);
@@ -598,8 +593,6 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public abstract Widget addLog(String key);
-
   /**
    * Add a dummy item to prevent an editable text field from gaining focus
    * automatically (and showing the keyboard).
@@ -624,11 +617,6 @@ public final class WidgetManager extends BaseObject {
   public final Widget addText() {
     return addText(null);
   }
-
-  /**
-   * If current row is only partially complete, add space to its end
-   */
-  public abstract WidgetManager endRow();
 
   public final WidgetManager pushListener(WidgetListener listener) {
     checkState(mPendingListener == null, "already a pending listener");
@@ -890,7 +878,9 @@ public final class WidgetManager extends BaseObject {
     return grid.widget();
   }
 
-  @Override
+  /**
+   * Pop view from the stack
+   */
   public WidgetManager close() {
     endRow();
     Grid parent = pop(mPanelStack);
@@ -911,7 +901,9 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  @Override
+  /**
+   * If current row is only partially complete, add space to its end
+   */
   public WidgetManager endRow() {
     Grid parent = last(mPanelStack);
     if (parent.nextCellLocation().x != 0)
@@ -919,7 +911,9 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  @Override
+  /**
+   * Add a text field whose content is not persisted to the state map
+   */
   public Widget addText(String key) {
     //unimp("fixedWidthEm not implemented (Issue #726); also, if multiline, use as fixed height");
     OurText t = new OurText(this, key, mLineCount, mEditableFlag, mPendingSize, mPendingMonospaced,
@@ -929,12 +923,6 @@ public final class WidgetManager extends BaseObject {
     return t;
   }
 
-  @Override
-  public Widget addLog(String key) {
-    throw notFinished();
-  }
-
-  @Override
   public WidgetManager addHeader(String text) {
     spanx();
     JLabel label = new JLabel(text);
@@ -1172,6 +1160,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static final class ComponentWidget extends Widget {
+
     public ComponentWidget(JComponent component) {
       //      super(manager, null);
       setComponent(component);
@@ -1180,6 +1169,16 @@ public final class WidgetManager extends BaseObject {
     @Override
     public void setVisible(boolean visible) {
       swingComponent().setVisible(visible);
+    }
+
+    @Override
+    public Object readValue() {
+      return null;
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      throw notSupported();
     }
   }
 
@@ -1219,6 +1218,17 @@ public final class WidgetManager extends BaseObject {
     }
 
     private SymbolicNameSet mTabNames = new SymbolicNameSet();
+
+    @Override
+    public Object readValue() {
+      todo("not finished");
+      return null;
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      todo("not finished");
+    }
   }
 
   private static final class OurButton extends Widget {
@@ -1235,6 +1245,17 @@ public final class WidgetManager extends BaseObject {
     @Override
     public void setEnabled(boolean enabled) {
       swingComponent().setEnabled(enabled);
+    }
+
+    @Override
+    public String readValue() {
+      JButton b = swingComponent();
+      return b.getText();
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      throw notSupported();
     }
   }
 
@@ -1280,6 +1301,16 @@ public final class WidgetManager extends BaseObject {
       JCheckBox component = swingComponent();
       component.setSelected(state);
     }
+
+    @Override
+    public Boolean readValue() {
+      return isChecked();
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      setChecked((Boolean) v);
+    }
   }
 
   private static final class OurSpinner extends Widget implements ChangeListener {
@@ -1314,6 +1345,21 @@ public final class WidgetManager extends BaseObject {
       if (number == null)
         number = mStepper.def();
       component.getModel().setValue(number.intValue());
+    }
+
+    @Override
+    public Number readValue() {
+      return (Number) spinner().getModel().getValue();
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      Number number = (Number) v;
+      setValue(number);
+    }
+
+    private JSpinner spinner() {
+      return swingComponent();
     }
 
     private NumericStepper mStepper;
@@ -1392,6 +1438,17 @@ public final class WidgetManager extends BaseObject {
       todo("are we supposed to store to the state as well?");
     }
 
+    @Override
+    public Number readValue() {
+      return getSlider().getModel().getValue();
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      Number number = (Number) v;
+      setValue(number);
+    }
+
     private NumericStepper mStepper;
     private JTextField mDisplay;
     private JSlider mSlider;
@@ -1425,6 +1482,16 @@ public final class WidgetManager extends BaseObject {
     @Override
     public String getText() {
       return textComponent().getText();
+    }
+
+    @Override
+    public String readValue() {
+      return getText();
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      setText((String) v);
     }
   }
 
@@ -1483,6 +1550,16 @@ public final class WidgetManager extends BaseObject {
     }
 
     @Override
+    public String readValue() {
+      return getText();
+    }
+
+    @Override
+    public void writeValue(Object v) {
+      setText((String) v);
+    }
+
+    @Override
     public void removeUpdate(DocumentEvent e) {
       commonUpdateHandler();
     }
@@ -1520,6 +1597,18 @@ public final class WidgetManager extends BaseObject {
     //      storeValueToStateMap(manager().stateMap(), displayToInternal(selectedItem));
     //      super.actionPerformed(e);
     //    }
+
+    @Override
+    public void writeValue(Object v) {
+      todo("not finished");
+    }
+
+    @Override
+    public Integer readValue() {
+      JComboBox<String> component = swingComponent();
+      todo("not sure this is correct");
+      return component.getSelectedIndex();
+    }
 
     @Override
     public void restoreValue(Object value) {

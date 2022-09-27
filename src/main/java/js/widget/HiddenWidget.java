@@ -11,16 +11,16 @@ class HiddenWidget extends Widget {
     todo("support for Widget read/write values?");
   }
 
-//  @Override
-//  public Object readValue() {
-//    return mValue;
-//  }
-//
-//  @Override
-//  public void writeValue(Object v) {
-//    checkArgument(v != null);
-//    mValue = v;
-//  }
+  @Override
+  public Object readValue() {
+    return mValue;
+  }
+
+  @Override
+  public void writeValue(Object v) {
+    checkArgument(v != null);
+    mValue = v;
+  }
 
   @Override
   public void setText(String text) {

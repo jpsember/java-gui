@@ -27,13 +27,15 @@ package js.widget;
 import static js.base.Tools.*;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
 
 /**
  * Abstract class representing a user interface element
  */
-public class Widget {
+public abstract class Widget
+implements ActionListener {
 
   public final Widget setId(String id) {
     checkState(mId == null, "already has an id");
@@ -49,14 +51,17 @@ public class Widget {
 
   private String mId;
 
-  public Widget() {
-  }
 
-  @Deprecated
-  public Widget(/* WidgetManager manager, */ String key) {
-    //    mManager = manager;
-    mKey = key;
-  }
+  public abstract Object readValue();
+
+  public abstract void writeValue(Object v);
+
+//
+//  @Deprecated
+//  public Widget(/* WidgetManager manager, */ String key) {
+//    //    mManager = manager;
+//    mKey = key;
+//  }
 
   //  public final <T extends WidgetManager> T manager() {
   //    return (T) mManager;

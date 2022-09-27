@@ -174,7 +174,7 @@ public final class WidgetCollection {
   /**
    * Set boolean value of gadget
    */
-  public boolean setb(int id, boolean boolvalue) {
+  public boolean setb(String id, boolean boolvalue) {
     setValue(id, boolvalue);
     return boolvalue;
   }
@@ -184,25 +184,25 @@ public final class WidgetCollection {
    * 
    * @return new value
    */
-  public boolean toggle(int id) {
+  public boolean toggle(String id) {
     return setb(id, !vb(id));
   }
 
   /**
    * Get (double) value of gadget
    */
-  public double vd(int id) {
+  public double vd(String id) {
     return numValue(id).doubleValue();
   }
 
-  public float vf(int id) {
+  public float vf(String id) {
     return ((Number) get(id).readValue()).floatValue();
   }
 
   /**
    * Set double value of gadget
    */
-  public double setd(int id, double v) {
+  public double setd(String id, double v) {
     setValue(id, v);
     return v;
   }
@@ -210,7 +210,7 @@ public final class WidgetCollection {
   /**
    * Set float value of gadget
    */
-  public double set(int id, float v) {
+  public double set(String id, float v) {
     setValue(id, v);
     return v;
   }
@@ -218,15 +218,15 @@ public final class WidgetCollection {
   /**
    * Get (string) value of gadget
    */
-  public String vs(int id) {
+  public String vs(String id) {
     return stringValue(id);
   }
 
   /**
    * Allocate another anonymous id
    */
-  public int getAnonId() {
-    return mAnonIdBase++;
+  public String getAnonId() {
+    return ""+mAnonIdBase++;
   }
 
   /**
