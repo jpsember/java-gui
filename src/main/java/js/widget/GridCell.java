@@ -41,7 +41,7 @@ public final class GridCell {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("cell ");
-    sb.append(WidgetManager.viewInfo(view));
+    sb.append(view.getClass().getSimpleName());
     tab(sb, 16);
     sb.append(x);
     sb.append(",");

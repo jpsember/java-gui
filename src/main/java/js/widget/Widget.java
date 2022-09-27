@@ -28,8 +28,7 @@ import js.json.JSMap;
 import static js.base.Tools.*;
 
 /**
- * A wrapper class for user interface components, compatible with both Swing and
- * Android platforms
+ * Abstract class representing a user interface element
  */
 public abstract class Widget {
 

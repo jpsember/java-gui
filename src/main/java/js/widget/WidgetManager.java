@@ -58,23 +58,6 @@ public abstract class WidgetManager extends BaseObject {
     mStateMap = map;
   }
 
-  /**
-   * Determine if app is in landscape (vs portrait) mode. Default implementation
-   * always returns true
-   */
-  public boolean landscapeMode() {
-    return true;
-  }
-
-  protected abstract int stackSize();
-
-  public static String viewInfo(Object c) {
-    String s = c.getClass().getSimpleName();
-    if (s.isEmpty())
-      s = c.getClass().getName();
-    return s;
-  }
-
   // ---------------------------------------------------------------------
   // Widget state
   // ---------------------------------------------------------------------

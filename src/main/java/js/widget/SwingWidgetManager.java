@@ -728,11 +728,6 @@ public final class SwingWidgetManager extends WidgetManager {
   }
 
   @Override
-  protected int stackSize() {
-    return mPanelStack.size();
-  }
-
-  @Override
   public SwingWidget addPanel() {
     return add(wrap(colorPanel()));
   }
