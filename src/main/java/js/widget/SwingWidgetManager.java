@@ -24,8 +24,13 @@
  **/
 package js.widget;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +56,7 @@ public final class SwingWidgetManager extends WidgetManager {
   @Override
   public SwingWidget wrap(Object component) {
     if (component == null || component instanceof JComponent) {
-      return new ComponentWidget(this, (JComponent) component);
+      return new ComponentWidget(  (JComponent) component);
     }
     if (component instanceof SwingWidget)
       return (SwingWidget) component;
@@ -174,14 +179,13 @@ public final class SwingWidgetManager extends WidgetManager {
   }
 
   @Override
-  public SwingWidget add(Widget w) {
+  public void add(Widget w) {
     SwingWidget widget = (SwingWidget) w;
     mWidgetList.add(widget);
     JComponent tooltipOwner = widget.componentForTooltip();
     if (tooltipOwner != null)
       consumeTooltip(tooltipOwner);
     addView(widget);
-    return widget;
   }
 
   private void consumeTooltip(SwingWidget widget) {
@@ -357,8 +361,8 @@ public final class SwingWidgetManager extends WidgetManager {
   }
 
   private static final class ComponentWidget extends SwingWidget {
-    public ComponentWidget(WidgetManager manager, JComponent component) {
-      super(manager, null);
+    public ComponentWidget(  JComponent component) {
+//      super(manager, null);
       setComponent(component);
     }
 
@@ -371,7 +375,7 @@ public final class SwingWidgetManager extends WidgetManager {
   private static final class OurTabbedPane extends SwingWidget implements ChangeListener {
 
     public OurTabbedPane(WidgetManager manager, String key) {
-      super(manager, key);
+      //super(manager, key);
       JTabbedPane component = new JTabbedPane();
       component.addChangeListener(this);
       setComponent(component);
@@ -386,7 +390,7 @@ public final class SwingWidgetManager extends WidgetManager {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-      storeValueToStateMap(manager().stateMap(), mTabNames.getSymbolicName(tabbedPane().getSelectedIndex()));
+     // storeValueToStateMap(manager().stateMap(), mTabNames.getSymbolicName(tabbedPane().getSelectedIndex()));
       notifyListener();
     }
 
@@ -409,7 +413,7 @@ public final class SwingWidgetManager extends WidgetManager {
   private static final class OurButton extends SwingWidget {
 
     public OurButton(WidgetManager manager, String key, String label) {
-      super(manager, key);
+      //super(manager, key);
       JButton component = new JButton(label);
       component.addActionListener(this);
       setComponent(component);
@@ -424,19 +428,19 @@ public final class SwingWidgetManager extends WidgetManager {
 
   private static final class OurToggleButton extends SwingWidget {
     public OurToggleButton(WidgetManager manager, String key, String label) {
-      super(manager, key);
+     // super(manager, key);
       JCheckBox component = new JCheckBox(label);
       component.addActionListener(this);
       setComponent(component);
       registerListener(manager.consumePendingListener());
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      JCheckBox component = swingComponent();
-      storeValueToStateMap(manager().stateMap(), component.isSelected());
-      super.actionPerformed(e);
-    }
+//    @Override
+//    public void actionPerformed(ActionEvent e) {
+//      JCheckBox component = swingComponent();
+//      storeValueToStateMap(manager().stateMap(), component.isSelected());
+//      super.actionPerformed(e);
+//    }
 
     @Override
     public void restoreValue(Object value) {
@@ -468,11 +472,11 @@ public final class SwingWidgetManager extends WidgetManager {
   private static final class OurSpinner extends SwingWidget implements ChangeListener {
     public OurSpinner(WidgetManager manager, String key, boolean floatsFlag, Number defaultValue,
         Number minimum, Number maximum, Number stepSize) {
-      super(manager, key);
-      // If no default value is defined, take from state map (if there's a key)
-      if (defaultValue == null && key != null) {
-        defaultValue = (Number) manager.stateMap().optUnsafe(key);
-      }
+     // super(manager, key);
+//      // If no default value is defined, take from state map (if there's a key)
+//      if (defaultValue == null && key != null) {
+//        defaultValue = (Number) manager.stateMap().optUnsafe(key);
+//      }
       mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, stepSize);
       checkState(mStepper.isInt(), "non-integer not supported");
       SpinnerModel model = new SpinnerNumberModel(mStepper.def().intValue(), mStepper.min().intValue(),
@@ -485,8 +489,8 @@ public final class SwingWidgetManager extends WidgetManager {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-      JSpinner component = swingComponent();
-      storeValueToStateMap(manager().stateMap(), component.getModel().getValue());
+//      JSpinner component = swingComponent();
+//      storeValueToStateMap(manager().stateMap(), component.getModel().getValue());
       notifyListener();
     }
 
@@ -505,11 +509,11 @@ public final class SwingWidgetManager extends WidgetManager {
   private static final class OurSlider extends SwingWidget implements ChangeListener {
     public OurSlider(WidgetManager manager, String key, boolean floatsFlag, Number defaultValue,
         Number minimum, Number maximum, boolean includesDisplay) {
-      super(manager, key);
-      // If no default value is defined, take from state map (if there's a key)
-      if (defaultValue == null && key != null) {
-        defaultValue = (Number) manager.stateMap().optUnsafe(key);
-      }
+     // super(manager, key);
+//      // If no default value is defined, take from state map (if there's a key)
+//      if (defaultValue == null && key != null) {
+//        defaultValue = (Number) manager.stateMap().optUnsafe(key);
+//      }
       mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, null);
       JComponent component;
       JSlider slider = new JSlider(mStepper.internalMin(), mStepper.internalMax(), mStepper.internalVal());
@@ -541,8 +545,8 @@ public final class SwingWidgetManager extends WidgetManager {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-      int numValue = getSlider().getModel().getValue();
-      storeValueToStateMap(manager().stateMap(), mStepper.fromInternalUnits(numValue));
+//      int numValue = getSlider().getModel().getValue();
+//      storeValueToStateMap(manager().stateMap(), mStepper.fromInternalUnits(numValue));
       updateDisplayValue();
       notifyListener();
     }
@@ -567,8 +571,8 @@ public final class SwingWidgetManager extends WidgetManager {
 
     @Override
     public void setValue(Number number) {
-      int intValue = number.intValue();
-      storeValueToStateMap(manager().stateMap(), intValue);
+      //int intValue = number.intValue();
+     // storeValueToStateMap(manager().stateMap(), intValue);
       getSlider().getModel().setValue(number.intValue());
       updateDisplayValue();
       notifyListener();
@@ -584,7 +588,7 @@ public final class SwingWidgetManager extends WidgetManager {
 
     public OurLabel(WidgetManager manager, String key, int gravity, int lineCount, String text, int fontSize,
         boolean monospaced, int alignment) {
-      super(manager, key);
+   //   super(manager, key);
       JLabel label = new JLabel(text);
       if (fontSize == SIZE_DEFAULT)
         fontSize = SIZE_SMALL;
@@ -614,7 +618,7 @@ public final class SwingWidgetManager extends WidgetManager {
   private static final class OurText extends SwingWidget implements DocumentListener {
     public OurText(WidgetManager manager, String key, int lineCount, boolean editable, int fontSize,
         boolean monospaced, float minWidthEm, float minHeightEm) {
-      super(manager, key);
+     // super(manager, key);
       JComponent container;
       JTextComponent textComponent;
       if (lineCount > 1) {
@@ -676,9 +680,9 @@ public final class SwingWidgetManager extends WidgetManager {
     }
 
     private void commonUpdateHandler() {
-      if (key() != null) {
-        storeValueToStateMap(manager().stateMap(), textComponent().getText());
-      }
+//      if (key() != null) {
+//        storeValueToStateMap(manager().stateMap(), textComponent().getText());
+//      }
       notifyListener();
     }
 
@@ -687,7 +691,7 @@ public final class SwingWidgetManager extends WidgetManager {
 
   private static final class OurComboBox extends SwingWidget {
     public OurComboBox(WidgetManager manager, String key, SymbolicNameSet choices) {
-      super(manager, key);
+      //super(manager, key);
       mChoices = checkNotNull(choices);
       JComboBox<String> component = new JComboBox<>(DataUtil.toStringArray(mChoices.displayNames()));
       component.addActionListener(this);
@@ -695,13 +699,13 @@ public final class SwingWidgetManager extends WidgetManager {
       registerListener(manager.consumePendingListener());
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      JComboBox<String> component = swingComponent();
-      String selectedItem = (String) component.getSelectedItem();
-      storeValueToStateMap(manager().stateMap(), displayToInternal(selectedItem));
-      super.actionPerformed(e);
-    }
+//    @Override
+//    public void actionPerformed(ActionEvent e) {
+//      JComboBox<String> component = swingComponent();
+//      String selectedItem = (String) component.getSelectedItem();
+//      storeValueToStateMap(manager().stateMap(), displayToInternal(selectedItem));
+//      super.actionPerformed(e);
+//    }
 
     @Override
     public void restoreValue(Object value) {
@@ -710,9 +714,9 @@ public final class SwingWidgetManager extends WidgetManager {
       component.setSelectedIndex(index);
     }
 
-    private String displayToInternal(String s) {
-      return mChoices.displayToSymbolic(s);
-    }
+//    private String displayToInternal(String s) {
+//      return mChoices.displayToSymbolic(s);
+//    }
 
     private SymbolicNameSet mChoices;
   }

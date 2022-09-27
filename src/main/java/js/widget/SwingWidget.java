@@ -34,9 +34,9 @@ import javax.swing.JComponent;
  */
 public class SwingWidget extends Widget implements ActionListener {
 
-  public SwingWidget(WidgetManager manager, String key) {
-    super(manager, key);
-  }
+//  public SwingWidget(WidgetManager manager, String key) {
+//    super(manager, key);
+//  }
 
   @Override
   public void actionPerformed(ActionEvent e) {
@@ -64,6 +64,7 @@ public class SwingWidget extends Widget implements ActionListener {
     return swingComponent();
   }
 
+  @Override
   public void setText(String text) {
     throw new UnsupportedOperationException();
   }

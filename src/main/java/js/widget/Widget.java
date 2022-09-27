@@ -24,28 +24,45 @@
  **/
 package js.widget;
 
-import js.json.JSMap;
 import static js.base.Tools.*;
+
+import java.awt.event.ActionEvent;
+
+import javax.swing.JComponent;
 
 /**
  * Abstract class representing a user interface element
  */
-public abstract class Widget {
+public class Widget {
 
-  public Widget(WidgetManager manager, String key) {
-    mManager = manager;
+  public final Widget setId(String id) {
+    checkState(mId == null, "already has an id");
+    mId = checkNonEmpty(id);
+    return this;
+  }
+
+  public final String getId() {
+    if (mId == null)
+      throw badState("gadget has no id");
+    return mId;
+  }
+
+  private String mId;
+
+  public Widget() {
+  }
+
+  @Deprecated
+  public Widget(/* WidgetManager manager, */ String key) {
+    //    mManager = manager;
     mKey = key;
   }
 
-  public final <T extends WidgetManager> T manager() {
-    return (T) mManager;
-  }
-
-  private WidgetManager mManager;
-
-  public abstract String getText();
-
-  public abstract void setText(String text);
+  //  public final <T extends WidgetManager> T manager() {
+  //    return (T) mManager;
+  //  }
+  //
+  //  private WidgetManager mManager;
 
   public static void setTextIfExists(Widget widget, String text) {
     if (widget != null)
@@ -56,8 +73,6 @@ public abstract class Widget {
     throw new UnsupportedOperationException();
   }
 
-  public abstract void setHint(String hint);
-
   protected final void registerListener(WidgetListener listener) {
     mListener = listener;
   }
@@ -66,23 +81,26 @@ public abstract class Widget {
    * Notify WidgetListener, if there is one, of an event involving this widget
    */
   protected final void notifyListener() {
-    if (mListener != null)
-      manager().notifyWidgetListener(this, mListener);
+    if (mListener != null) {
+      todo("notify listeners");
+      //manager().notifyWidgetListener(this, mListener);
+    }
   }
 
-  protected final void storeValueToStateMap(JSMap stateMap, Object value) {
-    // Don't persist value if no key was given
-    if (key() == null)
-      return;
-    if (!mManager.validStateMap())
-      return;
-    stateMap.putUnsafe(key(), value);
-  }
+  //  protected final void storeValueToStateMap(JSMap stateMap, Object value) {
+  //    // Don't persist value if no key was given
+  //    if (key() == null)
+  //      return;
+  //    if (!mManager.validStateMap())
+  //      return;
+  //    stateMap.putUnsafe(key(), value);
+  //  }
 
   public void restoreValue(Object value) {
     pr("...no restoreValue override, value:", value, "class:", className());
   }
 
+  @Deprecated
   public String key() {
     return mKey;
   }
@@ -101,10 +119,6 @@ public abstract class Widget {
   }
 
   public void setInputType(int inputType) {
-    throw new UnsupportedOperationException();
-  }
-
-  public Object component() {
     throw new UnsupportedOperationException();
   }
 
@@ -146,10 +160,52 @@ public abstract class Widget {
     throw new UnsupportedOperationException();
   }
 
+  //public SwingWidget(WidgetManager manager, String key) {
+  //  super(manager, key);
+  //}
+
+  public void actionPerformed(ActionEvent e) {
+    notifyListener();
+  }
+
+  public void setComponent(JComponent component) {
+    mWrappedComponent = component;
+  }
+
+  public final Object component() {
+    return mWrappedComponent;
+  }
+
+  public final <T extends JComponent> T swingComponent() {
+    return (T) component();
+  }
+
+  /**
+   * Get component to attach tooltip to (if there is one). Default
+   * implementation returns swingComponent()
+   */
+  public JComponent componentForTooltip() {
+    return swingComponent();
+  }
+
+  public void setText(String text) {
+    throw new UnsupportedOperationException();
+  }
+
+  public String getText() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setHint(String hint) {
+    throw new UnsupportedOperationException();
+  }
+
   private String className() {
     return getClass().getSimpleName();
   }
 
-  private final String mKey;
+  private String mKey;
   protected WidgetListener mListener;
+  private JComponent mWrappedComponent;
+
 }
