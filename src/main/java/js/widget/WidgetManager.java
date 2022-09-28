@@ -929,10 +929,10 @@ public final class WidgetManager extends BaseObject {
    * Add widget to view hierarchy
    */
   public Widget add(Widget widget) {
-log2("add widget",widget.id());
+    log2("add widget", widget.id());
     //    public void add(Widget c) {
     if (exists(widget.id()))
-        badState("attempt to add widget id:",widget.id(),"that already exists");
+      badState("attempt to add widget id:", widget.id(), "that already exists");
     //      mGadgetMap.put(c.getId(), c);
     //    }
     //    
@@ -990,7 +990,7 @@ log2("add widget",widget.id());
 
     // If the parent grid's widget is a tabbed pane,
     // add the component to it
-    
+
     Grid grid = last(mPanelStack);
     if (grid.widget() instanceof OurTabbedPane) {
       OurTabbedPane tabPane = grid.widget();
@@ -1133,7 +1133,7 @@ log2("add widget",widget.id());
 
     @Override
     public void writeValue(Object v) {
-      throw notSupported("write value for id:",id());
+      throw notSupported("write value for id:", id());
     }
   }
 
@@ -1175,14 +1175,15 @@ log2("add widget",widget.id());
     private SymbolicNameSet mTabNames = new SymbolicNameSet();
 
     @Override
-    public Object readValue() {
-      todo("not finished");
-      return null;
+    public Integer readValue() {
+      // I used to be storing the selected tab by its symbolic name, but for now let's not bother
+      return tabbedPane().getSelectedIndex();
     }
 
     @Override
     public void writeValue(Object v) {
-      todo("not finished");
+      Number n = (Number) v;
+      tabbedPane().setSelectedIndex(n.intValue());
     }
   }
 
