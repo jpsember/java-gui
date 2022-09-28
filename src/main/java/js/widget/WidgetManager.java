@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -70,14 +71,6 @@ public final class WidgetManager extends BaseObject {
   public static final int ALIGNMENT_LEFT = SwingConstants.LEFT;
   public static final int ALIGNMENT_CENTER = SwingConstants.CENTER;
   public static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;
-  //
-  //  public WidgetManager() {
-  //    //withStateMap(map());
-  //  }
-
-  //  protected void withStateMap(JSMap map) {
-  //    mStateMap = map;
-  //  }
 
   /**
    * Determine if widget events should be propagated to listeners (including the
@@ -91,36 +84,6 @@ public final class WidgetManager extends BaseObject {
   public void setActive(boolean state) {
     mActive = state;
   }
-  //
-  //  /**
-  //   * Enable each gadget in a list
-  //   */
-  //  public void setEnable(int[] idList, boolean state) {
-  //    for (int i = 0; i < idList.length; i++) {
-  //      setEnable(idList[i], state);
-  //    }
-  //  }
-  //
-  //  /**
-  //   * Read enable state of gadget
-  //   */
-  //  public boolean enabled(String id) {
-  //    Gadget c = get(id);
-  //    return c.getComponent().isEnabled();
-  //  }
-  //
-  //  /**
-  //   * Set enable status of a gadget and its children
-  //   * 
-  //   * @param id
-  //   *          : gadget id
-  //   * @param state
-  //   *          : true to enable, false to disable
-  //   */
-  //  public void setEnable(String id, boolean state) {
-  //    Gadget c = get(id);
-  //    c.getComponent().setEnabled(state);
-  //  }
 
   public Number numValue(String id) {
     return (Number) get(id).readValue();
@@ -128,10 +91,6 @@ public final class WidgetManager extends BaseObject {
 
   /**
    * Get value of boolean-valued gadget
-   * 
-   * @param id
-   *          : id of gadget
-   * @return value
    */
   public boolean booleanValue(String id) {
     Boolean result = null;
@@ -159,11 +118,6 @@ public final class WidgetManager extends BaseObject {
 
   /**
    * Set value of double-valued gadget
-   * 
-   * @param id
-   *          int
-   * @param v
-   *          double
    */
   public void setValue(String id, double v) {
     get(id).writeValue(v);
@@ -171,10 +125,6 @@ public final class WidgetManager extends BaseObject {
 
   /**
    * Get value of string-valued gadget
-   * 
-   * @param id
-   *          : id of gadget
-   * @return value
    */
   public String stringValue(String id) {
     return (String) (get(id).readValue());
@@ -182,11 +132,6 @@ public final class WidgetManager extends BaseObject {
 
   /**
    * Set value of string-valued gadget
-   * 
-   * @param id
-   *          int
-   * @param v
-   *          String
    */
   public void setValue(String id, String v) {
     get(id).writeValue(v);
@@ -201,7 +146,10 @@ public final class WidgetManager extends BaseObject {
   }
 
   public Widget get(String id) {
-    return find(id);
+    Widget w = find(id);
+    if (w == null)
+      badState("Can't find widget with id:", id);
+    return w;
   }
 
   public Widget addHidden(String id, Object defaultValue) {
@@ -287,8 +235,9 @@ public final class WidgetManager extends BaseObject {
   /**
    * Allocate another anonymous id
    */
-  public int getAnonId() {
-    return mAnonIdBase++;
+  public String getAnonId() {
+    mAnonIdBase++;
+    return "anon_" + mAnonIdBase;
   }
 
   /**
@@ -320,45 +269,6 @@ public final class WidgetManager extends BaseObject {
   private SortedMap<String, Widget> mGadgetMap = treeMap();
   private int mAnonIdBase = 9500;
   private boolean mActive;
-
-  // ---------------------------------------------------------------------
-  // Widget state
-  // ---------------------------------------------------------------------
-
-  //  public final JSMap stateMap() {
-  //    return mStateMap;
-  //  }
-  //
-  //  public final boolean validStateMap() {
-  //    return !mStateMap.isEmpty();
-  //  }
-  //
-  //  public final WidgetManager setStateMap(JSMap map) {
-  //    checkNotNull(map);
-  //    mStateMap = map;
-  //    return this;
-  //  }
-
-  public final boolean prepared() {
-    return mPrepared;
-  }
-
-  public final WidgetManager setPrepared(boolean state) {
-    mPrepared = state;
-    if (!state)
-      mTimeSincePrepared = System.currentTimeMillis();
-    return this;
-  }
-
-  //  public final WidgetManager restoreWidgetValues() {
-  //    for (Widget w : mWidgetList) {
-  //      if (w.key() == null)
-  //        continue;
-  //      Object value = mStateMap.optUnsafe(w.key());
-  //      w.restoreValue(value);
-  //    }
-  //    return this;
-  //  }
 
   // ---------------------------------------------------------------------
   // Composing
@@ -415,7 +325,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Make next component added occupy some number of columns in its row
    */
-  public final WidgetManager spanx(int count) {
+  public WidgetManager spanx(int count) {
     checkArgument(count > 0);
     mSpanXCount = count;
     return this;
@@ -424,7 +334,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Skip a single cell
    */
-  public final WidgetManager skip() {
+  public WidgetManager skip() {
     add(wrap(null));
     return this;
   }
@@ -432,7 +342,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Skip one or more cells
    */
-  public final WidgetManager skip(int count) {
+  public WidgetManager skip(int count) {
     spanx(count);
     add(wrap(null));
     return this;
@@ -444,7 +354,7 @@ public final class WidgetManager extends BaseObject {
    * <p>
    * Calls growX(100)...
    */
-  public final WidgetManager growX() {
+  public WidgetManager growX() {
     return growX(100);
   }
 
@@ -454,7 +364,7 @@ public final class WidgetManager extends BaseObject {
    * <p>
    * Calls growY(100)...
    */
-  public final WidgetManager growY() {
+  public WidgetManager growY() {
     return growY(100);
   }
 
@@ -462,7 +372,7 @@ public final class WidgetManager extends BaseObject {
    * Set pending component's horizontal weight to a value > 0 (if it is already
    * less than this value)
    */
-  public final WidgetManager growX(int weight) {
+  public WidgetManager growX(int weight) {
     mGrowXFlag = Math.max(mGrowXFlag, weight);
     return this;
   }
@@ -471,17 +381,17 @@ public final class WidgetManager extends BaseObject {
    * Set pending component's vertical weight to a value > 0 (if it is already
    * less than this value)
    */
-  public final WidgetManager growY(int weight) {
+  public WidgetManager growY(int weight) {
     mGrowYFlag = Math.max(mGrowYFlag, weight);
     return this;
   }
 
-  public final WidgetManager withTabs(String selectTabKey) {
+  public WidgetManager withTabs(String selectTabKey) {
     mPendingTabPanelKey = selectTabKey;
     return this;
   }
 
-  public final WidgetManager tabTitle(String title) {
+  public WidgetManager tabTitle(String title) {
     mPendingTabTitle = title;
     return this;
   }
@@ -490,12 +400,12 @@ public final class WidgetManager extends BaseObject {
    * Specify the container to use for the next open() call, instead of
    * generating one
    */
-  public final WidgetManager setPendingContainer(Object component) {
+  public WidgetManager setPendingContainer(Object component) {
     mPendingContainer = component;
     return this;
   }
 
-  public final WidgetManager tooltip(String tip) {
+  public WidgetManager tooltip(String tip) {
     if (mTooltip != null)
       alert("Tooltip was ignored:", mTooltip);
     mTooltip = tip;
@@ -512,83 +422,83 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public final WidgetManager small() {
+  public WidgetManager small() {
     return setPendingSize(SIZE_SMALL);
   }
 
-  public final WidgetManager large() {
+  public WidgetManager large() {
     return setPendingSize(SIZE_LARGE);
   }
 
-  public final WidgetManager medium() {
+  public WidgetManager medium() {
     return setPendingSize(SIZE_MEDIUM);
   }
 
-  public final WidgetManager tiny() {
+  public WidgetManager tiny() {
     return setPendingSize(SIZE_TINY);
   }
 
-  public final WidgetManager huge() {
+  public WidgetManager huge() {
     return setPendingSize(SIZE_HUGE);
   }
 
-  public final WidgetManager left() {
+  public WidgetManager left() {
     return setPendingAlignment(ALIGNMENT_LEFT);
   }
 
-  public final WidgetManager right() {
+  public WidgetManager right() {
     return setPendingAlignment(ALIGNMENT_RIGHT);
   }
 
-  public final WidgetManager center() {
+  public WidgetManager center() {
     return setPendingAlignment(ALIGNMENT_CENTER);
   }
 
   /**
    * Have next widget use a monospaced font
    */
-  public final WidgetManager monospaced() {
+  public WidgetManager monospaced() {
     mPendingMonospaced = true;
     return this;
   }
 
-  public final WidgetManager minWidth(float ems) {
+  public WidgetManager minWidth(float ems) {
     mPendingMinWidthEm = ems;
     return this;
   }
 
-  public final WidgetManager minHeight(float ems) {
+  public WidgetManager minHeight(float ems) {
     mPendingMinHeightEm = ems;
     return this;
   }
 
-  public final WidgetManager fixedWidth(float ems) {
+  public WidgetManager fixedWidth(float ems) {
     mPendingFixedWidthEm = ems;
     return this;
   }
 
-  public final WidgetManager fixedHeight(float ems) {
+  public WidgetManager fixedHeight(float ems) {
     mPendingFixedHeightEm = ems;
     return this;
   }
 
-  public final WidgetManager gravity(int gravity) {
+  public WidgetManager gravity(int gravity) {
     mPendingGravity = gravity;
     return this;
   }
 
-  public final WidgetManager editable() {
+  public WidgetManager editable() {
     mEditableFlag = true;
     return this;
   }
 
-  public final WidgetManager lineCount(int numLines) {
+  public WidgetManager lineCount(int numLines) {
     mLineCount = numLines;
     checkArgument(numLines > 0);
     return this;
   }
 
-  public final WidgetManager scrollable() {
+  public WidgetManager scrollable() {
     mScrollableFlag = true;
     return this;
   }
@@ -603,84 +513,84 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public final Widget addLabel() {
+  public Widget addLabel() {
     return addLabel(null, "");
   }
 
-  public final Widget addLabel(String text) {
+  public Widget addLabel(String text) {
     return addLabel(null, text);
   }
 
   /**
    * Add a text field whose content is not persisted to the state map
    */
-  public final Widget addText() {
+  public Widget addText() {
     return addText(null);
   }
 
-  public final WidgetManager pushListener(WidgetListener listener) {
+  public WidgetManager pushListener(WidgetListener listener) {
     checkState(mPendingListener == null, "already a pending listener");
     mListenerStack.add(listener);
     return this;
   }
 
-  public final WidgetManager popListener() {
+  public WidgetManager popListener() {
     checkState(mPendingListener == null, "already a pending listener");
     checkState(!mListenerStack.isEmpty(), "listener stack underflow");
     pop(mListenerStack);
     return this;
   }
 
-  protected final void ensureListenerStackEmpty() {
+  protected void ensureListenerStackEmpty() {
     checkState(mListenerStack.isEmpty(), "listener stack wasn't empty");
   }
 
-  public final WidgetManager listener(WidgetListener listener) {
+  public WidgetManager listener(WidgetListener listener) {
     checkState(mPendingListener == null, "already a pending listener");
     mPendingListener = listener;
     return this;
   }
 
-  public final Widget addButton(String label) {
+  public Widget addButton(String label) {
     return addButton(null, label);
   }
 
   // public abstract Widget addToggleButton(String key, String label);
 
-  public final WidgetManager floats() {
+  public WidgetManager floats() {
     mPendingFloatingPoint = true;
     return this;
   }
 
-  public final WidgetManager min(double value) {
+  public WidgetManager min(double value) {
     floats();
     mPendingMinValue = value;
     return this;
   }
 
-  public final WidgetManager min(int value) {
+  public WidgetManager min(int value) {
     mPendingMinValue = value;
     return this;
   }
 
-  public final WidgetManager max(double value) {
+  public WidgetManager max(double value) {
     floats();
     mPendingMaxValue = value;
     return this;
   }
 
-  public final WidgetManager max(int value) {
+  public WidgetManager max(int value) {
     mPendingMaxValue = value;
     return this;
   }
 
-  public final WidgetManager defaultVal(double value) {
+  public WidgetManager defaultVal(double value) {
     floats();
     mPendingDefaultValue = value;
     return this;
   }
 
-  public final WidgetManager defaultVal(int value) {
+  public WidgetManager defaultVal(int value) {
     mPendingDefaultValue = value;
     return this;
   }
@@ -689,18 +599,18 @@ public final class WidgetManager extends BaseObject {
    * Include auxilliary widget with this one; e.g., numeric display with slider,
    * or time stamp with log
    */
-  public final WidgetManager withDisplay() {
+  public WidgetManager withDisplay() {
     mPendingWithDisplayFlag = true;
     return this;
   }
 
-  public final WidgetManager stepSize(double value) {
+  public WidgetManager stepSize(double value) {
     floats();
     mPendingStepSize = value;
     return this;
   }
 
-  public final WidgetManager stepSize(int value) {
+  public WidgetManager stepSize(int value) {
     mPendingStepSize = value;
     return this;
   }
@@ -708,7 +618,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Append some choices for the next ComboBox
    */
-  public final WidgetManager choices(String... choices) {
+  public WidgetManager choices(String... choices) {
     for (String choiceExpr : choices) {
       if (mComboChoices == null)
         mComboChoices = new SymbolicNameSet();
@@ -720,7 +630,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * If there's a pending WidgetListener, return it (and clear it)
    */
-  public final WidgetListener consumePendingListener() {
+  public WidgetListener consumePendingListener() {
     WidgetListener listener = mPendingListener;
     mPendingListener = null;
     if (listener == null && !mListenerStack.isEmpty()) {
@@ -729,7 +639,7 @@ public final class WidgetManager extends BaseObject {
     return listener;
   }
 
-  protected final String consumePendingTabTitle(Object component) {
+  protected String consumePendingTabTitle(Object component) {
     String tabNameExpression = "?NAME?";
     if (mPendingTabTitle == null)
       alert("no tab name specified for:", component);
@@ -777,15 +687,18 @@ public final class WidgetManager extends BaseObject {
    * Call widget listener, setting up event source beforehand
    */
   public void notifyWidgetListener(Widget widget, WidgetListener listener) {
-    if (!prepared()) {
-      long currentTime = System.currentTimeMillis();
-      if (mTimeSincePrepared == 0)
-        mTimeSincePrepared = System.currentTimeMillis();
-      if (currentTime - mTimeSincePrepared > 5000) {
-        pr("*** Widget listeners are not being called... did you forget setPrepared(true)?");
-      }
+    if (!active())
       return;
-    }
+    //    
+    //    if (!prepared()) {
+    //      long currentTime = System.currentTimeMillis();
+    //      if (mTimeSincePrepared == 0)
+    //        mTimeSincePrepared = System.currentTimeMillis();
+    //      if (currentTime - mTimeSincePrepared > 5000) {
+    //        pr("*** Widget listeners are not being called... did you forget setPrepared(true)?");
+    //      }
+    //      return;
+    //    }
     Widget previousListener = mListenerWidget;
     try {
       mLastWidgetEventTime = System.currentTimeMillis();
@@ -820,7 +733,7 @@ public final class WidgetManager extends BaseObject {
         sb.append('\n');
       else
         sb.append(' ');
-      final String sample = "orhxxidfusuytelrcfdlordburswfxzjfjllppdsywgsw"
+      String sample = "orhxxidfusuytelrcfdlordburswfxzjfjllppdsywgsw"
           + "kvukrammvxvsjzqwplxcpkoekiznlgsgjfonlugreiqvtvpjgrqotzu";
       int cursor = random().nextInt(sample.length() - wordSize);
       sb.append(sample.substring(cursor, cursor + wordSize));
@@ -842,7 +755,7 @@ public final class WidgetManager extends BaseObject {
    */
   public Widget wrap(Object component) {
     if (component == null || component instanceof JComponent) {
-      return new ComponentWidget((JComponent) component);
+      return new ComponentWidget((JComponent) component).setId(getAnonId());
     }
     if (component instanceof Widget)
       return (Widget) component;
@@ -893,11 +806,11 @@ public final class WidgetManager extends BaseObject {
       assignViewsToGridLayout(parent);
     }
 
-    if (mPanelStack.isEmpty()) {
-      Widget widget = parent.widget();
-      mOutermostView = widget.swingComponent();
-      ensureListenerStackEmpty();
-    }
+    //    if (mPanelStack.isEmpty()) {
+    //      Widget widget = parent.widget();
+    //      mOutermostView = widget.swingComponent();
+    //      ensureListenerStackEmpty();
+    //    }
     return this;
   }
 
@@ -981,12 +894,12 @@ public final class WidgetManager extends BaseObject {
   public Widget add(Widget widget) {
 
     //    public void add(Widget c) {
-    //      checkState(!exists(c.getId()));
+    checkState(!exists(widget.getId()));
     //      mGadgetMap.put(c.getId(), c);
     //    }
     //    
 
-    mWidgetList.add(widget);
+    mGadgetMap.put(widget.getId(), widget);
     JComponent tooltipOwner = widget.componentForTooltip();
     if (tooltipOwner != null)
       consumeTooltip(tooltipOwner);
@@ -1009,20 +922,20 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  /**
-   * Get the outermost view in the hierarchy
-   */
-  public JComponent container() {
-    return checkNotNull(mOutermostView, "layout not completed");
-  }
-
-  private JComponent mOutermostView;
+  //  /**
+  //   * Get the outermost view in the hierarchy
+  //   */
+  //  public JComponent container() {
+  //    return checkNotNull(mOutermostView, "layout not completed");
+  //  }
+  //
+  //  private JComponent mOutermostView;
 
   /**
    * Add a component to the current panel. Process pending constraints
    */
   private WidgetManager addView(Widget widget) {
-    checkState(mOutermostView == null, "manager layout already completed");
+    //  checkState(mOutermostView == null, "manager layout already completed");
 
     consumeTooltip(widget);
 
@@ -1116,6 +1029,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   public Widget addToggleButton(String key, String label) {
+    todo("add default value for toggle button");
     OurToggleButton button = new OurToggleButton(this, key, label);
     add(button);
     return button;
@@ -1159,7 +1073,7 @@ public final class WidgetManager extends BaseObject {
     return null;
   }
 
-  private static final class ComponentWidget extends Widget {
+  private static class ComponentWidget extends Widget {
 
     public ComponentWidget(JComponent component) {
       //      super(manager, null);
@@ -1182,10 +1096,11 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  private static final class OurTabbedPane extends Widget implements ChangeListener {
+  private static class OurTabbedPane extends Widget implements ChangeListener {
 
     public OurTabbedPane(WidgetManager manager, String key) {
       //super(manager, key);
+      setId(key);
       JTabbedPane component = new JTabbedPane();
       component.addChangeListener(this);
       setComponent(component);
@@ -1231,7 +1146,7 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  private static final class OurButton extends Widget {
+  private static class OurButton extends Widget {
 
     public OurButton(WidgetManager manager, String key, String label) {
       //super(manager, key);
@@ -1259,22 +1174,22 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  private static final class OurToggleButton extends Widget {
+  private static class OurToggleButton extends Widget {
     public OurToggleButton(WidgetManager manager, String key, String label) {
+      setId(key);
       // super(manager, key);
       JCheckBox component = new JCheckBox(label);
-      todo("add action listener");
-      //      component.addActionListener(this);
+      //     component.addActionListener(this);
       setComponent(component);
       registerListener(manager.consumePendingListener());
     }
-
-    //    @Override
-    //    public void actionPerformed(ActionEvent e) {
-    //      JCheckBox component = swingComponent();
-    //      storeValueToStateMap(manager().stateMap(), component.isSelected());
-    //      super.actionPerformed(e);
-    //    }
+    //
+    //        @Override
+    //        public void actionPerformed(ActionEvent e) {
+    //          JCheckBox component = swingComponent();
+    //          storeValueToStateMap(manager().stateMap(), component.isSelected());
+    //          super.actionPerformed(e);
+    //        }
 
     @Override
     public void restoreValue(Object value) {
@@ -1313,14 +1228,9 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  private static final class OurSpinner extends Widget implements ChangeListener {
+  private static class OurSpinner extends Widget implements ChangeListener {
     public OurSpinner(WidgetManager manager, String key, boolean floatsFlag, Number defaultValue,
         Number minimum, Number maximum, Number stepSize) {
-      // super(manager, key);
-      //      // If no default value is defined, take from state map (if there's a key)
-      //      if (defaultValue == null && key != null) {
-      //        defaultValue = (Number) manager.stateMap().optUnsafe(key);
-      //      }
       mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, stepSize);
       checkState(mStepper.isInt(), "non-integer not supported");
       SpinnerModel model = new SpinnerNumberModel(mStepper.def().intValue(), mStepper.min().intValue(),
@@ -1333,8 +1243,6 @@ public final class WidgetManager extends BaseObject {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-      //      JSpinner component = swingComponent();
-      //      storeValueToStateMap(manager().stateMap(), component.getModel().getValue());
       notifyListener();
     }
 
@@ -1365,14 +1273,10 @@ public final class WidgetManager extends BaseObject {
     private NumericStepper mStepper;
   }
 
-  private static final class OurSlider extends Widget implements ChangeListener {
+  private static class OurSlider extends Widget implements ChangeListener {
     public OurSlider(WidgetManager manager, String key, boolean floatsFlag, Number defaultValue,
         Number minimum, Number maximum, boolean includesDisplay) {
-      // super(manager, key);
-      //      // If no default value is defined, take from state map (if there's a key)
-      //      if (defaultValue == null && key != null) {
-      //        defaultValue = (Number) manager.stateMap().optUnsafe(key);
-      //      }
+      setId(key);
       mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, null);
       JComponent component;
       JSlider slider = new JSlider(mStepper.internalMin(), mStepper.internalMax(), mStepper.internalVal());
@@ -1404,8 +1308,6 @@ public final class WidgetManager extends BaseObject {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-      //      int numValue = getSlider().getModel().getValue();
-      //      storeValueToStateMap(manager().stateMap(), mStepper.fromInternalUnits(numValue));
       updateDisplayValue();
       notifyListener();
     }
@@ -1430,12 +1332,9 @@ public final class WidgetManager extends BaseObject {
 
     @Override
     public void setValue(Number number) {
-      //int intValue = number.intValue();
-      // storeValueToStateMap(manager().stateMap(), intValue);
       getSlider().getModel().setValue(number.intValue());
       updateDisplayValue();
       notifyListener();
-      todo("are we supposed to store to the state as well?");
     }
 
     @Override
@@ -1454,11 +1353,12 @@ public final class WidgetManager extends BaseObject {
     private JSlider mSlider;
   }
 
-  private static final class OurLabel extends Widget {
+  private static class OurLabel extends Widget {
 
     public OurLabel(WidgetManager manager, String key, int gravity, int lineCount, String text, int fontSize,
         boolean monospaced, int alignment) {
-      //   super(manager, key);
+      key = manager.orAnon(key);
+      setId(key);
       JLabel label = new JLabel(text);
       if (fontSize == SIZE_DEFAULT)
         fontSize = SIZE_SMALL;
@@ -1495,10 +1395,13 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  private static final class OurText extends Widget implements DocumentListener {
+  private static class OurText extends Widget implements DocumentListener {
     public OurText(WidgetManager manager, String key, int lineCount, boolean editable, int fontSize,
         boolean monospaced, float minWidthEm, float minHeightEm) {
       // super(manager, key);
+
+      setId(manager.orAnon(key));
+
       JComponent container;
       JTextComponent textComponent;
       if (lineCount > 1) {
@@ -1579,7 +1482,7 @@ public final class WidgetManager extends BaseObject {
     private JTextComponent mTextComponent;
   }
 
-  private static final class OurComboBox extends Widget {
+  private static class OurComboBox extends Widget {
     public OurComboBox(WidgetManager manager, String key, SymbolicNameSet choices) {
       //super(manager, key);
       mChoices = checkNotNull(choices);
@@ -1632,6 +1535,12 @@ public final class WidgetManager extends BaseObject {
 
   private LayoutManager buildLayout() {
     return new GridBagLayout();
+  }
+
+  public String orAnon(String key) {
+    if (nullOrEmpty(key))
+      key = getAnonId();
+    return key;
   }
 
   /**
@@ -1741,7 +1650,7 @@ public final class WidgetManager extends BaseObject {
   // private JSMap mStateMap;
   private WidgetListener mPendingListener;
   private Widget mListenerWidget;
-  private boolean mPrepared;
+  //  private boolean mPrepared;
   private long mTimeSincePrepared;
 
   protected Object mPendingContainer;
@@ -1761,7 +1670,7 @@ public final class WidgetManager extends BaseObject {
   protected int mLineCount;
   protected String mPendingTabPanelKey;
   protected SymbolicNameSet mComboChoices;
-  protected List<Widget> mWidgetList = arrayList();
+  // protected List<Widget> mWidgetList = arrayList();
   protected String mTooltip;
   protected Number mPendingMinValue, mPendingMaxValue, mPendingDefaultValue, mPendingStepSize;
   protected boolean mPendingFloatingPoint;

@@ -52,13 +52,13 @@ public final class UserEvent extends BaseObject {
   public static final int FLAG_MULTITOUCH = (1 << 5);
 
   public static final UserEvent DEFAULT_INSTANCE = new UserEvent(CODE_NONE, null, IPoint.DEFAULT_INSTANCE, 0,
-      0);
+      null);
 
-  public static UserEvent widgetEvent(int widgetId) {
+  public static UserEvent widgetEvent(String widgetId) {
     return new UserEvent(CODE_WIDGET, null, null, 0, widgetId);
   }
 
-  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags, int widgetId) {
+  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags, String widgetId) {
     mCode = code;
     mSource = source;
     mViewLocation = viewLocation;
@@ -70,7 +70,7 @@ public final class UserEvent extends BaseObject {
     return mCode;
   }
 
-  public int widgetId() {
+  public String widgetId() {
     return mWidgetId;
   }
 
@@ -217,7 +217,7 @@ public final class UserEvent extends BaseObject {
   private final UserEventSource mSource;
   private final IPoint mViewLocation;
   private final int mModifierFlags;
-  private final int mWidgetId;
+  private final String mWidgetId;
 
   public boolean withLogging() {
     return mCode != CODE_DRAG && mCode != CODE_MOVE;

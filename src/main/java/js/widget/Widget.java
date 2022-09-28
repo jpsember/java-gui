@@ -39,6 +39,7 @@ implements ActionListener {
 
   public final Widget setId(String id) {
     checkState(mId == null, "already has an id");
+    todo("change null or empty to an anonymous id");
     mId = checkNonEmpty(id);
     return this;
   }

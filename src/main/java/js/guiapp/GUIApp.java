@@ -44,6 +44,7 @@ import js.data.AbstractData;
 import js.graphics.Paint;
 import js.gui.gen.GuiAppConfig;
 import js.system.SystemUtil;
+import js.widget.WidgetManager;
 
 public abstract class GUIApp extends App {
 
@@ -115,6 +116,9 @@ public abstract class GUIApp extends App {
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
     KeyboardShortcutManager.construct(guiAppConfig().keyboardShortcutRegistry());
 
+    initGadgets();
+
+    
     createFrame();
     startedGUI();
     // TODO: when switching projects, the frame does a quick 'bounce'; it might be better to hide the frame when a project
@@ -122,6 +126,29 @@ public abstract class GUIApp extends App {
     mFrame.frame().setVisible(true);
     //    mAppStarted = true;
   }
+
+  
+
+  // ------------------------------------------------------------------
+  // Gadgets
+  // ------------------------------------------------------------------
+
+  public void initGadgets() {
+    mGadgetSet = new WidgetManager();
+//    WidgetManager g = gadgets();
+//
+//    // Add gadget for persisting frame bounds
+//    g.add(new AppFrameGadget().setId(TBGlobals.APP_FRAME));
+//    // Add gadget for persisting zoom factor
+//    g.addHidden(TBGlobals.EDITOR_ZOOM, 1f);
+//    g.addHidden(TBGlobals.CURRENT_SCRIPT_INDEX, 0);
+  } 
+  
+  public WidgetManager gadgets() {
+    return mGadgetSet;
+  }
+
+  private WidgetManager mGadgetSet;
 
   // ------------------------------------------------------------------
 
