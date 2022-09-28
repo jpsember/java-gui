@@ -396,6 +396,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager tabTitle(String title) {
+    log2("setting pending tab title:",title);
     mPendingTabTitle = title;
     return this;
   }
@@ -642,7 +643,7 @@ public final class WidgetManager extends BaseObject {
   private String consumePendingTabTitle(Object component) {
     String tabNameExpression = "?NAME?";
     if (mPendingTabTitle == null)
-      alert("no tab name specified for:", component);
+      die("no tab name specified for:", component);
     else {
       tabNameExpression = mPendingTabTitle;
       mPendingTabTitle = null;
@@ -804,7 +805,7 @@ public final class WidgetManager extends BaseObject {
     }
     add(grid.widget());
     mPanelStack.add(grid);
-    log2("added grid to panel stack");
+    log2("added grid to panel stack, its widget:",grid.widget().getClass());
     return grid.widget();
   }
 
@@ -983,7 +984,10 @@ public final class WidgetManager extends BaseObject {
     if (grid.widget() instanceof OurTabbedPane) {
       OurTabbedPane tabPane = grid.widget();
       String tabName = consumePendingTabTitle(component);
-      log2("adding a tab with name:", tabName, "component:", component);
+      log2("adding a tab with name:", tabName);
+      
+     // ...something is f'd up here
+      
       tabPane.add(tabName, component);
       return;
     }
