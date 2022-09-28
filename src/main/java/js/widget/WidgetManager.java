@@ -49,6 +49,8 @@ import js.base.BaseObject;
 import js.data.DataUtil;
 import js.geometry.IPoint;
 import js.geometry.MyMath;
+import js.guiapp.GUIApp;
+import js.guiapp.UserEvent;
 import js.json.JSMap;
 import js.parsing.RegExp;
 
@@ -1356,6 +1358,9 @@ public final class WidgetManager extends BaseObject {
     @Override
     public void stateChanged(ChangeEvent e) {
       updateDisplayValue();
+      todo("Is there a better way to get the singleton app instance?");
+     GUIApp.guiSingleton().
+       userEventManagerListener(UserEvent.widgetEvent(id()));
       notifyListener();
     }
 

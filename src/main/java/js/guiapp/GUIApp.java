@@ -48,6 +48,16 @@ import js.widget.WidgetManager;
 
 public abstract class GUIApp extends App {
 
+  public GUIApp() {
+    sSingleton = this;
+  }
+
+  private static GUIApp sSingleton;
+
+  public static GUIApp guiSingleton() {
+    return sSingleton;
+  }
+
   // ------------------------------------------------------------------
   // App configuration
   // ------------------------------------------------------------------
@@ -116,8 +126,6 @@ public abstract class GUIApp extends App {
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
     KeyboardShortcutManager.construct(guiAppConfig().keyboardShortcutRegistry());
 
-   
-    
     createFrame();
     startedGUI();
     // TODO: when switching projects, the frame does a quick 'bounce'; it might be better to hide the frame when a project
@@ -125,8 +133,6 @@ public abstract class GUIApp extends App {
     mFrame.frame().setVisible(true);
     //    mAppStarted = true;
   }
-
-  
 
   // ------------------------------------------------------------------
   // Gadgets
@@ -136,8 +142,8 @@ public abstract class GUIApp extends App {
     mGadgetSet = new WidgetManager();
     if (false)
       mGadgetSet.alertVerbose();
-  } 
-  
+  }
+
   public WidgetManager gadgets() {
     return mGadgetSet;
   }
@@ -181,13 +187,11 @@ public abstract class GUIApp extends App {
   }
 
   public final void rebuildFrameContent() {
-  
     checkState(mFrame != null, "frame doesn't exist yet");
 
     // Reset the gadgets whenever we rebuild the frame
     initGadgets();
 
-    
     // Remove any placeholder message (in case no project was open)
     contentPane().removeAll();
 
