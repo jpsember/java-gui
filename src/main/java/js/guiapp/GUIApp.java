@@ -134,13 +134,8 @@ public abstract class GUIApp extends App {
 
   public void initGadgets() {
     mGadgetSet = new WidgetManager();
-    mGadgetSet.alertVerbose();
-//
-//    // Add gadget for persisting frame bounds
-//    g.add(new AppFrameGadget().setId(TBGlobals.APP_FRAME));
-//    // Add gadget for persisting zoom factor
-//    g.addHidden(TBGlobals.EDITOR_ZOOM, 1f);
-//    g.addHidden(TBGlobals.CURRENT_SCRIPT_INDEX, 0);
+    if (false)
+      mGadgetSet.alertVerbose();
   } 
   
   public WidgetManager gadgets() {

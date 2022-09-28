@@ -390,10 +390,11 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Specify the container to use for the next open() call, instead of
+   * Specify the component to use for the next open() call, instead of
    * generating one
    */
-  public WidgetManager setPendingContainer(Object component) {
+  public WidgetManager setPendingContainer(JComponent component) {
+    checkState(mPanelStack.isEmpty(),"current panel stack isn't empty");
     mPendingContainer = component;
     return this;
   }
@@ -753,7 +754,6 @@ public final class WidgetManager extends BaseObject {
   private void log2(Object... messages) {
     if (!verbose())
       return;
-
     String indent = tab();
     Object[] msg = insertStringToFront(indent, messages);
     log(msg);
@@ -769,28 +769,25 @@ public final class WidgetManager extends BaseObject {
     log2("added grid to panel stack for tab set");
     return this;
   }
+
   public WidgetManager openTab(String tabTitle) {
+    todo("allow a symbolic value AND a human title, and store selected tab as a string");
     log2("openTab", tabTitle);
     mPendingTabTitle = tabTitle;
     open(tabTitle);
-//    Grid grid = new Grid();
-//    grid.setContext(selectTabKey);
-//    grid.setWidget(new OurTabbedPane(this, selectTabKey));
-//    add(grid.widget());
-//    mPanelStack.add(grid);
-//    log2("added grid to panel stack for tab set");
     return this;
   }
-  public WidgetManager closeTab( ) {
-//    log2("closeTab");
-   close("closeTab");
-   return this;
+
+  public WidgetManager closeTab() {
+    //    log2("closeTab");
+    close("closeTab");
+    return this;
   }
-  
+
   public WidgetManager closeTabSet() {
     Grid parent = last(mPanelStack);
-    if (!(parent.widget() instanceof OurTabbedPane)) 
-      badState("attempt to close tab set, current is:",parent.widget().id());
+    if (!(parent.widget() instanceof OurTabbedPane))
+      badState("attempt to close tab set, current is:", parent.widget().id());
     close("tab set");
     return this;
   }
@@ -811,8 +808,9 @@ public final class WidgetManager extends BaseObject {
 
       JComponent panel;
       if (mPendingContainer != null) {
-        panel = (JComponent) mPendingContainer;
-        log2("pending container:", mPendingContainer.getClass());
+        panel = mPendingContainer;
+        log2("pending container:", panel.getClass());
+        mPendingContainer = null;
       } else {
         log2("constructing JPanel");
         panel = new JPanel();
@@ -1697,7 +1695,7 @@ public final class WidgetManager extends BaseObject {
   private WidgetListener mPendingListener;
   private Widget mListenerWidget;
 
-  private Object mPendingContainer;
+  private JComponent mPendingContainer;
   private String mPendingTabTitle;
   private int mSpanXCount;
   private int mGrowXFlag, mGrowYFlag;
