@@ -98,7 +98,7 @@ public abstract class Widget implements ActionListener {
 
   @Override
   public String toString() {
-    return nullTo(key(), "<none>") + ":" + getClass().getSimpleName();
+    return id() + ":" + getClass().getSimpleName();
   }
 
   public void displayKeyboard() {

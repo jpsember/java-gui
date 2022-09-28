@@ -31,7 +31,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -390,17 +389,6 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public WidgetManager withTabs(String selectTabKey) {
-    mPendingTabPanelKey = selectTabKey;
-    return this;
-  }
-
-  public WidgetManager tabTitle(String title) {
-    log2("setting pending tab title:",title);
-    mPendingTabTitle = title;
-    return this;
-  }
-
   /**
    * Specify the container to use for the next open() call, instead of
    * generating one
@@ -672,7 +660,6 @@ public final class WidgetManager extends BaseObject {
     mPendingMaxValue = null;
     mPendingDefaultValue = null;
     mPendingStepSize = null;
-    mPendingTabPanelKey = null;
     mPendingWithDisplayFlag = false;
     mPendingFloatingPoint = false;
   }
@@ -682,7 +669,7 @@ public final class WidgetManager extends BaseObject {
   // ------------------------------------------------------------------
 
   private int[] mPendingColumnWeights;
-  private boolean mSuppressFocusFlag;
+  /* private */ boolean mSuppressFocusFlag;
 
   /**
    * Call widget listener, setting up event source beforehand
@@ -772,6 +759,42 @@ public final class WidgetManager extends BaseObject {
     log(msg);
   }
 
+  public WidgetManager openTabSet(String selectTabKey) {
+    log2("openTabSet", selectTabKey);
+    Grid grid = new Grid();
+    grid.setContext(selectTabKey);
+    grid.setWidget(new OurTabbedPane(this, selectTabKey));
+    add(grid.widget());
+    mPanelStack.add(grid);
+    log2("added grid to panel stack for tab set");
+    return this;
+  }
+  public WidgetManager openTab(String tabTitle) {
+    log2("openTab", tabTitle);
+    mPendingTabTitle = tabTitle;
+    open(tabTitle);
+//    Grid grid = new Grid();
+//    grid.setContext(selectTabKey);
+//    grid.setWidget(new OurTabbedPane(this, selectTabKey));
+//    add(grid.widget());
+//    mPanelStack.add(grid);
+//    log2("added grid to panel stack for tab set");
+    return this;
+  }
+  public WidgetManager closeTab( ) {
+//    log2("closeTab");
+   close("closeTab");
+   return this;
+  }
+  
+  public WidgetManager closeTabSet() {
+    Grid parent = last(mPanelStack);
+    if (!(parent.widget() instanceof OurTabbedPane)) 
+      badState("attempt to close tab set, current is:",parent.widget().id());
+    close("tab set");
+    return this;
+  }
+
   /**
    * Create a child view and push onto stack
    */
@@ -781,11 +804,7 @@ public final class WidgetManager extends BaseObject {
     Grid grid = new Grid();
     grid.setContext(debugContext);
 
-    if (mPendingTabPanelKey != null) {
-      log2("pending tab panel key:", mPendingTabPanelKey);
-      checkState(mPendingContainer == null, "cannot use pending container for tabbed pane");
-      grid.setWidget(new OurTabbedPane(this, mPendingTabPanelKey));
-    } else {
+    {
       if (mPendingColumnWeights == null)
         columns("x");
       grid.setColumnSizes(mPendingColumnWeights);
@@ -805,7 +824,7 @@ public final class WidgetManager extends BaseObject {
     }
     add(grid.widget());
     mPanelStack.add(grid);
-    log2("added grid to panel stack, its widget:",grid.widget().getClass());
+    log2("added grid to panel stack, its widget:", grid.widget().getClass());
     return grid.widget();
   }
 
@@ -985,9 +1004,6 @@ public final class WidgetManager extends BaseObject {
       OurTabbedPane tabPane = grid.widget();
       String tabName = consumePendingTabTitle(component);
       log2("adding a tab with name:", tabName);
-      
-     // ...something is f'd up here
-      
       tabPane.add(tabName, component);
       return;
     }
@@ -1125,7 +1141,7 @@ public final class WidgetManager extends BaseObject {
 
     @Override
     public void writeValue(Object v) {
-      throw notSupported("write value for id:", id());
+      throw notSupported("write value;", this);
     }
   }
 
@@ -1133,6 +1149,7 @@ public final class WidgetManager extends BaseObject {
 
     public OurTabbedPane(WidgetManager manager, String key) {
       setId(key);
+      todo("pass in listener, not widgetManager");
       JTabbedPane component = new JTabbedPane();
       component.addChangeListener(this);
       setComponent(component);
@@ -1686,18 +1703,16 @@ public final class WidgetManager extends BaseObject {
   private int mGrowXFlag, mGrowYFlag;
   private int mPendingSize;
   private boolean mEditableFlag;
-  private boolean mScrollableFlag;
+  /* private */ boolean mScrollableFlag;
   private int mPendingGravity;
   private float mPendingMinWidthEm;
   private float mPendingMinHeightEm;
-  private float mPendingFixedWidthEm;
-  private float mPendingFixedHeightEm;
+  /* private */ float mPendingFixedWidthEm;
+  /* private */ float mPendingFixedHeightEm;
   private boolean mPendingMonospaced;
   private int mPendingAlignment;
   private int mLineCount;
-  private String mPendingTabPanelKey;
   private SymbolicNameSet mComboChoices;
-  //  private List<Widget> mWidgetList = arrayList();
   private String mTooltip;
   private Number mPendingMinValue, mPendingMaxValue, mPendingDefaultValue, mPendingStepSize;
   private boolean mPendingFloatingPoint;
