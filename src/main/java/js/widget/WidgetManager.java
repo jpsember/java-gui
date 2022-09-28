@@ -960,21 +960,10 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  //  /**
-  //   * Get the outermost view in the hierarchy
-  //   */
-  //  public JComponent container() {
-  //    return checkNotNull(mOutermostView, "layout not completed");
-  //  }
-  //
-  //  private JComponent mOutermostView;
-
   /**
    * Add a component to the current panel. Process pending constraints
    */
   private WidgetManager addView(Widget widget) {
-    //  checkState(mOutermostView == null, "manager layout already completed");
-
     consumeTooltip(widget);
 
     if (!mPanelStack.isEmpty())
@@ -982,7 +971,6 @@ public final class WidgetManager extends BaseObject {
 
     clearPendingComponentFields();
     return this;
-
   }
 
   private void auxAddComponent(Widget widget) {
@@ -994,7 +982,9 @@ public final class WidgetManager extends BaseObject {
     Grid grid = last(mPanelStack);
     if (grid.widget() instanceof OurTabbedPane) {
       OurTabbedPane tabPane = grid.widget();
-      tabPane.add(consumePendingTabTitle(component), component);
+      String tabName = consumePendingTabTitle(component);
+      log2("adding a tab with name:", tabName, "component:", component);
+      tabPane.add(tabName, component);
       return;
     }
 
@@ -1031,7 +1021,6 @@ public final class WidgetManager extends BaseObject {
     // "paint" the cells this view occupies by storing a copy of the entry in each cell
     for (int i = 0; i < cols; i++)
       grid.addCell(cell);
-
   }
 
   private int mColorIndex;
@@ -1069,9 +1058,8 @@ public final class WidgetManager extends BaseObject {
     return button;
   }
 
-  public Widget addToggleButton(String key, String label) {
-    todo("add default value for toggle button");
-    OurToggleButton button = new OurToggleButton(this, key, label);
+  public Widget addToggleButton(String key, String label, boolean defaultValue) {
+    OurToggleButton button = new OurToggleButton(this, key, label, defaultValue);
     add(button);
     return button;
   }
@@ -1190,7 +1178,6 @@ public final class WidgetManager extends BaseObject {
   private static class OurButton extends Widget {
 
     public OurButton(WidgetManager manager, String key, String label) {
-      //super(manager, key);
       JButton component = new JButton(label);
       todo("add action listener");
       //      component.addActionListener(this);
@@ -1216,10 +1203,9 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurToggleButton extends Widget {
-    public OurToggleButton(WidgetManager manager, String key, String label) {
+    public OurToggleButton(WidgetManager manager, String key, String label, boolean defaultValue) {
       setId(key);
-      // super(manager, key);
-      JCheckBox component = new JCheckBox(label);
+      JCheckBox component = new JCheckBox(label, defaultValue);
       //     component.addActionListener(this);
       setComponent(component);
       registerListener(manager.consumePendingListener());
