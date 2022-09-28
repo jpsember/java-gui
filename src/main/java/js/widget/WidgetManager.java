@@ -249,6 +249,10 @@ public final class WidgetManager extends BaseObject {
   public void writeGadgetValues(JSMap map) {
     for (Map.Entry<String, Object> entry : map.wrappedMap().entrySet()) {
       String id = entry.getKey();
+      if (id.startsWith("anon_")) {
+        alert("anon_ gadget in value map:",id);
+      continue;
+    }
       if (!exists(id))
         continue;
       get(id).writeValue(entry.getValue());
@@ -262,6 +266,11 @@ public final class WidgetManager extends BaseObject {
     JSMap m = map();
     for (Map.Entry<String, Widget> ent : mGadgetMap.entrySet()) {
       Widget g = ent.getValue();
+      
+      if (g.id() .startsWith("anon_")) {
+        
+      todo("maybe avoid adding ids for things that we don't need to persist values for?");
+     continue; }
       Object v = g.readValue();
       if (v != null)
         m.putUnsafe(ent.getKey(), v);
@@ -507,11 +516,11 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public Widget addLabel() {
+  public WidgetManager addLabel() {
     return addLabel(null, "");
   }
 
-  public Widget addLabel(String text) {
+  public WidgetManager addLabel(String text) {
     return addLabel(null, text);
   }
 
@@ -678,16 +687,6 @@ public final class WidgetManager extends BaseObject {
   public void notifyWidgetListener(Widget widget, WidgetListener listener) {
     if (!active())
       return;
-    //    
-    //    if (!prepared()) {
-    //      long currentTime = System.currentTimeMillis();
-    //      if (mTimeSincePrepared == 0)
-    //        mTimeSincePrepared = System.currentTimeMillis();
-    //      if (currentTime - mTimeSincePrepared > 5000) {
-    //        pr("*** Widget listeners are not being called... did you forget setPrepared(true)?");
-    //      }
-    //      return;
-    //    }
     Widget previousListener = mListenerWidget;
     try {
       mLastWidgetEventTime = System.currentTimeMillis();
@@ -1079,13 +1078,15 @@ public final class WidgetManager extends BaseObject {
   public Widget addToggleButton(String key, String label, boolean defaultValue) {
     OurToggleButton button = new OurToggleButton(this, key, label, defaultValue);
     add(button);
+    todo("should we return WidgetManager consistently, instead of the widgets?");
     return button;
   }
 
-  public Widget addLabel(String key, String text) {
+  public WidgetManager addLabel(String key, String text) {
     log2("addLabel", key, text);
-    return add(new OurLabel(this, key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
+    add(new OurLabel(this, key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
         mPendingAlignment));
+    return this;
   }
 
   public Widget addSpinner(String key) {
