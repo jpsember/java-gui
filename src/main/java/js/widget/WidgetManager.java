@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -82,6 +83,9 @@ public final class WidgetManager extends BaseObject {
   }
 
   public void setActive(boolean state) {
+    log("set active:", state);
+    if (mActive == state)
+      log("...unchanged!");
     mActive = state;
   }
 
@@ -541,10 +545,6 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  protected void ensureListenerStackEmpty() {
-    checkState(mListenerStack.isEmpty(), "listener stack wasn't empty");
-  }
-
   public WidgetManager listener(WidgetListener listener) {
     checkState(mPendingListener == null, "already a pending listener");
     mPendingListener = listener;
@@ -639,7 +639,7 @@ public final class WidgetManager extends BaseObject {
     return listener;
   }
 
-  protected String consumePendingTabTitle(Object component) {
+  private String consumePendingTabTitle(Object component) {
     String tabNameExpression = "?NAME?";
     if (mPendingTabTitle == null)
       alert("no tab name specified for:", component);
@@ -650,7 +650,7 @@ public final class WidgetManager extends BaseObject {
     return tabNameExpression;
   }
 
-  protected void clearPendingComponentFields() {
+  private void clearPendingComponentFields() {
     mPendingContainer = null;
     mPendingColumnWeights = null;
     mSpanXCount = 0;
@@ -680,8 +680,8 @@ public final class WidgetManager extends BaseObject {
   // Layout logic
   // ------------------------------------------------------------------
 
-  protected int[] mPendingColumnWeights;
-  protected boolean mSuppressFocusFlag;
+  private int[] mPendingColumnWeights;
+  private boolean mSuppressFocusFlag;
 
   /**
    * Call widget listener, setting up event source beforehand
@@ -726,25 +726,20 @@ public final class WidgetManager extends BaseObject {
 
   public static String randomText(int maxLength, boolean withLinefeeds) {
     StringBuilder sb = new StringBuilder();
-    int len = (int) Math.abs(random().nextGaussian() * maxLength);
+    Random r = ThreadLocalRandom.current();
+    int len = (int) Math.abs(r.nextGaussian() * maxLength);
     while (sb.length() < len) {
-      int wordSize = random().nextInt(8) + 2;
-      if (withLinefeeds && random().nextInt(4) == 0)
+      int wordSize = r.nextInt(8) + 2;
+      if (withLinefeeds && r.nextInt(4) == 0)
         sb.append('\n');
       else
         sb.append(' ');
       String sample = "orhxxidfusuytelrcfdlordburswfxzjfjllppdsywgsw"
           + "kvukrammvxvsjzqwplxcpkoekiznlgsgjfonlugreiqvtvpjgrqotzu";
-      int cursor = random().nextInt(sample.length() - wordSize);
+      int cursor = r.nextInt(sample.length() - wordSize);
       sb.append(sample.substring(cursor, cursor + wordSize));
     }
     return sb.toString().trim();
-  }
-
-  public static Random random() {
-    if (mRandom == null)
-      mRandom = new Random();
-    return mRandom;
   }
 
   /**
@@ -762,12 +757,31 @@ public final class WidgetManager extends BaseObject {
     throw new IllegalArgumentException("cannot create Widget wrapper for: " + component);
   }
 
+  @Deprecated // prefer with context for now
+  public Widget open() {
+    return open("<no context>");
+  }
+
+  private void log2(Object... messages) {
+    if (!verbose())
+      return;
+
+    String indent = tab();
+    Object[] msg = insertStringToFront(indent, messages);
+    log(msg);
+  }
+
   /**
    * Create a child view and push onto stack
    */
-  public Widget open() {
-    Grid grid = new Grid(false);
+  public Widget open(String debugContext) {
+    log2("open", debugContext);
+
+    Grid grid = new Grid();
+    grid.setContext(debugContext);
+
     if (mPendingTabPanelKey != null) {
+      log2("pending tab panel key:", mPendingTabPanelKey);
       checkState(mPendingContainer == null, "cannot use pending container for tabbed pane");
       grid.setWidget(new OurTabbedPane(this, mPendingTabPanelKey));
     } else {
@@ -776,9 +790,11 @@ public final class WidgetManager extends BaseObject {
       grid.setColumnSizes(mPendingColumnWeights);
 
       JComponent panel;
-      if (mPendingContainer != null)
+      if (mPendingContainer != null) {
         panel = (JComponent) mPendingContainer;
-      else {
+        log2("pending container:", mPendingContainer.getClass());
+      } else {
+        log2("constructing JPanel");
         panel = new JPanel();
         applyMinDimensions(panel, mPendingMinWidthEm, mPendingMinHeightEm);
       }
@@ -788,19 +804,38 @@ public final class WidgetManager extends BaseObject {
     }
     add(grid.widget());
     mPanelStack.add(grid);
+    log2("added grid to panel stack");
     return grid.widget();
+  }
+
+  private String tab() {
+    if (!verbose())
+      return "";
+    String dots = "................................................................................";
+    int len = mPanelStack.size() * 4;
+    len = Math.min(len, dots.length());
+    return "|" + dots.substring(0, len);
   }
 
   /**
    * Pop view from the stack
    */
+  @Deprecated // prefer with context for now
   public WidgetManager close() {
-    endRow();
+    return close("<no context>");
+  }
+
+  public WidgetManager close(String debugContext) {
+    log2("about to close", debugContext);
+
     Grid parent = pop(mPanelStack);
-    if (verbose()) {
-      log("close", compInfo(gridComponent(parent)));
-      log("");
-    }
+    if (verbose())
+      log2("close", debugContext, compInfo(gridComponent(parent)));
+    endRow();
+    //    if (verbose()) {
+    //      log("close", compInfo(gridComponent(parent)));
+    //      log("");
+    //    }
 
     if (!(parent.widget() instanceof OurTabbedPane)) {
       assignViewsToGridLayout(parent);
@@ -818,6 +853,8 @@ public final class WidgetManager extends BaseObject {
    * If current row is only partially complete, add space to its end
    */
   public WidgetManager endRow() {
+    if (mPanelStack.isEmpty())
+      return this;
     Grid parent = last(mPanelStack);
     if (parent.nextCellLocation().x != 0)
       spanx().addHorzSpace();
@@ -892,9 +929,10 @@ public final class WidgetManager extends BaseObject {
    * Add widget to view hierarchy
    */
   public Widget add(Widget widget) {
-
+log2("add widget",widget.getId());
     //    public void add(Widget c) {
-    checkState(!exists(widget.getId()));
+    if (exists(widget.getId()))
+        badState("attempt to add widget id:",widget.getId(),"that already exists");
     //      mGadgetMap.put(c.getId(), c);
     //    }
     //    
@@ -950,6 +988,9 @@ public final class WidgetManager extends BaseObject {
   private void auxAddComponent(Widget widget) {
     JComponent component = widget.swingComponent();
 
+    // If the parent grid's widget is a tabbed pane,
+    // add the component to it
+    
     Grid grid = last(mPanelStack);
     if (grid.widget() instanceof OurTabbedPane) {
       OurTabbedPane tabPane = grid.widget();
@@ -1036,6 +1077,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   public Widget addLabel(String key, String text) {
+    log2("addLabel", key, text);
     return add(new OurLabel(this, key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
         mPendingAlignment));
   }
@@ -1076,7 +1118,6 @@ public final class WidgetManager extends BaseObject {
   private static class ComponentWidget extends Widget {
 
     public ComponentWidget(JComponent component) {
-      //      super(manager, null);
       setComponent(component);
     }
 
@@ -1633,48 +1674,44 @@ public final class WidgetManager extends BaseObject {
 
     Integer mapKey = fontSize + (monospaced ? 0 : 1000);
 
-    Font f = mFontMap.get(mapKey);
+    Font f = sFontMap.get(mapKey);
     if (f == null) {
       if (monospaced)
         f = new Font("Monaco", Font.PLAIN, fontSize);
       else
         f = new Font("Lucida Grande", Font.PLAIN, fontSize);
-      mFontMap.put(mapKey, f);
+      sFontMap.put(mapKey, f);
     }
     return f;
   }
 
-  private static Map<Integer, Font> mFontMap = hashMap();
+  private static Map<Integer, Font> sFontMap = hashMap();
 
-  private static Random mRandom;
-  // private JSMap mStateMap;
   private WidgetListener mPendingListener;
   private Widget mListenerWidget;
-  //  private boolean mPrepared;
-  private long mTimeSincePrepared;
 
-  protected Object mPendingContainer;
-  protected String mPendingTabTitle;
-  protected int mSpanXCount;
-  protected int mGrowXFlag, mGrowYFlag;
-  protected int mPendingSize;
-  protected boolean mEditableFlag;
-  protected boolean mScrollableFlag;
-  protected int mPendingGravity;
-  protected float mPendingMinWidthEm;
-  protected float mPendingMinHeightEm;
-  protected float mPendingFixedWidthEm;
-  protected float mPendingFixedHeightEm;
-  protected boolean mPendingMonospaced;
-  protected int mPendingAlignment;
-  protected int mLineCount;
-  protected String mPendingTabPanelKey;
-  protected SymbolicNameSet mComboChoices;
-  // protected List<Widget> mWidgetList = arrayList();
-  protected String mTooltip;
-  protected Number mPendingMinValue, mPendingMaxValue, mPendingDefaultValue, mPendingStepSize;
-  protected boolean mPendingFloatingPoint;
-  protected boolean mPendingWithDisplayFlag;
+  private Object mPendingContainer;
+  private String mPendingTabTitle;
+  private int mSpanXCount;
+  private int mGrowXFlag, mGrowYFlag;
+  private int mPendingSize;
+  private boolean mEditableFlag;
+  private boolean mScrollableFlag;
+  private int mPendingGravity;
+  private float mPendingMinWidthEm;
+  private float mPendingMinHeightEm;
+  private float mPendingFixedWidthEm;
+  private float mPendingFixedHeightEm;
+  private boolean mPendingMonospaced;
+  private int mPendingAlignment;
+  private int mLineCount;
+  private String mPendingTabPanelKey;
+  private SymbolicNameSet mComboChoices;
+  //  private List<Widget> mWidgetList = arrayList();
+  private String mTooltip;
+  private Number mPendingMinValue, mPendingMaxValue, mPendingDefaultValue, mPendingStepSize;
+  private boolean mPendingFloatingPoint;
+  private boolean mPendingWithDisplayFlag;
   private long mLastWidgetEventTime;
   private List<WidgetListener> mListenerStack = arrayList();
 }

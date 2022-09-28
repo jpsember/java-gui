@@ -34,8 +34,12 @@ import js.geometry.IPoint;
  */
 public final class Grid {
 
-  public Grid(boolean free) {
-    mFree = free;
+  public void setContext(String debugContext) {
+    mDebugContext = debugContext;
+  }
+
+  public String debugContext() {
+    return mDebugContext;
   }
 
   public <T extends Widget> T widget() {
@@ -44,10 +48,6 @@ public final class Grid {
 
   public void setWidget(Widget widget) {
     mWidget = widget;
-  }
-
-  public boolean free() {
-    return mFree;
   }
 
   public int numColumns() {
@@ -118,7 +118,7 @@ public final class Grid {
   }
 
   public void propagateGrowFlags() {
-   
+
     CellWeightList colGrowFlags = new CellWeightList();
     CellWeightList rowGrowFlags = new CellWeightList();
 
@@ -152,10 +152,10 @@ public final class Grid {
     }
   }
 
-  private final boolean mFree;
   private final List<GridCell> mCells = arrayList();
   private int[] mColumnSizes;
   private IPoint mCachedNextCellLocation;
   private Widget mWidget;
+  private String mDebugContext = "<no context>";
 
 }

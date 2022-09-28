@@ -116,8 +116,7 @@ public abstract class GUIApp extends App {
     UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
     KeyboardShortcutManager.construct(guiAppConfig().keyboardShortcutRegistry());
 
-    initGadgets();
-
+   
     
     createFrame();
     startedGUI();
@@ -135,7 +134,7 @@ public abstract class GUIApp extends App {
 
   public void initGadgets() {
     mGadgetSet = new WidgetManager();
-//    WidgetManager g = gadgets();
+    mGadgetSet.alertVerbose();
 //
 //    // Add gadget for persisting frame bounds
 //    g.add(new AppFrameGadget().setId(TBGlobals.APP_FRAME));
@@ -190,6 +189,10 @@ public abstract class GUIApp extends App {
   
     checkState(mFrame != null, "frame doesn't exist yet");
 
+    // Reset the gadgets whenever we rebuild the frame
+    initGadgets();
+
+    
     // Remove any placeholder message (in case no project was open)
     contentPane().removeAll();
 
