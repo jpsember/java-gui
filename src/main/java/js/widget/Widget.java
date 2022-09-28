@@ -34,8 +34,7 @@ import javax.swing.JComponent;
 /**
  * Abstract class representing a user interface element
  */
-public abstract class Widget
-implements ActionListener {
+public abstract class Widget implements ActionListener {
 
   public final Widget setId(String id) {
     checkState(mId == null, "already has an id");
@@ -44,7 +43,7 @@ implements ActionListener {
     return this;
   }
 
-  public final String getId() {
+  public final String id() {
     if (mId == null)
       throw badState("gadget has no id");
     return mId;
@@ -52,23 +51,9 @@ implements ActionListener {
 
   private String mId;
 
-
   public abstract Object readValue();
 
   public abstract void writeValue(Object v);
-
-//
-//  @Deprecated
-//  public Widget(/* WidgetManager manager, */ String key) {
-//    //    mManager = manager;
-//    mKey = key;
-//  }
-
-  //  public final <T extends WidgetManager> T manager() {
-  //    return (T) mManager;
-  //  }
-  //
-  //  private WidgetManager mManager;
 
   public static void setTextIfExists(Widget widget, String text) {
     if (widget != null)

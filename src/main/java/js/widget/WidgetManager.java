@@ -929,15 +929,15 @@ public final class WidgetManager extends BaseObject {
    * Add widget to view hierarchy
    */
   public Widget add(Widget widget) {
-log2("add widget",widget.getId());
+log2("add widget",widget.id());
     //    public void add(Widget c) {
-    if (exists(widget.getId()))
-        badState("attempt to add widget id:",widget.getId(),"that already exists");
+    if (exists(widget.id()))
+        badState("attempt to add widget id:",widget.id(),"that already exists");
     //      mGadgetMap.put(c.getId(), c);
     //    }
     //    
 
-    mGadgetMap.put(widget.getId(), widget);
+    mGadgetMap.put(widget.id(), widget);
     JComponent tooltipOwner = widget.componentForTooltip();
     if (tooltipOwner != null)
       consumeTooltip(tooltipOwner);
@@ -1133,14 +1133,13 @@ log2("add widget",widget.getId());
 
     @Override
     public void writeValue(Object v) {
-      throw notSupported();
+      throw notSupported("write value for id:",id());
     }
   }
 
   private static class OurTabbedPane extends Widget implements ChangeListener {
 
     public OurTabbedPane(WidgetManager manager, String key) {
-      //super(manager, key);
       setId(key);
       JTabbedPane component = new JTabbedPane();
       component.addChangeListener(this);

@@ -138,8 +138,8 @@ public final class WidgetCollection {
   }
 
   public void add(Widget c) {
-    checkState(!exists(c.getId()));
-    mGadgetMap.put(c.getId(), c);
+    checkState(!exists(c.id()));
+    mGadgetMap.put(c.id(), c);
   }
 
   public Widget addHidden(String id, Object defaultValue) {
