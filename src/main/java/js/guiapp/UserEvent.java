@@ -58,12 +58,17 @@ public final class UserEvent extends BaseObject {
     return new UserEvent(CODE_WIDGET, null, null, 0, widgetId);
   }
 
-  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags, String widgetId) {
+  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags,
+      String widgetId) {
     mCode = code;
     mSource = source;
     mViewLocation = viewLocation;
     mModifierFlags = modifierFlags;
     mWidgetId = widgetId;
+  }
+
+*/                            %%% // gitdiff marker
+  public boolean isWidget() {return getCode() == CODE_WIDGET ;
   }
 
   public int getCode() {

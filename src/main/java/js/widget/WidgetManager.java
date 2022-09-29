@@ -238,23 +238,11 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Allocate another anonymous id
-   */
-  public String getAnonId() {
-    mAnonIdBase++;
-    return "anon_" + mAnonIdBase;
-  }
-
-  /**
    * Set gadget values according to a JSMap
    */
   public void writeGadgetValues(JSMap map) {
     for (Map.Entry<String, Object> entry : map.wrappedMap().entrySet()) {
       String id = entry.getKey();
-      if (id.startsWith("anon_")) {
-        alert("anon_ gadget in value map:",id);
-      continue;
-    }
       if (!exists(id))
         continue;
       get(id).writeValue(entry.getValue());
@@ -268,11 +256,6 @@ public final class WidgetManager extends BaseObject {
     JSMap m = map();
     for (Map.Entry<String, Widget> ent : mGadgetMap.entrySet()) {
       Widget g = ent.getValue();
-      
-      if (g.id() .startsWith("anon_")) {
-        
-      todo("maybe avoid adding ids for things that we don't need to persist values for?");
-     continue; }
       Object v = g.readValue();
       if (v != null)
         m.putUnsafe(ent.getKey(), v);
@@ -281,7 +264,6 @@ public final class WidgetManager extends BaseObject {
   }
 
   private SortedMap<String, Widget> mGadgetMap = treeMap();
-  private int mAnonIdBase = 9500;
   private boolean mActive;
 
   // ---------------------------------------------------------------------
@@ -405,7 +387,7 @@ public final class WidgetManager extends BaseObject {
    * generating one
    */
   public WidgetManager setPendingContainer(JComponent component) {
-    checkState(mPanelStack.isEmpty(),"current panel stack isn't empty");
+    checkState(mPanelStack.isEmpty(), "current panel stack isn't empty");
     mPendingContainer = component;
     return this;
   }
@@ -740,7 +722,7 @@ public final class WidgetManager extends BaseObject {
    */
   public Widget wrap(Object component) {
     if (component == null || component instanceof JComponent) {
-      return new ComponentWidget((JComponent) component).setId(getAnonId());
+      return new ComponentWidget((JComponent) component); //.setId(getAnonId());
     }
     if (component instanceof Widget)
       return (Widget) component;
@@ -764,7 +746,7 @@ public final class WidgetManager extends BaseObject {
     log2("openTabSet", selectTabKey);
     Grid grid = new Grid();
     grid.setContext(selectTabKey);
-    grid.setWidget(new OurTabbedPane(this, selectTabKey));
+    grid.setWidget(new OurTabbedPane(consumePendingListener(), selectTabKey));
     add(grid.widget());
     mPanelStack.add(grid);
     log2("added grid to panel stack for tab set");
@@ -884,9 +866,8 @@ public final class WidgetManager extends BaseObject {
    * Add a text field whose content is not persisted to the state map
    */
   public Widget addText(String key) {
-    //unimp("fixedWidthEm not implemented (Issue #726); also, if multiline, use as fixed height");
-    OurText t = new OurText(this, key, mLineCount, mEditableFlag, mPendingSize, mPendingMonospaced,
-        mPendingMinWidthEm, mPendingMinHeightEm);
+    OurText t = new OurText(consumePendingListener(), key, mLineCount, mEditableFlag, mPendingSize,
+        mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
     consumeTooltip(t);
     add(t);
     return t;
@@ -948,15 +929,16 @@ public final class WidgetManager extends BaseObject {
    * Add widget to view hierarchy
    */
   public Widget add(Widget widget) {
-    log2("add widget", widget.id());
-    //    public void add(Widget c) {
-    if (exists(widget.id()))
-      badState("attempt to add widget id:", widget.id(), "that already exists");
-    //      mGadgetMap.put(c.getId(), c);
-    //    }
-    //    
+    String id = null;
+    if (widget.hasId())
+      id = widget.id();
+    log2("add widget", id != null ? id : "<anon>");
 
-    mGadgetMap.put(widget.id(), widget);
+    if (id != null) {
+      if (exists(widget.id()))
+        badState("attempt to add widget id:", widget.id(), "that already exists");
+      mGadgetMap.put(id, widget);
+    }
     JComponent tooltipOwner = widget.componentForTooltip();
     if (tooltipOwner != null)
       consumeTooltip(tooltipOwner);
@@ -1072,13 +1054,13 @@ public final class WidgetManager extends BaseObject {
   }
 
   public Widget addButton(String key, String label) {
-    OurButton button = new OurButton(this, key, label);
+    OurButton button = new OurButton(consumePendingListener(), key, label);
     add(button);
     return button;
   }
 
   public Widget addToggleButton(String key, String label, boolean defaultValue) {
-    OurToggleButton button = new OurToggleButton(this, key, label, defaultValue);
+    OurToggleButton button = new OurToggleButton(consumePendingListener(), key, label, defaultValue);
     add(button);
     todo("should we return WidgetManager consistently, instead of the widgets?");
     return button;
@@ -1092,21 +1074,21 @@ public final class WidgetManager extends BaseObject {
   }
 
   public Widget addSpinner(String key) {
-    OurSpinner spinner = new OurSpinner(this, key, mPendingFloatingPoint, mPendingDefaultValue,
-        mPendingMinValue, mPendingMaxValue, mPendingStepSize);
+    OurSpinner spinner = new OurSpinner(consumePendingListener(), key, mPendingFloatingPoint,
+        mPendingDefaultValue, mPendingMinValue, mPendingMaxValue, mPendingStepSize);
     add(spinner);
     return spinner;
   }
 
   public Widget addSlider(String key) {
-    OurSlider slider = new OurSlider(this, key, mPendingFloatingPoint, mPendingDefaultValue, mPendingMinValue,
-        mPendingMaxValue, mPendingWithDisplayFlag);
+    OurSlider slider = new OurSlider(consumePendingListener(), key, mPendingFloatingPoint,
+        mPendingDefaultValue, mPendingMinValue, mPendingMaxValue, mPendingWithDisplayFlag);
     add(slider);
     return slider;
   }
 
   public Widget addChoiceBox(String key) {
-    OurComboBox c = new OurComboBox(this, key, mComboChoices);
+    OurComboBox c = new OurComboBox(consumePendingListener(), key, mComboChoices);
     add(c);
     return c;
   }
@@ -1148,13 +1130,13 @@ public final class WidgetManager extends BaseObject {
 
   private static class OurTabbedPane extends Widget implements ChangeListener {
 
-    public OurTabbedPane(WidgetManager manager, String key) {
+    public OurTabbedPane(WidgetListener listener, String key) {
       setId(key);
       todo("pass in listener, not widgetManager");
       JTabbedPane component = new JTabbedPane();
       component.addChangeListener(this);
       setComponent(component);
-      registerListener(manager.consumePendingListener());
+      registerListener(listener);
     }
 
     public void add(String tabNameExpr, JComponent component) {
@@ -1199,12 +1181,12 @@ public final class WidgetManager extends BaseObject {
 
   private static class OurButton extends Widget {
 
-    public OurButton(WidgetManager manager, String key, String label) {
+    public OurButton(WidgetListener listener, String key, String label) {
       JButton component = new JButton(label);
       todo("add action listener");
       //      component.addActionListener(this);
       setComponent(component);
-      registerListener(manager.consumePendingListener());
+      registerListener(listener);
     }
 
     @Override
@@ -1225,12 +1207,12 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurToggleButton extends Widget {
-    public OurToggleButton(WidgetManager manager, String key, String label, boolean defaultValue) {
+    public OurToggleButton(WidgetListener listener, String key, String label, boolean defaultValue) {
       setId(key);
       JCheckBox component = new JCheckBox(label, defaultValue);
       //     component.addActionListener(this);
       setComponent(component);
-      registerListener(manager.consumePendingListener());
+      registerListener(listener);
     }
     //
     //        @Override
@@ -1278,7 +1260,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurSpinner extends Widget implements ChangeListener {
-    public OurSpinner(WidgetManager manager, String key, boolean floatsFlag, Number defaultValue,
+    public OurSpinner(WidgetListener listener, String key, boolean floatsFlag, Number defaultValue,
         Number minimum, Number maximum, Number stepSize) {
       mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, stepSize);
       checkState(mStepper.isInt(), "non-integer not supported");
@@ -1287,7 +1269,7 @@ public final class WidgetManager extends BaseObject {
       JSpinner component = new JSpinner(model);
       model.addChangeListener(this);
       setComponent(component);
-      registerListener(manager.consumePendingListener());
+      registerListener(listener);
     }
 
     @Override
@@ -1323,7 +1305,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurSlider extends Widget implements ChangeListener {
-    public OurSlider(WidgetManager manager, String key, boolean floatsFlag, Number defaultValue,
+    public OurSlider(WidgetListener listener, String key, boolean floatsFlag, Number defaultValue,
         Number minimum, Number maximum, boolean includesDisplay) {
       setId(key);
       mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, null);
@@ -1347,7 +1329,7 @@ public final class WidgetManager extends BaseObject {
         component = slider;
       }
       setComponent(component);
-      registerListener(manager.consumePendingListener());
+      registerListener(listener);
     }
 
     @Override
@@ -1358,9 +1340,7 @@ public final class WidgetManager extends BaseObject {
     @Override
     public void stateChanged(ChangeEvent e) {
       updateDisplayValue();
-      todo("Is there a better way to get the singleton app instance?");
-     GUIApp.guiSingleton().
-       userEventManagerListener(UserEvent.widgetEvent(id()));
+      GUIApp.sharedInstance().userEventManagerListener(UserEvent.widgetEvent(id()));
       notifyListener();
     }
 
@@ -1409,7 +1389,7 @@ public final class WidgetManager extends BaseObject {
 
     public OurLabel(WidgetManager manager, String key, int gravity, int lineCount, String text, int fontSize,
         boolean monospaced, int alignment) {
-      key = manager.orAnon(key);
+      todo("manager shouldn't be required");
       setId(key);
       JLabel label = new JLabel(text);
       if (fontSize == SIZE_DEFAULT)
@@ -1448,12 +1428,10 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurText extends Widget implements DocumentListener {
-    public OurText(WidgetManager manager, String key, int lineCount, boolean editable, int fontSize,
+    public OurText(WidgetListener listener, String key, int lineCount, boolean editable, int fontSize,
         boolean monospaced, float minWidthEm, float minHeightEm) {
-      // super(manager, key);
-
-      setId(manager.orAnon(key));
-
+      todo("manager shouldn't be required");
+      setId(key);
       JComponent container;
       JTextComponent textComponent;
       if (lineCount > 1) {
@@ -1468,7 +1446,7 @@ public final class WidgetManager extends BaseObject {
       }
       textComponent.setEditable(editable);
       if (editable) {
-        registerListener(manager.consumePendingListener());
+        registerListener(listener);
         textComponent.getDocument().addDocumentListener(this);
       }
       Font font = getFont(monospaced, fontSize);
@@ -1535,14 +1513,13 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurComboBox extends Widget {
-    public OurComboBox(WidgetManager manager, String key, SymbolicNameSet choices) {
-      //super(manager, key);
+    public OurComboBox(WidgetListener listener, String key, SymbolicNameSet choices) {
       mChoices = checkNotNull(choices);
       JComboBox<String> component = new JComboBox<>(DataUtil.toStringArray(mChoices.displayNames()));
       todo("add action listener");
       //      component.addActionListener(this);
       setComponent(component);
-      registerListener(manager.consumePendingListener());
+      registerListener(listener);
     }
 
     //    @Override
@@ -1587,12 +1564,6 @@ public final class WidgetManager extends BaseObject {
 
   private LayoutManager buildLayout() {
     return new GridBagLayout();
-  }
-
-  public String orAnon(String key) {
-    if (nullOrEmpty(key))
-      key = getAnonId();
-    return key;
   }
 
   /**

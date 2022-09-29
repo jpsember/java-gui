@@ -37,10 +37,13 @@ import javax.swing.JComponent;
 public abstract class Widget implements ActionListener {
 
   public final Widget setId(String id) {
-    checkState(mId == null, "already has an id");
-    todo("change null or empty to an anonymous id");
-    mId = checkNonEmpty(id);
+    checkState(!hasId(), "already has an id");
+    mId = id;
     return this;
+  }
+
+  public final boolean hasId() {
+    return mId != null;
   }
 
   public final String id() {

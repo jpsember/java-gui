@@ -49,14 +49,15 @@ import js.widget.WidgetManager;
 public abstract class GUIApp extends App {
 
   public GUIApp() {
+    checkState(sSingleton == null, "app must be a singleton!");
     sSingleton = this;
   }
-
-  private static GUIApp sSingleton;
-
-  public static GUIApp guiSingleton() {
-    return sSingleton;
+ 
+  public static <T extends GUIApp> T sharedInstance() {
+    return (T) sSingleton;
   }
+  
+  private static GUIApp sSingleton;
 
   // ------------------------------------------------------------------
   // App configuration
@@ -144,7 +145,7 @@ public abstract class GUIApp extends App {
       mGadgetSet.alertVerbose();
   }
 
-  public WidgetManager gadgets() {
+  public WidgetManager widgetManager() {
     return mGadgetSet;
   }
 
