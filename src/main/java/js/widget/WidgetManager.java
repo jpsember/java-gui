@@ -62,18 +62,6 @@ import static js.widget.SwingUtils.*;
  */
 public final class WidgetManager extends BaseObject {
 
-  public static final int SIZE_DEFAULT = 0;
-  public static final int SIZE_TINY = 1;
-  public static final int SIZE_SMALL = 2;
-  public static final int SIZE_LARGE = 3;
-  public static final int SIZE_HUGE = 4;
-  public static final int SIZE_MEDIUM = 5;
-
-  public static final int ALIGNMENT_DEFAULT = -1;
-  public static final int ALIGNMENT_LEFT = SwingConstants.LEFT;
-  public static final int ALIGNMENT_CENTER = SwingConstants.CENTER;
-  public static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;
-
   /**
    * Determine if widget events should be propagated to listeners. False while
    * user interface is still being constructed
@@ -89,62 +77,6 @@ public final class WidgetManager extends BaseObject {
     mActive = state;
   }
 
-  public Number numValue(String id) {
-    return (Number) get(id).readValue();
-  }
-
-  /**
-   * Get value of boolean-valued widget
-   */
-  public boolean booleanValue(String id) {
-    Boolean result = null;
-    Widget g = get(id);
-    if (g != null)
-      result = (Boolean) g.readValue();
-    if (result == null)
-      result = false;
-    return result;
-  }
-
-  /**
-   * Set value of integer-valued widget
-   */
-  public void setValue(String id, int v) {
-    get(id).writeValue(v);
-  }
-
-  /**
-   * Set value of boolean-valued widget
-   */
-  public void setValue(String id, boolean v) {
-    get(id).writeValue(v);
-  }
-
-  /**
-   * Set value of double-valued widget
-   */
-  public void setValue(String id, double v) {
-    get(id).writeValue(v);
-  }
-
-  /**
-   * Get value of string-valued widget
-   */
-  public String stringValue(String id) {
-    return (String) (get(id).readValue());
-  }
-
-  /**
-   * Set value of string-valued widget
-   */
-  public void setValue(String id, String v) {
-    get(id).writeValue(v);
-  }
-
-  private Widget find(String id) {
-    return mWidgetMap.get(id);
-  }
-
   public boolean exists(String id) {
     return (find(id) != null);
   }
@@ -156,88 +88,16 @@ public final class WidgetManager extends BaseObject {
     return w;
   }
 
-  public Widget addHidden(String id, Object defaultValue) {
-    checkState(!exists(id));
-    Widget g = new HiddenWidget(defaultValue).setId(id);
-    add(g);
-    return g;
+  private Widget find(String id) {
+    return mWidgetMap.get(id);
   }
+
+  // ------------------------------------------------------------------
+  // Accessing widget values
+  // ------------------------------------------------------------------
 
   /**
-   * Get (integer) value of widget
-   */
-  public int vi(String id) {
-    return numValue(id).intValue();
-  }
-
-  /**
-   * Set value of (integer-valued) widget
-   */
-  public int seti(String id, int v) {
-    setValue(id, v);
-    return v;
-  }
-
-  /**
-   * Get boolean value of widget
-   */
-  public boolean vb(String id) {
-    return booleanValue(id);
-  }
-
-  /**
-   * Set boolean value of widget
-   */
-  public boolean setb(String id, boolean boolvalue) {
-    setValue(id, boolvalue);
-    return boolvalue;
-  }
-
-  /**
-   * Toggle boolean value of widget
-   * 
-   * @return new value
-   */
-  public boolean toggle(String id) {
-    return setb(id, !vb(id));
-  }
-
-  /**
-   * Get (double) value of widget
-   */
-  public double vd(String id) {
-    return numValue(id).doubleValue();
-  }
-
-  public float vf(String id) {
-    return ((Number) get(id).readValue()).floatValue();
-  }
-
-  /**
-   * Set double value of widget
-   */
-  public double setd(String id, double v) {
-    setValue(id, v);
-    return v;
-  }
-
-  /**
-   * Set float value of widget
-   */
-  public double set(String id, float v) {
-    setValue(id, v);
-    return v;
-  }
-
-  /**
-   * Get (string) value of widget
-   */
-  public String vs(String id) {
-    return stringValue(id);
-  }
-
-  /**
-   * Set widget values
+   * Set widgets' values
    */
   public void setWidgetValues(JSMap map) {
     for (Map.Entry<String, Object> entry : map.wrappedMap().entrySet()) {
@@ -249,7 +109,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Read widgets values
+   * Read widgets' values
    */
   public JSMap readWidgetValues() {
     JSMap m = map();
@@ -262,12 +122,113 @@ public final class WidgetManager extends BaseObject {
     return m;
   }
 
-  private SortedMap<String, Widget> mWidgetMap = treeMap();
-  private boolean mActive;
+  /**
+   * Get value of string-valued widget
+   */
+  public String vs(String id) {
+    return (String) get(id).readValue();
+  }
+
+  /**
+   * Set value of string-valued widget
+   */
+  public void sets(String id, String v) {
+    get(id).writeValue(v);
+  }
+
+  /**
+   * Get value of boolean-valued widget
+   */
+  public boolean vb(String id) {
+    Boolean result = null;
+    Widget g = get(id);
+    if (g != null)
+      result = (Boolean) g.readValue();
+    if (result == null)
+      result = false;
+    return result;
+  }
+
+  /**
+   * Set value of boolean-valued widget
+   */
+  public boolean setb(String id, boolean boolvalue) {
+    get(id).writeValue(boolvalue);
+    return boolvalue;
+  }
+
+  /**
+   * Toggle value of boolean-valued widget
+   * 
+   * @return new value
+   */
+  public boolean toggle(String id) {
+    return setb(id, !vb(id));
+  }
+
+  /**
+   * Get value of integer-valued widget
+   */
+  public int vi(String id) {
+    return numValue(id).intValue();
+  }
+
+  /**
+   * Set value of integer-valued widget
+   */
+  public int seti(String id, int v) {
+    get(id).writeValue(v);
+    return v;
+  }
+
+  /**
+   * Get value of double-valued widget
+   */
+  public double vd(String id) {
+    return numValue(id).doubleValue();
+  }
+
+  /**
+   * Set value of double-valued widget
+   */
+  public double setd(String id, double v) {
+    get(id).writeValue(v);
+    return v;
+  }
+
+  /**
+   * Get value of float-valued widget
+   */
+  public float vf(String id) {
+    return numValue(id).floatValue();
+  }
+
+  /**
+   * Set value of float-valued widget
+   */
+  public double setf(String id, float v) {
+    return setd(id, v);
+  }
+
+  private Number numValue(String id) {
+    return (Number) get(id).readValue();
+  }
 
   // ---------------------------------------------------------------------
   // Composing
   // ---------------------------------------------------------------------
+
+  private static final int SIZE_DEFAULT = 0;
+  private static final int SIZE_TINY = 1;
+  private static final int SIZE_SMALL = 2;
+  private static final int SIZE_LARGE = 3;
+  private static final int SIZE_HUGE = 4;
+  private static final int SIZE_MEDIUM = 5;
+
+  private static final int ALIGNMENT_DEFAULT = -1;
+  private static final int ALIGNMENT_LEFT = SwingConstants.LEFT;
+  private static final int ALIGNMENT_CENTER = SwingConstants.CENTER;
+  private static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;
 
   /**
    * <pre>
@@ -489,29 +450,12 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  /**
-   * Add a dummy item to prevent an editable text field from gaining focus
-   * automatically (and showing the keyboard).
-   * <p>
-   * It will add a column-spanning row of zero height.
-   */
-  public WidgetManager suppressTextFocus() {
-    return this;
-  }
-
   public WidgetManager addLabel() {
     return addLabel(null, "");
   }
 
   public WidgetManager addLabel(String text) {
     return addLabel(null, text);
-  }
-
-  /**
-   * Add a text field whose content is not persisted to the state map
-   */
-  public Widget addText() {
-    return addText(null);
   }
 
   public WidgetManager pushListener(WidgetListener listener) {
@@ -861,15 +805,11 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  /**
-   * Add a text field whose content is not persisted to the state map
-   */
-  public Widget addText(String key) {
+  public WidgetManager addText(String key) {
     OurText t = new OurText(consumePendingListener(), key, mLineCount, mEditableFlag, mPendingSize,
         mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
     consumeTooltip(t);
-    add(t);
-    return t;
+    return add(t);
   }
 
   public WidgetManager addHeader(String text) {
@@ -927,7 +867,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Add widget to view hierarchy
    */
-  public Widget add(Widget widget) {
+  public WidgetManager add(Widget widget) {
     String id = null;
     if (widget.hasId())
       id = widget.id();
@@ -942,7 +882,14 @@ public final class WidgetManager extends BaseObject {
     if (tooltipOwner != null)
       consumeTooltip(tooltipOwner);
     addView(widget);
-    return widget;
+    return this;
+  }
+
+  public Widget addHidden(String id, Object defaultValue) {
+    checkState(!exists(id));
+    Widget g = new HiddenWidget(defaultValue).setId(id);
+    add(g);
+    return g;
   }
 
   private void consumeTooltip(Widget widget) {
@@ -1566,7 +1513,7 @@ public final class WidgetManager extends BaseObject {
   /**
    * Add a colored panel, for test purposes
    */
-  public Widget addPanel() {
+  public WidgetManager addPanel() {
     return add(wrap(colorPanel()));
   }
 
@@ -1626,23 +1573,23 @@ public final class WidgetManager extends BaseObject {
     throw die("not supported");
   }
 
-  public static Font getFont(boolean monospaced, int widgetFontSize) {
+  private static Font getFont(boolean monospaced, int widgetFontSize) {
     //unimp("use SwingUtils for this");
     int fontSize;
     switch (widgetFontSize) {
-    case WidgetManager.SIZE_DEFAULT:
+    case SIZE_DEFAULT:
       fontSize = 16;
       break;
-    case WidgetManager.SIZE_MEDIUM:
+    case SIZE_MEDIUM:
       fontSize = 16;
       break;
-    case WidgetManager.SIZE_SMALL:
+    case SIZE_SMALL:
       fontSize = 12;
       break;
-    case WidgetManager.SIZE_LARGE:
+    case SIZE_LARGE:
       fontSize = 22;
       break;
-    case WidgetManager.SIZE_HUGE:
+    case SIZE_HUGE:
       fontSize = 28;
       break;
     default:
@@ -1665,6 +1612,9 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static Map<Integer, Font> sFontMap = hashMap();
+
+  private SortedMap<String, Widget> mWidgetMap = treeMap();
+  private boolean mActive;
 
   private WidgetListener mPendingListener;
   private Widget mListenerWidget;

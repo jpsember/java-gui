@@ -38,6 +38,7 @@ import static js.base.Tools.*;
 public class SwingUtils {
 
   public static String str(GridBagConstraints gc) {
+    loadTools();
     StringBuilder sb = new StringBuilder();
     sb.append("GBC[");
     sb.append(" wt:");
@@ -92,20 +93,4 @@ public class SwingUtils {
     applyMinDimensions(container, null, minWidthEm, minHeightEm);
   }
 
-  public static int sizeClassToPixels(int sizeClass) {
-    int fontSize;
-    switch (sizeClass) {
-    case WidgetManager.SIZE_DEFAULT:
-      fontSize = 16;
-      break;
-    case WidgetManager.SIZE_SMALL:
-      fontSize = 12;
-      break;
-    default:
-      alert("unsupported widget font size: ", sizeClass);
-      fontSize = 16;
-      break;
-    }
-    return fontSize;
-  }
 }
