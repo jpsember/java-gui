@@ -48,7 +48,7 @@ public abstract class Widget implements ActionListener {
 
   public final String id() {
     if (mId == null)
-      throw badState("gadget has no id");
+      throw badState("widget has no id");
     return mId;
   }
 
@@ -117,7 +117,11 @@ public abstract class Widget implements ActionListener {
   }
 
   public void setEnabled(boolean enabled) {
-    todo("setEnabled not implemented for:", className());
+    throw notSupported(className());
+  }
+
+  public boolean enabled() {
+    throw notSupported(className());
   }
 
   public void setVisible(boolean visible) {

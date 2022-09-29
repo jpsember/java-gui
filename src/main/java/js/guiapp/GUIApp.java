@@ -136,20 +136,20 @@ public abstract class GUIApp extends App {
   }
 
   // ------------------------------------------------------------------
-  // Gadgets
+  // Widgets
   // ------------------------------------------------------------------
 
-  public void initGadgets() {
-    mGadgetSet = new WidgetManager();
+  public void initWidgets() {
+    mWidgetManager = new WidgetManager();
     if (false)
-      mGadgetSet.alertVerbose();
+      mWidgetManager.alertVerbose();
   }
 
   public WidgetManager widgetManager() {
-    return mGadgetSet;
+    return mWidgetManager;
   }
 
-  private WidgetManager mGadgetSet;
+  private WidgetManager mWidgetManager;
 
   // ------------------------------------------------------------------
 
@@ -180,7 +180,6 @@ public abstract class GUIApp extends App {
     mFrame = new FrameWrapper();
     mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    // Add a gadget to persist the frame bounds
     rebuildFrameContent();
     // We need to make this call to ensure a menu bar exists, and to call revalidate() 
     performRepaint(~0);
@@ -190,8 +189,8 @@ public abstract class GUIApp extends App {
   public final void rebuildFrameContent() {
     checkState(mFrame != null, "frame doesn't exist yet");
 
-    // Reset the gadgets whenever we rebuild the frame
-    initGadgets();
+    // Reset the widgets whenever we rebuild the frame
+    initWidgets();
 
     // Remove any placeholder message (in case no project was open)
     contentPane().removeAll();

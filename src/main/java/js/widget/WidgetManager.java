@@ -75,9 +75,8 @@ public final class WidgetManager extends BaseObject {
   public static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;
 
   /**
-   * Determine if widget events should be propagated to listeners (including the
-   * project or script record of gadget values). False while user interface is
-   * still being constructed
+   * Determine if widget events should be propagated to listeners. False while
+   * user interface is still being constructed
    */
   public boolean active() {
     return mActive;
@@ -88,7 +87,6 @@ public final class WidgetManager extends BaseObject {
     if (mActive == state)
       log("...unchanged!");
     mActive = state;
-    todo("remove references to 'gadget'");
   }
 
   public Number numValue(String id) {
@@ -96,7 +94,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Get value of boolean-valued gadget
+   * Get value of boolean-valued widget
    */
   public boolean booleanValue(String id) {
     Boolean result = null;
@@ -109,42 +107,42 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Set value of integer-valued gadget
+   * Set value of integer-valued widget
    */
   public void setValue(String id, int v) {
     get(id).writeValue(v);
   }
 
   /**
-   * Set value of boolean-valued gadget
+   * Set value of boolean-valued widget
    */
   public void setValue(String id, boolean v) {
     get(id).writeValue(v);
   }
 
   /**
-   * Set value of double-valued gadget
+   * Set value of double-valued widget
    */
   public void setValue(String id, double v) {
     get(id).writeValue(v);
   }
 
   /**
-   * Get value of string-valued gadget
+   * Get value of string-valued widget
    */
   public String stringValue(String id) {
     return (String) (get(id).readValue());
   }
 
   /**
-   * Set value of string-valued gadget
+   * Set value of string-valued widget
    */
   public void setValue(String id, String v) {
     get(id).writeValue(v);
   }
 
   private Widget find(String id) {
-    return mGadgetMap.get(id);
+    return mWidgetMap.get(id);
   }
 
   public boolean exists(String id) {
@@ -166,14 +164,14 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Get (integer) value of gadget
+   * Get (integer) value of widget
    */
   public int vi(String id) {
     return numValue(id).intValue();
   }
 
   /**
-   * Set value of (integer-valued) gadget
+   * Set value of (integer-valued) widget
    */
   public int seti(String id, int v) {
     setValue(id, v);
@@ -181,14 +179,14 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Get boolean value of gadget
+   * Get boolean value of widget
    */
   public boolean vb(String id) {
     return booleanValue(id);
   }
 
   /**
-   * Set boolean value of gadget
+   * Set boolean value of widget
    */
   public boolean setb(String id, boolean boolvalue) {
     setValue(id, boolvalue);
@@ -196,7 +194,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Toggle boolean value of gadget
+   * Toggle boolean value of widget
    * 
    * @return new value
    */
@@ -205,7 +203,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Get (double) value of gadget
+   * Get (double) value of widget
    */
   public double vd(String id) {
     return numValue(id).doubleValue();
@@ -216,7 +214,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Set double value of gadget
+   * Set double value of widget
    */
   public double setd(String id, double v) {
     setValue(id, v);
@@ -224,7 +222,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Set float value of gadget
+   * Set float value of widget
    */
   public double set(String id, float v) {
     setValue(id, v);
@@ -232,16 +230,16 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Get (string) value of gadget
+   * Get (string) value of widget
    */
   public String vs(String id) {
     return stringValue(id);
   }
 
   /**
-   * Set gadget values according to a JSMap
+   * Set widget values
    */
-  public void writeGadgetValues(JSMap map) {
+  public void setWidgetValues(JSMap map) {
     for (Map.Entry<String, Object> entry : map.wrappedMap().entrySet()) {
       String id = entry.getKey();
       if (!exists(id))
@@ -251,11 +249,11 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Read gadget values into JSMap
+   * Read widgets values
    */
-  public JSMap readGadgetValues() {
+  public JSMap readWidgetValues() {
     JSMap m = map();
-    for (Map.Entry<String, Widget> ent : mGadgetMap.entrySet()) {
+    for (Map.Entry<String, Widget> ent : mWidgetMap.entrySet()) {
       Widget g = ent.getValue();
       Object v = g.readValue();
       if (v != null)
@@ -264,7 +262,7 @@ public final class WidgetManager extends BaseObject {
     return m;
   }
 
-  private SortedMap<String, Widget> mGadgetMap = treeMap();
+  private SortedMap<String, Widget> mWidgetMap = treeMap();
   private boolean mActive;
 
   // ---------------------------------------------------------------------
@@ -938,7 +936,7 @@ public final class WidgetManager extends BaseObject {
     if (id != null) {
       if (exists(widget.id()))
         badState("attempt to add widget id:", widget.id(), "that already exists");
-      mGadgetMap.put(id, widget);
+      mWidgetMap.put(id, widget);
     }
     JComponent tooltipOwner = widget.componentForTooltip();
     if (tooltipOwner != null)
