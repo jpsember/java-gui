@@ -419,16 +419,6 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public WidgetManager fixedWidth(float ems) {
-    mPendingFixedWidthEm = ems;
-    return this;
-  }
-
-  public WidgetManager fixedHeight(float ems) {
-    mPendingFixedHeightEm = ems;
-    return this;
-  }
-
   public WidgetManager gravity(int gravity) {
     mPendingGravity = gravity;
     return this;
@@ -442,11 +432,6 @@ public final class WidgetManager extends BaseObject {
   public WidgetManager lineCount(int numLines) {
     mLineCount = numLines;
     checkArgument(numLines > 0);
-    return this;
-  }
-
-  public WidgetManager scrollable() {
-    mScrollableFlag = true;
     return this;
   }
 
@@ -540,7 +525,7 @@ public final class WidgetManager extends BaseObject {
    * or time stamp with log
    */
   public WidgetManager withDisplay() {
-    mPendingWithDisplayFlag = true;
+    mPendingWithDisplay = true;
     return this;
   }
 
@@ -570,6 +555,18 @@ public final class WidgetManager extends BaseObject {
   public boolean consumePendingBooleanDefaultValue() {
     boolean v = nullToFalse(mPendingBooleanDefaultValue);
     mPendingBooleanDefaultValue = null;
+    return v;
+  }
+
+  public boolean consumePendingFloatingPoint() {
+    boolean v = nullToFalse(mPendingFloatingPoint);
+    mPendingFloatingPoint = null;
+    return v;
+  }
+
+  public boolean consumePendingWithDisplay() {
+    boolean v = nullToFalse(mPendingWithDisplay);
+    mPendingWithDisplay = null;
     return v;
   }
 
@@ -654,6 +651,8 @@ public final class WidgetManager extends BaseObject {
     verifyUsed(mPendingStringDefaultValue, "mPendingStringDefaultValue");
     verifyUsed(mPendingLabel, "mPendingLabel ");
     verifyUsed(mPendingStepSize, "mPendingStepSize");
+    verifyUsed(mPendingFloatingPoint, "mPendingFloatingPoint");
+    verifyUsed(mPendingWithDisplay, "mPendingWithDisplay");
 
     mPendingContainer = null;
     mPendingColumnWeights = null;
@@ -664,11 +663,8 @@ public final class WidgetManager extends BaseObject {
     mPendingGravity = 0;
     mPendingMinWidthEm = 0;
     mPendingMinHeightEm = 0;
-    mPendingFixedWidthEm = 0;
-    mPendingFixedHeightEm = 0;
     mPendingMonospaced = false;
     mEditableFlag = false;
-    mScrollableFlag = false;
     mLineCount = 0;
     mComboChoices = null;
     mPendingMinValue = null;
@@ -678,8 +674,8 @@ public final class WidgetManager extends BaseObject {
     mPendingStringDefaultValue = null;
     mPendingLabel = null;
     mPendingStepSize = null;
-    mPendingWithDisplayFlag = false;
-    mPendingFloatingPoint = false;
+    mPendingWithDisplay = null;
+    mPendingFloatingPoint = null;
   }
 
   // ------------------------------------------------------------------
@@ -687,7 +683,6 @@ public final class WidgetManager extends BaseObject {
   // ------------------------------------------------------------------
 
   private int[] mPendingColumnWeights;
-  /* private */ boolean mSuppressFocusFlag;
 
   /**
    * Call widget listener, setting up event source beforehand
@@ -814,6 +809,7 @@ public final class WidgetManager extends BaseObject {
     Grid grid = new Grid();
     grid.setContext(debugContext);
 
+    todo("add support for listeners");
     {
       if (mPendingColumnWeights == null)
         columns("x");
@@ -1101,16 +1097,16 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addSpinner(String key) {
-    OurSpinner spinner = new OurSpinner(consumePendingListener(), key, mPendingFloatingPoint,
+    OurSpinner spinner = new OurSpinner(consumePendingListener(), key, consumePendingFloatingPoint(),
         consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
         consumePendingStepSize());
     return add(spinner);
   }
 
   public WidgetManager addSlider(String key) {
-    OurSlider slider = new OurSlider(consumePendingListener(), key, mPendingFloatingPoint,
+    OurSlider slider = new OurSlider(consumePendingListener(), key, consumePendingFloatingPoint(),
         consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
-        mPendingWithDisplayFlag);
+        consumePendingWithDisplay());
     return add(slider);
   }
 
@@ -1699,12 +1695,9 @@ public final class WidgetManager extends BaseObject {
   private int mGrowXFlag, mGrowYFlag;
   private int mPendingSize;
   private boolean mEditableFlag;
-  /* private */ boolean mScrollableFlag;
   private int mPendingGravity;
   private float mPendingMinWidthEm;
   private float mPendingMinHeightEm;
-  /* private */ float mPendingFixedWidthEm;
-  /* private */ float mPendingFixedHeightEm;
   private boolean mPendingMonospaced;
   private int mPendingAlignment;
   private int mLineCount;
@@ -1714,8 +1707,8 @@ public final class WidgetManager extends BaseObject {
   private Boolean mPendingBooleanDefaultValue;
   private String mPendingStringDefaultValue;
   private String mPendingLabel;
-  private boolean mPendingFloatingPoint;
-  private boolean mPendingWithDisplayFlag;
+  private Boolean mPendingFloatingPoint;
+  private Boolean mPendingWithDisplay;
   private long mLastWidgetEventTime;
   private List<WidgetListener> mListenerStack = arrayList();
 }
