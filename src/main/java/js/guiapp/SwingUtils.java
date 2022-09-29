@@ -56,11 +56,10 @@ public final class SwingUtils {
     todo("why is prompt not showing up?", quote(prompt));
     if (Files.nonEmpty(startDirOrNull))
       fileChooser.setDirectory(startDirOrNull.getPath());
-    
+
     new PathFilter(Files.EXT_JSON);
-    
-    fileChooser.setFilenameFilter(
-        new PathFilter(Files.EXT_JSON));
+
+    fileChooser.setFilenameFilter(new PathFilter(Files.EXT_JSON));
     fileChooser.setVisible(true);
     String filename = fileChooser.getFile();
     String directory = fileChooser.getDirectory();

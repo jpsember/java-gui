@@ -85,15 +85,7 @@ public abstract class Widget implements ActionListener {
       widgets().notifyWidgetListener(this, mListener);
   }
 
-  public void restoreValue(Object value) {
-    pr("...no restoreValue override, value:", value, "class:", className());
-  }
-
-  @Deprecated
-  public String key() {
-    return mKey;
-  }
-
+ 
   @Override
   public String toString() {
     return id() + ":" + getClass().getSimpleName();
@@ -165,7 +157,7 @@ public abstract class Widget implements ActionListener {
     mWrappedComponent = component;
   }
 
-  public final Object component() {
+  public final JComponent component() {
     return mWrappedComponent;
   }
 
@@ -197,8 +189,7 @@ public abstract class Widget implements ActionListener {
     return getClass().getSimpleName();
   }
 
-  private String mKey;
-  protected WidgetListener mListener;
+  private WidgetListener mListener;
   private JComponent mWrappedComponent;
 
 }

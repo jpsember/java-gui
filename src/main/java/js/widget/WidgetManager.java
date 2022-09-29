@@ -764,6 +764,15 @@ public final class WidgetManager extends BaseObject {
     log(msg);
   }
 
+  private String tab() {
+    if (!verbose())
+      return "";
+    String dots = "................................................................................";
+    int len = mPanelStack.size() * 4;
+    len = Math.min(len, dots.length());
+    return "|" + dots.substring(0, len);
+  }
+
   public WidgetManager openTabSet(String selectTabKey) {
     log2("openTabSet", selectTabKey);
     Grid grid = new Grid();
@@ -813,7 +822,6 @@ public final class WidgetManager extends BaseObject {
     Grid grid = new Grid();
     grid.setContext(debugContext);
 
-    todo("add support for listeners");
     {
       if (mPendingColumnWeights == null)
         columns("x");
@@ -838,15 +846,6 @@ public final class WidgetManager extends BaseObject {
     mPanelStack.add(grid);
     log2("added grid to panel stack, its widget:", grid.widget().getClass());
     return this; //grid.widget();
-  }
-
-  private String tab() {
-    if (!verbose())
-      return "";
-    String dots = "................................................................................";
-    int len = mPanelStack.size() * 4;
-    len = Math.min(len, dots.length());
-    return "|" + dots.substring(0, len);
   }
 
   /**
@@ -877,12 +876,12 @@ public final class WidgetManager extends BaseObject {
    */
   public WidgetManager finish() {
     clearPendingComponentFields();
-     if (!mPanelStack.isEmpty())
-      badState("panel stack nonempty; size:",mPanelStack.size());
-     if (!mListenerStack.isEmpty())
-       badState("listener stack nonempty; size:",mListenerStack.size());
-     return this;
-    }
+    if (!mPanelStack.isEmpty())
+      badState("panel stack nonempty; size:", mPanelStack.size());
+    if (!mListenerStack.isEmpty())
+      badState("listener stack nonempty; size:", mListenerStack.size());
+    return this;
+  }
 
   /**
    * If current row is only partially complete, add space to its end
@@ -1188,15 +1187,6 @@ public final class WidgetManager extends BaseObject {
       notifyListener();
     }
 
-    @Override
-    public void restoreValue(Object value) {
-      if (value == null)
-        value = "";
-      String symbolicName = value.toString();
-      int index = mTabNames.getSymbolicIndex(symbolicName);
-      tabbedPane().setSelectedIndex(index);
-    }
-
     private JTabbedPane tabbedPane() {
       return swingComponent();
     }
@@ -1254,21 +1244,6 @@ public final class WidgetManager extends BaseObject {
         component.addActionListener(this);
       }
     }
-    //
-    //        @Override
-    //        public void actionPerformed(ActionEvent e) {
-    //          JCheckBox component = swingComponent();
-    //          storeValueToStateMap(manager().stateMap(), component.isSelected());
-    //          super.actionPerformed(e);
-    //        }
-
-    @Override
-    public void restoreValue(Object value) {
-      Boolean boolValue = (Boolean) value;
-      if (boolValue == null)
-        boolValue = false;
-      setChecked(boolValue);
-    }
 
     @Override
     public boolean isChecked() {
@@ -1315,15 +1290,6 @@ public final class WidgetManager extends BaseObject {
     @Override
     public void stateChanged(ChangeEvent e) {
       notifyListener();
-    }
-
-    @Override
-    public void restoreValue(Object value) {
-      JSpinner component = swingComponent();
-      Number number = (Number) value;
-      if (number == null)
-        number = mStepper.def();
-      component.getModel().setValue(number.intValue());
     }
 
     @Override
@@ -1382,12 +1348,6 @@ public final class WidgetManager extends BaseObject {
       updateDisplayValue();
       GUIApp.sharedInstance().userEventManagerListener(UserEvent.widgetEvent(id()));
       notifyListener();
-    }
-
-    @Override
-    public void restoreValue(Object value) {
-      Number number = (Number) value;
-      getSlider().getModel().setValue(mStepper.toInternalUnits(number));
     }
 
     private void updateDisplayValue() {
@@ -1497,12 +1457,6 @@ public final class WidgetManager extends BaseObject {
       setComponent(container);
     }
 
-    @Override
-    public void restoreValue(Object value) {
-      String textValue = nullToEmpty((String) value);
-      textComponent().setText(textValue);
-    }
-
     public JTextComponent textComponent() {
       return mTextComponent;
     }
@@ -1582,13 +1536,6 @@ public final class WidgetManager extends BaseObject {
       return component.getSelectedIndex();
     }
 
-    @Override
-    public void restoreValue(Object value) {
-      JComboBox<String> component = swingComponent();
-      int index = mChoices.getSymbolicIndex((String) value);
-      component.setSelectedIndex(index);
-    }
-
     //    private String displayToInternal(String s) {
     //      return mChoices.displayToSymbolic(s);
     //    }
@@ -1654,16 +1601,7 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  /**
-   * Create a view, push onto stack; but don't add the view to the current
-   * hierarchy
-   */
-  public WidgetManager openFree() {
-    throw die("not supported");
-  }
-
   private static Font getFont(boolean monospaced, int widgetFontSize) {
-    //unimp("use SwingUtils for this");
     int fontSize;
     switch (widgetFontSize) {
     case SIZE_DEFAULT:
