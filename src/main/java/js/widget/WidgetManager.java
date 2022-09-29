@@ -1068,7 +1068,7 @@ public final class WidgetManager extends BaseObject {
 
   public WidgetManager addLabel(String key, String text) {
     log2("addLabel", key, text);
-    add(new OurLabel(this, key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
+    add(new OurLabel(key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
         mPendingAlignment));
     return this;
   }
@@ -1387,9 +1387,8 @@ public final class WidgetManager extends BaseObject {
 
   private static class OurLabel extends Widget {
 
-    public OurLabel(WidgetManager manager, String key, int gravity, int lineCount, String text, int fontSize,
-        boolean monospaced, int alignment) {
-      todo("manager shouldn't be required");
+    public OurLabel(String key, int gravity, int lineCount, String text, int fontSize, boolean monospaced,
+        int alignment) {
       setId(key);
       JLabel label = new JLabel(text);
       if (fontSize == SIZE_DEFAULT)
@@ -1430,7 +1429,6 @@ public final class WidgetManager extends BaseObject {
   private static class OurText extends Widget implements DocumentListener {
     public OurText(WidgetListener listener, String key, int lineCount, boolean editable, int fontSize,
         boolean monospaced, float minWidthEm, float minHeightEm) {
-      todo("manager shouldn't be required");
       setId(key);
       JComponent container;
       JTextComponent textComponent;

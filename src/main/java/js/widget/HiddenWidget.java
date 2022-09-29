@@ -8,7 +8,6 @@ class HiddenWidget extends Widget {
 
   public HiddenWidget(Object defaultValue) {
     mValue = defaultValue;
-    todo("support for Widget read/write values?");
   }
 
   @Override
