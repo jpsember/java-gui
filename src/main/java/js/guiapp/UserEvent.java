@@ -67,8 +67,8 @@ public final class UserEvent extends BaseObject {
     mWidgetId = widgetId;
   }
 
-*/                            %%% // gitdiff marker
-  public boolean isWidget() {return getCode() == CODE_WIDGET ;
+  public boolean isWidget() {
+    return getCode() == CODE_WIDGET;
   }
 
   public int getCode() {
