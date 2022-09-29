@@ -88,6 +88,7 @@ public final class WidgetManager extends BaseObject {
     if (mActive == state)
       log("...unchanged!");
     mActive = state;
+    todo("remove references to 'gadget'");
   }
 
   public Number numValue(String id) {

@@ -52,11 +52,11 @@ public abstract class GUIApp extends App {
     checkState(sSingleton == null, "app must be a singleton!");
     sSingleton = this;
   }
- 
+
   public static <T extends GUIApp> T sharedInstance() {
     return (T) sSingleton;
   }
-  
+
   private static GUIApp sSingleton;
 
   // ------------------------------------------------------------------
