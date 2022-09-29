@@ -24,6 +24,13 @@
  **/
 package js.widget;
 
+/**
+ * Widget listener interface
+ */
 public interface WidgetListener {
-  void event();
+  
+  /**
+   * Called when an event has occurred with widget
+   */
+  void widgetEvent(String widgetId);
 }

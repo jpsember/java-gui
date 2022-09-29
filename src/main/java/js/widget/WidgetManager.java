@@ -439,6 +439,19 @@ public final class WidgetManager extends BaseObject {
     return addLabel(null);
   }
 
+  /**
+   * Specify listener to add to next widget
+   */
+  public WidgetManager listener(WidgetListener listener) {
+    checkState(mPendingListener == null, "already a pending listener");
+    mPendingListener = listener;
+    return this;
+  }
+
+  /**
+   * Specify listener to add to following widgets. Must be balanced by call to
+   * popListener()
+   */
   public WidgetManager pushListener(WidgetListener listener) {
     checkState(mPendingListener == null, "already a pending listener");
     mListenerStack.add(listener);
@@ -449,12 +462,6 @@ public final class WidgetManager extends BaseObject {
     checkState(mPendingListener == null, "already a pending listener");
     checkState(!mListenerStack.isEmpty(), "listener stack underflow");
     pop(mListenerStack);
-    return this;
-  }
-
-  public WidgetManager listener(WidgetListener listener) {
-    checkState(mPendingListener == null, "already a pending listener");
-    mPendingListener = listener;
     return this;
   }
 
@@ -570,9 +577,6 @@ public final class WidgetManager extends BaseObject {
     return v;
   }
 
-  /**
-   * If there's a pending WidgetListener, return it (and clear it)
-   */
   private WidgetListener consumePendingListener() {
     WidgetListener listener = mPendingListener;
     mPendingListener = null;
@@ -694,7 +698,7 @@ public final class WidgetManager extends BaseObject {
     try {
       mLastWidgetEventTime = System.currentTimeMillis();
       mListenerWidget = widget;
-      listener.event();
+      listener.widgetEvent(widget.id());
     } finally {
       mListenerWidget = previousListener;
     }
@@ -867,6 +871,18 @@ public final class WidgetManager extends BaseObject {
       assignViewsToGridLayout(parent);
     return this;
   }
+
+  /**
+   * Verify that no unused 'pending' arguments exist, calls are balanced, etc
+   */
+  public WidgetManager finish() {
+    clearPendingComponentFields();
+     if (!mPanelStack.isEmpty())
+      badState("panel stack nonempty; size:",mPanelStack.size());
+     if (!mListenerStack.isEmpty())
+       badState("listener stack nonempty; size:",mListenerStack.size());
+     return this;
+    }
 
   /**
    * If current row is only partially complete, add space to its end
@@ -1231,9 +1247,12 @@ public final class WidgetManager extends BaseObject {
     public OurToggleButton(WidgetListener listener, String key, String label, boolean defaultValue) {
       setId(key);
       JCheckBox component = new JCheckBox(label, defaultValue);
-      //     component.addActionListener(this);
       setComponent(component);
-      registerListener(listener);
+
+      if (listener != null) {
+        registerListener(listener);
+        component.addActionListener(this);
+      }
     }
     //
     //        @Override

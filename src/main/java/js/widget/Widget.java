@@ -31,6 +31,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
 
+import js.guiapp.GUIApp;
+
 /**
  * Abstract class representing a user interface element
  */
@@ -71,24 +73,17 @@ public abstract class Widget implements ActionListener {
     mListener = listener;
   }
 
+  private WidgetManager widgets() {
+    return GUIApp.sharedInstance().widgetManager();
+  }
+
   /**
    * Notify WidgetListener, if there is one, of an event involving this widget
    */
   protected final void notifyListener() {
-    if (mListener != null) {
-      todo("notify listeners");
-      //manager().notifyWidgetListener(this, mListener);
-    }
+    if (mListener != null)
+      widgets().notifyWidgetListener(this, mListener);
   }
-
-  //  protected final void storeValueToStateMap(JSMap stateMap, Object value) {
-  //    // Don't persist value if no key was given
-  //    if (key() == null)
-  //      return;
-  //    if (!mManager.validStateMap())
-  //      return;
-  //    stateMap.putUnsafe(key(), value);
-  //  }
 
   public void restoreValue(Object value) {
     pr("...no restoreValue override, value:", value, "class:", className());
