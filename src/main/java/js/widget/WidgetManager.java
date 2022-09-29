@@ -24,7 +24,6 @@
  **/
 package js.widget;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -39,18 +38,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.JTextComponent;
 
 import js.base.BaseObject;
 import js.data.DataUtil;
 import js.geometry.IPoint;
 import js.geometry.MyMath;
-import js.guiapp.GUIApp;
-import js.guiapp.UserEvent;
 import js.json.JSMap;
 import js.parsing.RegExp;
 
@@ -218,17 +210,17 @@ public final class WidgetManager extends BaseObject {
   // Composing
   // ---------------------------------------------------------------------
 
-  private static final int SIZE_DEFAULT = 0;
-  private static final int SIZE_TINY = 1;
-  private static final int SIZE_SMALL = 2;
-  private static final int SIZE_LARGE = 3;
-  private static final int SIZE_HUGE = 4;
-  private static final int SIZE_MEDIUM = 5;
+  static final int SIZE_DEFAULT = 0;
+  static final int SIZE_TINY = 1;
+  static final int SIZE_SMALL = 2;
+  static final int SIZE_LARGE = 3;
+  static final int SIZE_HUGE = 4;
+  static final int SIZE_MEDIUM = 5;
 
-  private static final int ALIGNMENT_DEFAULT = -1;
-  private static final int ALIGNMENT_LEFT = SwingConstants.LEFT;
-  private static final int ALIGNMENT_CENTER = SwingConstants.CENTER;
-  private static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;
+  static final int ALIGNMENT_DEFAULT = -1;
+  static final int ALIGNMENT_LEFT = SwingConstants.LEFT;
+  static final int ALIGNMENT_CENTER = SwingConstants.CENTER;
+  static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;
 
   /**
    * <pre>
@@ -777,7 +769,7 @@ public final class WidgetManager extends BaseObject {
     log2("openTabSet", selectTabKey);
     Grid grid = new Grid();
     grid.setContext(selectTabKey);
-    grid.setWidget(new OurTabbedPane(consumePendingListener(), selectTabKey));
+    grid.setWidget(new TabbedPaneWidget(consumePendingListener(), selectTabKey));
     add(grid.widget());
     mPanelStack.add(grid);
     log2("added grid to panel stack for tab set");
@@ -800,7 +792,7 @@ public final class WidgetManager extends BaseObject {
 
   public WidgetManager closeTabSet() {
     Grid parent = last(mPanelStack);
-    if (!(parent.widget() instanceof OurTabbedPane))
+    if (!(parent.widget() instanceof TabbedPaneWidget))
       badState("attempt to close tab set, current is:", parent.widget().id());
     close("tab set");
     return this;
@@ -866,7 +858,7 @@ public final class WidgetManager extends BaseObject {
       log2("close", debugContext, compInfo(gridComponent(parent)));
     endRow();
 
-    if (!(parent.widget() instanceof OurTabbedPane))
+    if (!(parent.widget() instanceof TabbedPaneWidget))
       assignViewsToGridLayout(parent);
     return this;
   }
@@ -896,8 +888,8 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addText(String key) {
-    OurText t = new OurText(consumePendingListener(), key, consumePendingStringDefaultValue(), mLineCount,
-        mEditableFlag, mPendingSize, mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
+    TextWidget t = new TextWidget(consumePendingListener(), key, consumePendingStringDefaultValue(),
+        mLineCount, mEditableFlag, mPendingSize, mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
     consumeTooltip(t);
     return add(t);
   }
@@ -1014,8 +1006,8 @@ public final class WidgetManager extends BaseObject {
     // add the component to it
 
     Grid grid = last(mPanelStack);
-    if (grid.widget() instanceof OurTabbedPane) {
-      OurTabbedPane tabPane = grid.widget();
+    if (grid.widget() instanceof TabbedPaneWidget) {
+      TabbedPaneWidget tabPane = grid.widget();
       String tabName = consumePendingTabTitle(component);
       log2("adding a tab with name:", tabName);
       tabPane.add(tabName, component);
@@ -1087,7 +1079,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addButton(String key) {
-    OurButton button = new OurButton(consumePendingListener(), key, consumePendingLabel(true));
+    ButtonWidget button = new ButtonWidget(consumePendingListener(), key, consumePendingLabel(true));
     return add(button);
   }
 
@@ -1098,35 +1090,35 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addToggleButton(String key) {
-    OurToggleButton button = new OurToggleButton(consumePendingListener(), key, consumePendingLabel(true),
-        consumePendingBooleanDefaultValue());
+    ToggleButtonWidget button = new ToggleButtonWidget(consumePendingListener(), key,
+        consumePendingLabel(true), consumePendingBooleanDefaultValue());
     return add(button);
   }
 
   public WidgetManager addLabel(String key) {
     String text = consumePendingLabel(true);
     log2("addLabel", key, text);
-    add(new OurLabel(key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
+    add(new LabelWidget(key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
         mPendingAlignment));
     return this;
   }
 
   public WidgetManager addSpinner(String key) {
-    OurSpinner spinner = new OurSpinner(consumePendingListener(), key, consumePendingFloatingPoint(),
+    SpinnerWidget spinner = new SpinnerWidget(consumePendingListener(), key, consumePendingFloatingPoint(),
         consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
         consumePendingStepSize());
     return add(spinner);
   }
 
   public WidgetManager addSlider(String key) {
-    OurSlider slider = new OurSlider(consumePendingListener(), key, consumePendingFloatingPoint(),
+    SliderWidget slider = new SliderWidget(consumePendingListener(), key, consumePendingFloatingPoint(),
         consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
         consumePendingWithDisplay());
     return add(slider);
   }
 
   public WidgetManager addChoiceBox(String key) {
-    OurComboBox c = new OurComboBox(consumePendingListener(), key, mComboChoices);
+    ComboBoxWidget c = new ComboBoxWidget(consumePendingListener(), key, mComboChoices);
     return add(c);
   }
 
@@ -1141,406 +1133,6 @@ public final class WidgetManager extends BaseObject {
   private Component getApplicationFrame() {
     todo("getApplicationFrame returning null for now");
     return null;
-  }
-
-  private static class ComponentWidget extends Widget {
-
-    public ComponentWidget(JComponent component) {
-      setComponent(component);
-    }
-
-    @Override
-    public void setVisible(boolean visible) {
-      swingComponent().setVisible(visible);
-    }
-
-    @Override
-    public Object readValue() {
-      return null;
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      throw notSupported("write value;", this);
-    }
-  }
-
-  private static class OurTabbedPane extends Widget implements ChangeListener {
-
-    public OurTabbedPane(WidgetListener listener, String key) {
-      setId(key);
-      JTabbedPane component = new JTabbedPane();
-      component.addChangeListener(this);
-      setComponent(component);
-      registerListener(listener);
-    }
-
-    public void add(String tabNameExpr, JComponent component) {
-      mTabNames.add(tabNameExpr);
-      String lastDisplayName = last(mTabNames.displayNames());
-      tabbedPane().add(lastDisplayName, component);
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-      // storeValueToStateMap(manager().stateMap(), mTabNames.getSymbolicName(tabbedPane().getSelectedIndex()));
-      notifyListener();
-    }
-
-    private JTabbedPane tabbedPane() {
-      return swingComponent();
-    }
-
-    private SymbolicNameSet mTabNames = new SymbolicNameSet();
-
-    @Override
-    public Integer readValue() {
-      // I used to be storing the selected tab by its symbolic name, but for now let's not bother
-      return tabbedPane().getSelectedIndex();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      Number n = (Number) v;
-      tabbedPane().setSelectedIndex(n.intValue());
-    }
-  }
-
-  private static class OurButton extends Widget {
-
-    public OurButton(WidgetListener listener, String key, String label) {
-      JButton component = new JButton(label);
-      todo("add action listener");
-      //      component.addActionListener(this);
-      setComponent(component);
-      registerListener(listener);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-      swingComponent().setEnabled(enabled);
-    }
-
-    @Override
-    public String readValue() {
-      JButton b = swingComponent();
-      return b.getText();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      throw notSupported();
-    }
-  }
-
-  private static class OurToggleButton extends Widget {
-    public OurToggleButton(WidgetListener listener, String key, String label, boolean defaultValue) {
-      setId(key);
-      JCheckBox component = new JCheckBox(label, defaultValue);
-      setComponent(component);
-
-      if (listener != null) {
-        registerListener(listener);
-        component.addActionListener(this);
-      }
-    }
-
-    @Override
-    public boolean isChecked() {
-      JCheckBox component = swingComponent();
-      return component.isSelected();
-    }
-
-    @Override
-    public void doClick() {
-      JCheckBox component = swingComponent();
-      component.doClick();
-    }
-
-    @Override
-    public void setChecked(boolean state) {
-      JCheckBox component = swingComponent();
-      component.setSelected(state);
-    }
-
-    @Override
-    public Boolean readValue() {
-      return isChecked();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      setChecked((Boolean) v);
-    }
-  }
-
-  private static class OurSpinner extends Widget implements ChangeListener {
-    public OurSpinner(WidgetListener listener, String key, boolean floatsFlag, Number defaultValue,
-        Number minimum, Number maximum, Number stepSize) {
-      mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, stepSize);
-      checkState(mStepper.isInt(), "non-integer not supported");
-      SpinnerModel model = new SpinnerNumberModel(mStepper.def().intValue(), mStepper.min().intValue(),
-          mStepper.max().intValue(), mStepper.step().intValue());
-      JSpinner component = new JSpinner(model);
-      model.addChangeListener(this);
-      setComponent(component);
-      registerListener(listener);
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-      notifyListener();
-    }
-
-    @Override
-    public Number readValue() {
-      return (Number) spinner().getModel().getValue();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      Number number = (Number) v;
-      setValue(number);
-    }
-
-    private JSpinner spinner() {
-      return swingComponent();
-    }
-
-    private NumericStepper mStepper;
-  }
-
-  private static class OurSlider extends Widget implements ChangeListener {
-    public OurSlider(WidgetListener listener, String key, boolean floatsFlag, Number defaultValue,
-        Number minimum, Number maximum, boolean includesDisplay) {
-      setId(key);
-      mStepper = new NumericStepper(floatsFlag, defaultValue, minimum, maximum, null);
-      JComponent component;
-      JSlider slider = new JSlider(mStepper.internalMin(), mStepper.internalMax(), mStepper.internalVal());
-      slider.addChangeListener(this);
-      mSlider = slider;
-      if (includesDisplay) {
-        int maxValueStringLength = mStepper.maxDigits();
-        mDisplay = new JTextField(maxValueStringLength);
-        mDisplay.setEditable(false);
-        mDisplay.setHorizontalAlignment(SwingConstants.RIGHT);
-        JPanel container = new JPanel();
-        // Make the container's layout a BorderLayout, with the slider grabbing the available space
-        container.setLayout(new BorderLayout());
-        container.add(slider, BorderLayout.CENTER);
-        container.add(mDisplay, BorderLayout.EAST);
-        component = container;
-        updateDisplayValue();
-      } else {
-        component = slider;
-      }
-      setComponent(component);
-      registerListener(listener);
-    }
-
-    @Override
-    public JComponent componentForTooltip() {
-      return getSlider();
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-      updateDisplayValue();
-      GUIApp.sharedInstance().userEventManagerListener(UserEvent.widgetEvent(id()));
-      notifyListener();
-    }
-
-    private void updateDisplayValue() {
-      if (mDisplay == null)
-        return;
-      int numValue = getSlider().getModel().getValue();
-      String value = mStepper.fromInternalUnits(numValue).toString();
-      mDisplay.setText(value);
-    }
-
-    public JSlider getSlider() {
-      return mSlider;
-    }
-
-    @Override
-    public void setValue(Number number) {
-      getSlider().getModel().setValue(number.intValue());
-      updateDisplayValue();
-      notifyListener();
-    }
-
-    @Override
-    public Number readValue() {
-      return getSlider().getModel().getValue();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      Number number = (Number) v;
-      setValue(number);
-    }
-
-    private NumericStepper mStepper;
-    private JTextField mDisplay;
-    private JSlider mSlider;
-  }
-
-  private static class OurLabel extends Widget {
-
-    public OurLabel(String key, int gravity, int lineCount, String text, int fontSize, boolean monospaced,
-        int alignment) {
-      setId(key);
-      JLabel label = new JLabel(text);
-      if (fontSize == SIZE_DEFAULT)
-        fontSize = SIZE_SMALL;
-      Font font = getFont(monospaced, fontSize);
-      label.setFont(font);
-      if (alignment == ALIGNMENT_DEFAULT)
-        alignment = ALIGNMENT_RIGHT;
-      label.setHorizontalAlignment(alignment);
-      setComponent(label);
-    }
-
-    private JLabel textComponent() {
-      return swingComponent();
-    }
-
-    @Override
-    public void setText(String text) {
-      textComponent().setText(text);
-    }
-
-    @Override
-    public String getText() {
-      return textComponent().getText();
-    }
-
-    @Override
-    public String readValue() {
-      return getText();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      setText((String) v);
-    }
-  }
-
-  private static class OurText extends Widget implements DocumentListener {
-    public OurText(WidgetListener listener, String key, String defaultValue, int lineCount, boolean editable,
-        int fontSize, boolean monospaced, float minWidthEm, float minHeightEm) {
-      setId(key);
-      JComponent container;
-      JTextComponent textComponent;
-      if (lineCount > 1) {
-        JTextArea textArea = new JTextArea(lineCount, 40);
-        textArea.setLineWrap(true);
-        textComponent = textArea;
-        container = new JScrollPane(textArea);
-
-      } else {
-        JTextField textField = new JTextField();
-        textComponent = textField;
-        container = textComponent;
-      }
-      textComponent.setEditable(editable);
-      textComponent.setText(defaultValue);
-      if (editable) {
-        registerListener(listener);
-        textComponent.getDocument().addDocumentListener(this);
-      }
-      Font font = getFont(monospaced, fontSize);
-      textComponent.setFont(font);
-
-      applyMinDimensions(container, font, minWidthEm, minHeightEm);
-      mTextComponent = textComponent;
-      setComponent(container);
-    }
-
-    public JTextComponent textComponent() {
-      return mTextComponent;
-    }
-
-    @Override
-    public void setText(String text) {
-      textComponent().setText(text);
-    }
-
-    @Override
-    public String getText() {
-      return textComponent().getText();
-    }
-
-    @Override
-    public void insertUpdate(DocumentEvent e) {
-      commonUpdateHandler();
-    }
-
-    @Override
-    public String readValue() {
-      return getText();
-    }
-
-    @Override
-    public void writeValue(Object v) {
-      setText((String) v);
-    }
-
-    @Override
-    public void removeUpdate(DocumentEvent e) {
-      commonUpdateHandler();
-    }
-
-    @Override
-    public void changedUpdate(DocumentEvent e) {
-      commonUpdateHandler();
-    }
-
-    private void commonUpdateHandler() {
-      //      if (key() != null) {
-      //        storeValueToStateMap(manager().stateMap(), textComponent().getText());
-      //      }
-      notifyListener();
-    }
-
-    private JTextComponent mTextComponent;
-  }
-
-  private static class OurComboBox extends Widget {
-    public OurComboBox(WidgetListener listener, String key, SymbolicNameSet choices) {
-      mChoices = checkNotNull(choices);
-      JComboBox<String> component = new JComboBox<>(DataUtil.toStringArray(mChoices.displayNames()));
-      todo("add action listener");
-      //      component.addActionListener(this);
-      setComponent(component);
-      registerListener(listener);
-    }
-
-    //    @Override
-    //    public void actionPerformed(ActionEvent e) {
-    //      JComboBox<String> component = swingComponent();
-    //      String selectedItem = (String) component.getSelectedItem();
-    //      storeValueToStateMap(manager().stateMap(), displayToInternal(selectedItem));
-    //      super.actionPerformed(e);
-    //    }
-
-    @Override
-    public void writeValue(Object v) {
-      todo("not finished");
-    }
-
-    @Override
-    public Integer readValue() {
-      JComboBox<String> component = swingComponent();
-      todo("not sure this is correct");
-      return component.getSelectedIndex();
-    }
-
-    //    private String displayToInternal(String s) {
-    //      return mChoices.displayToSymbolic(s);
-    //    }
-
-    private SymbolicNameSet mChoices;
   }
 
   private List<Grid> mPanelStack = arrayList();
@@ -1601,7 +1193,7 @@ public final class WidgetManager extends BaseObject {
     }
   }
 
-  private static Font getFont(boolean monospaced, int widgetFontSize) {
+  static Font getFont(boolean monospaced, int widgetFontSize) {
     int fontSize;
     switch (widgetFontSize) {
     case SIZE_DEFAULT:
