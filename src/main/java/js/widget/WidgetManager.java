@@ -451,11 +451,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addLabel() {
-    return addLabel(null, "");
-  }
-
-  public WidgetManager addLabel(String text) {
-    return addLabel(null, text);
+    return addLabel(null);
   }
 
   public WidgetManager pushListener(WidgetListener listener) {
@@ -476,12 +472,6 @@ public final class WidgetManager extends BaseObject {
     mPendingListener = listener;
     return this;
   }
-
-  public Widget addButton(String label) {
-    return addButton(null, label);
-  }
-
-  // public abstract Widget addToggleButton(String key, String label);
 
   public WidgetManager floats() {
     mPendingFloatingPoint = true;
@@ -510,12 +500,36 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
+  /**
+   * Set default value for next boolean-valued control
+   */
+  public WidgetManager defaultVal(boolean value) {
+    mPendingBooleanDefaultValue = value;
+    return this;
+  }
+
+  public WidgetManager defaultVal(String value) {
+    mPendingStringDefaultValue = value;
+    return this;
+  }
+
+  public WidgetManager label(String value) {
+    mPendingLabel = value;
+    return this;
+  }
+
+  /**
+   * Set default value for next double-valued control
+   */
   public WidgetManager defaultVal(double value) {
     floats();
     mPendingDefaultValue = value;
     return this;
   }
 
+  /**
+   * Set default value for next integer-valued control
+   */
   public WidgetManager defaultVal(int value) {
     mPendingDefaultValue = value;
     return this;
@@ -553,16 +567,60 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
+  public boolean consumePendingBooleanDefaultValue() {
+    boolean v = nullToFalse(mPendingBooleanDefaultValue);
+    mPendingBooleanDefaultValue = null;
+    return v;
+  }
+
   /**
    * If there's a pending WidgetListener, return it (and clear it)
    */
-  public WidgetListener consumePendingListener() {
+  private WidgetListener consumePendingListener() {
     WidgetListener listener = mPendingListener;
     mPendingListener = null;
     if (listener == null && !mListenerStack.isEmpty()) {
       listener = last(mListenerStack);
     }
     return listener;
+  }
+
+  private String consumePendingLabel(boolean required) {
+    String lbl = mPendingLabel;
+    mPendingLabel = null;
+    if (nullOrEmpty(lbl))
+      badState("missing label");
+    return lbl;
+  }
+
+  private String consumePendingStringDefaultValue() {
+    String s = mPendingStringDefaultValue;
+    mPendingStringDefaultValue = null;
+    return s;
+  }
+
+  private Number consumePendingMinValue() {
+    Number n = mPendingMinValue;
+    mPendingMinValue = null;
+    return n;
+  }
+
+  private Number consumePendingMaxValue() {
+    Number n = mPendingMaxValue;
+    mPendingMaxValue = null;
+    return n;
+  }
+
+  private Number consumePendingDefaultValue() {
+    Number n = mPendingDefaultValue;
+    mPendingDefaultValue = null;
+    return n;
+  }
+
+  private Number consumePendingStepSize() {
+    Number n = mPendingStepSize;
+    mPendingStepSize = null;
+    return n;
   }
 
   private String consumePendingTabTitle(Object component) {
@@ -576,7 +634,27 @@ public final class WidgetManager extends BaseObject {
     return tabNameExpression;
   }
 
+  private void verifyUsed(Object value, String name) {
+    if (value == null)
+      return;
+    String dispName = chompPrefix(name.trim(), "m");
+    dispName = DataUtil.convertCamelCaseToUnderscores(dispName);
+    die("unused value:", dispName);
+  }
+
   private void clearPendingComponentFields() {
+    // If some values were not used, issue warnings
+    verifyUsed(mPendingContainer, "pending container");
+    verifyUsed(mPendingColumnWeights, "pending column weights");
+    verifyUsed(mComboChoices, "pending combo choices");
+    verifyUsed(mPendingMinValue, "mPendingMinValue");
+    verifyUsed(mPendingMaxValue, "mPendingMaxValue");
+    verifyUsed(mPendingDefaultValue, "mPendingDefaultValue");
+    verifyUsed(mPendingBooleanDefaultValue, "mPendingBooleanDefaultValue");
+    verifyUsed(mPendingStringDefaultValue, "mPendingStringDefaultValue");
+    verifyUsed(mPendingLabel, "mPendingLabel ");
+    verifyUsed(mPendingStepSize, "mPendingStepSize");
+
     mPendingContainer = null;
     mPendingColumnWeights = null;
     mSpanXCount = 0;
@@ -596,6 +674,9 @@ public final class WidgetManager extends BaseObject {
     mPendingMinValue = null;
     mPendingMaxValue = null;
     mPendingDefaultValue = null;
+    mPendingBooleanDefaultValue = null;
+    mPendingStringDefaultValue = null;
+    mPendingLabel = null;
     mPendingStepSize = null;
     mPendingWithDisplayFlag = false;
     mPendingFloatingPoint = false;
@@ -672,8 +753,7 @@ public final class WidgetManager extends BaseObject {
     throw new IllegalArgumentException("cannot create Widget wrapper for: " + component);
   }
 
-  @Deprecated // prefer with context for now
-  public Widget open() {
+  public WidgetManager open() {
     return open("<no context>");
   }
 
@@ -719,9 +799,16 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
+   * Add a colored panel, for test purposes
+   */
+  public WidgetManager debPanel() {
+    return add(wrap(colorPanel()));
+  }
+
+  /**
    * Create a child view and push onto stack
    */
-  public Widget open(String debugContext) {
+  public WidgetManager open(String debugContext) {
     log2("open", debugContext);
 
     Grid grid = new Grid();
@@ -731,6 +818,7 @@ public final class WidgetManager extends BaseObject {
       if (mPendingColumnWeights == null)
         columns("x");
       grid.setColumnSizes(mPendingColumnWeights);
+      mPendingColumnWeights = null;
 
       JComponent panel;
       if (mPendingContainer != null) {
@@ -749,7 +837,7 @@ public final class WidgetManager extends BaseObject {
     add(grid.widget());
     mPanelStack.add(grid);
     log2("added grid to panel stack, its widget:", grid.widget().getClass());
-    return grid.widget();
+    return this; //grid.widget();
   }
 
   private String tab() {
@@ -764,11 +852,13 @@ public final class WidgetManager extends BaseObject {
   /**
    * Pop view from the stack
    */
-  @Deprecated // prefer with context for now
   public WidgetManager close() {
     return close("<no context>");
   }
 
+  /**
+   * Pop view from the stack
+   */
   public WidgetManager close(String debugContext) {
     log2("about to close", debugContext);
 
@@ -776,20 +866,9 @@ public final class WidgetManager extends BaseObject {
     if (verbose())
       log2("close", debugContext, compInfo(gridComponent(parent)));
     endRow();
-    //    if (verbose()) {
-    //      log("close", compInfo(gridComponent(parent)));
-    //      log("");
-    //    }
 
-    if (!(parent.widget() instanceof OurTabbedPane)) {
+    if (!(parent.widget() instanceof OurTabbedPane))
       assignViewsToGridLayout(parent);
-    }
-
-    //    if (mPanelStack.isEmpty()) {
-    //      Widget widget = parent.widget();
-    //      mOutermostView = widget.swingComponent();
-    //      ensureListenerStackEmpty();
-    //    }
     return this;
   }
 
@@ -806,8 +885,8 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addText(String key) {
-    OurText t = new OurText(consumePendingListener(), key, mLineCount, mEditableFlag, mPendingSize,
-        mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
+    OurText t = new OurText(consumePendingListener(), key, consumePendingStringDefaultValue(), mLineCount,
+        mEditableFlag, mPendingSize, mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
     consumeTooltip(t);
     return add(t);
   }
@@ -885,11 +964,8 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public Widget addHidden(String id, Object defaultValue) {
-    checkState(!exists(id));
-    Widget g = new HiddenWidget(defaultValue).setId(id);
-    add(g);
-    return g;
+  public WidgetManager addHidden(String id, Object defaultValue) {
+    return add(new HiddenWidget(defaultValue).setId(id));
   }
 
   private void consumeTooltip(Widget widget) {
@@ -999,44 +1075,48 @@ public final class WidgetManager extends BaseObject {
     return "\"" + s + "\"";
   }
 
-  public Widget addButton(String key, String label) {
-    OurButton button = new OurButton(consumePendingListener(), key, label);
-    add(button);
-    return button;
+  public WidgetManager addButton(String key) {
+    OurButton button = new OurButton(consumePendingListener(), key, consumePendingLabel(true));
+    return add(button);
   }
 
-  public Widget addToggleButton(String key, String label, boolean defaultValue) {
-    OurToggleButton button = new OurToggleButton(consumePendingListener(), key, label, defaultValue);
-    add(button);
-    todo("should we return WidgetManager consistently, instead of the widgets?");
-    return button;
+  private static boolean nullToFalse(Boolean value) {
+    if (value == null)
+      value = false;
+    return value;
   }
 
-  public WidgetManager addLabel(String key, String text) {
+  public WidgetManager addToggleButton(String key) {
+    OurToggleButton button = new OurToggleButton(consumePendingListener(), key, consumePendingLabel(true),
+        consumePendingBooleanDefaultValue());
+    return add(button);
+  }
+
+  public WidgetManager addLabel(String key) {
+    String text = consumePendingLabel(true);
     log2("addLabel", key, text);
     add(new OurLabel(key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
         mPendingAlignment));
     return this;
   }
 
-  public Widget addSpinner(String key) {
+  public WidgetManager addSpinner(String key) {
     OurSpinner spinner = new OurSpinner(consumePendingListener(), key, mPendingFloatingPoint,
-        mPendingDefaultValue, mPendingMinValue, mPendingMaxValue, mPendingStepSize);
-    add(spinner);
-    return spinner;
+        consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
+        consumePendingStepSize());
+    return add(spinner);
   }
 
-  public Widget addSlider(String key) {
+  public WidgetManager addSlider(String key) {
     OurSlider slider = new OurSlider(consumePendingListener(), key, mPendingFloatingPoint,
-        mPendingDefaultValue, mPendingMinValue, mPendingMaxValue, mPendingWithDisplayFlag);
-    add(slider);
-    return slider;
+        consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
+        mPendingWithDisplayFlag);
+    return add(slider);
   }
 
-  public Widget addChoiceBox(String key) {
+  public WidgetManager addChoiceBox(String key) {
     OurComboBox c = new OurComboBox(consumePendingListener(), key, mComboChoices);
-    add(c);
-    return c;
+    return add(c);
   }
 
   public void showModalErrorDialog(String message) {
@@ -1078,7 +1158,6 @@ public final class WidgetManager extends BaseObject {
 
     public OurTabbedPane(WidgetListener listener, String key) {
       setId(key);
-      todo("pass in listener, not widgetManager");
       JTabbedPane component = new JTabbedPane();
       component.addChangeListener(this);
       setComponent(component);
@@ -1373,8 +1452,8 @@ public final class WidgetManager extends BaseObject {
   }
 
   private static class OurText extends Widget implements DocumentListener {
-    public OurText(WidgetListener listener, String key, int lineCount, boolean editable, int fontSize,
-        boolean monospaced, float minWidthEm, float minHeightEm) {
+    public OurText(WidgetListener listener, String key, String defaultValue, int lineCount, boolean editable,
+        int fontSize, boolean monospaced, float minWidthEm, float minHeightEm) {
       setId(key);
       JComponent container;
       JTextComponent textComponent;
@@ -1383,12 +1462,14 @@ public final class WidgetManager extends BaseObject {
         textArea.setLineWrap(true);
         textComponent = textArea;
         container = new JScrollPane(textArea);
+
       } else {
         JTextField textField = new JTextField();
         textComponent = textField;
         container = textComponent;
       }
       textComponent.setEditable(editable);
+      textComponent.setText(defaultValue);
       if (editable) {
         registerListener(listener);
         textComponent.getDocument().addDocumentListener(this);
@@ -1510,13 +1591,6 @@ public final class WidgetManager extends BaseObject {
     return new GridBagLayout();
   }
 
-  /**
-   * Add a colored panel, for test purposes
-   */
-  public WidgetManager addPanel() {
-    return add(wrap(colorPanel()));
-  }
-
   private static <T extends JComponent> T gridComponent(Grid grid) {
     Widget widget = grid.widget();
     return widget.swingComponent();
@@ -1569,7 +1643,7 @@ public final class WidgetManager extends BaseObject {
    * Create a view, push onto stack; but don't add the view to the current
    * hierarchy
    */
-  public Widget openFree() {
+  public WidgetManager openFree() {
     throw die("not supported");
   }
 
@@ -1637,6 +1711,9 @@ public final class WidgetManager extends BaseObject {
   private SymbolicNameSet mComboChoices;
   private String mTooltip;
   private Number mPendingMinValue, mPendingMaxValue, mPendingDefaultValue, mPendingStepSize;
+  private Boolean mPendingBooleanDefaultValue;
+  private String mPendingStringDefaultValue;
+  private String mPendingLabel;
   private boolean mPendingFloatingPoint;
   private boolean mPendingWithDisplayFlag;
   private long mLastWidgetEventTime;
