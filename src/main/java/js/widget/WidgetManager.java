@@ -894,8 +894,8 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
-  public WidgetManager addText(String key) {
-    TextWidget t = new TextWidget(consumePendingListener(), key, consumePendingStringDefaultValue(),
+  public WidgetManager addText(String id) {
+    TextWidget t = new TextWidget(consumePendingListener(), id, consumePendingStringDefaultValue(),
         mLineCount, mEditableFlag, mPendingSize, mPendingMonospaced, mPendingMinWidthEm, mPendingMinHeightEm);
     consumeTooltip(t);
     return add(t);
@@ -1085,9 +1085,8 @@ public final class WidgetManager extends BaseObject {
     return "\"" + s + "\"";
   }
 
-  public WidgetManager addButton(String key) {
-    todo("Have a widget id prefix that prevents it from being serialized/restored");
-    ButtonWidget button = new ButtonWidget(consumePendingListener(), key, consumePendingLabel(true));
+  public WidgetManager addButton(String id) {
+    ButtonWidget button = new ButtonWidget(consumePendingListener(), id, consumePendingLabel(true));
     return add(button);
   }
 
@@ -1097,36 +1096,36 @@ public final class WidgetManager extends BaseObject {
     return value;
   }
 
-  public WidgetManager addToggleButton(String key) {
-    ToggleButtonWidget button = new ToggleButtonWidget(consumePendingListener(), key,
+  public WidgetManager addToggleButton(String id) {
+    ToggleButtonWidget button = new ToggleButtonWidget(consumePendingListener(), id,
         consumePendingLabel(true), consumePendingBooleanDefaultValue());
     return add(button);
   }
 
-  public WidgetManager addLabel(String key) {
+  public WidgetManager addLabel(String id) {
     String text = consumePendingLabel(true);
-    log2("addLabel", key, text);
-    add(new LabelWidget(key, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
+    log2("addLabel", id, text);
+    add(new LabelWidget(id, mPendingGravity, mLineCount, text, mPendingSize, mPendingMonospaced,
         mPendingAlignment));
     return this;
   }
 
-  public WidgetManager addSpinner(String key) {
-    SpinnerWidget spinner = new SpinnerWidget(consumePendingListener(), key, consumePendingFloatingPoint(),
+  public WidgetManager addSpinner(String id) {
+    SpinnerWidget spinner = new SpinnerWidget(consumePendingListener(), id, consumePendingFloatingPoint(),
         consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
         consumePendingStepSize());
     return add(spinner);
   }
 
-  public WidgetManager addSlider(String key) {
-    SliderWidget slider = new SliderWidget(consumePendingListener(), key, consumePendingFloatingPoint(),
+  public WidgetManager addSlider(String id) {
+    SliderWidget slider = new SliderWidget(consumePendingListener(), id, consumePendingFloatingPoint(),
         consumePendingDefaultValue(), consumePendingMinValue(), consumePendingMaxValue(),
         consumePendingWithDisplay());
     return add(slider);
   }
 
-  public WidgetManager addChoiceBox(String key) {
-    ComboBoxWidget c = new ComboBoxWidget(consumePendingListener(), key, mComboChoices);
+  public WidgetManager addChoiceBox(String id) {
+    ComboBoxWidget c = new ComboBoxWidget(consumePendingListener(), id, mComboChoices);
     return add(c);
   }
 
