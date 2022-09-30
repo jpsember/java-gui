@@ -617,13 +617,10 @@ public final class WidgetManager extends BaseObject {
   }
 
   private String consumePendingTabTitle(Object component) {
-    String tabNameExpression = "?NAME?";
     if (mPendingTabTitle == null)
-      die("no tab name specified for:", component);
-    else {
-      tabNameExpression = mPendingTabTitle;
-      mPendingTabTitle = null;
-    }
+      throw badState("no tab name specified for:", component);
+    String tabNameExpression = mPendingTabTitle;
+    mPendingTabTitle = null;
     return tabNameExpression;
   }
 
@@ -632,7 +629,7 @@ public final class WidgetManager extends BaseObject {
       return;
     String dispName = chompPrefix(name.trim(), "m");
     dispName = DataUtil.convertCamelCaseToUnderscores(dispName);
-    die("unused value:", dispName);
+    throw badState("unused value:", dispName);
   }
 
   private void clearPendingComponentFields() {
@@ -776,8 +773,14 @@ public final class WidgetManager extends BaseObject {
     return this;
   }
 
+  /**
+   * Open a new tab within the current TabSet
+   * 
+   * @param tabTitle
+   *          label for tab; either "{id}", or, if the id is different than what
+   *          should be displayed, "{id:display}"
+   */
   public WidgetManager openTab(String tabTitle) {
-    todo("allow a symbolic value AND a human title, and store selected tab as a string");
     log2("openTab", tabTitle);
     mPendingTabTitle = tabTitle;
     open(tabTitle);
@@ -785,7 +788,6 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager closeTab() {
-    //    log2("closeTab");
     close("closeTab");
     return this;
   }
@@ -1008,9 +1010,9 @@ public final class WidgetManager extends BaseObject {
     Grid grid = last(mPanelStack);
     if (grid.widget() instanceof TabbedPaneWidget) {
       TabbedPaneWidget tabPane = grid.widget();
-      String tabName = consumePendingTabTitle(component);
-      log2("adding a tab with name:", tabName);
-      tabPane.add(tabName, component);
+      String tabIdNameExpression = consumePendingTabTitle(component);
+      log2("adding a tab with name:", tabIdNameExpression);
+      tabPane.add(tabIdNameExpression, component);
       return;
     }
 

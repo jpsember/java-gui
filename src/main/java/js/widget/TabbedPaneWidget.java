@@ -7,7 +7,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-class TabbedPaneWidget extends Widget implements ChangeListener {
+public class TabbedPaneWidget extends Widget implements ChangeListener {
 
   public TabbedPaneWidget(WidgetListener listener, String key) {
     setId(key);
@@ -25,7 +25,6 @@ class TabbedPaneWidget extends Widget implements ChangeListener {
 
   @Override
   public void stateChanged(ChangeEvent e) {
-    // storeValueToStateMap(manager().stateMap(), mTabNames.getSymbolicName(tabbedPane().getSelectedIndex()));
     notifyListener();
   }
 
@@ -33,17 +32,18 @@ class TabbedPaneWidget extends Widget implements ChangeListener {
     return swingComponent();
   }
 
-  private SymbolicNameSet mTabNames = new SymbolicNameSet();
-
   @Override
-  public Integer readValue() {
-    // I used to be storing the selected tab by its symbolic name, but for now let's not bother
-    return tabbedPane().getSelectedIndex();
+  public String readValue() {
+    int index = tabbedPane().getSelectedIndex();
+    return mTabNames.getSymbolicName(index);
   }
 
   @Override
   public void writeValue(Object v) {
-    Number n = (Number) v;
-    tabbedPane().setSelectedIndex(n.intValue());
+    String n = (String) v;
+    tabbedPane().setSelectedIndex(mTabNames.getSymbolicIndex(n));
   }
+
+  private SymbolicNameSet mTabNames = new SymbolicNameSet();
+
 }
