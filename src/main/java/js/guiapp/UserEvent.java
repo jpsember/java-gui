@@ -51,8 +51,7 @@ public final class UserEvent extends BaseObject {
   public static final int FLAG_META = (1 << 4);
   public static final int FLAG_MULTITOUCH = (1 << 5);
 
-  public static final UserEvent DEFAULT_INSTANCE = new UserEvent(CODE_NONE, null, IPoint.DEFAULT_INSTANCE, 0,
-      null);
+  public static final UserEvent DEFAULT_INSTANCE = new UserEvent(CODE_NONE, null, null, 0, null);
 
   public static UserEvent widgetEvent(String widgetId) {
     return new UserEvent(CODE_WIDGET, null, null, 0, widgetId);
@@ -61,6 +60,8 @@ public final class UserEvent extends BaseObject {
   public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags,
       String widgetId) {
     mCode = code;
+    if (viewLocation != null && source == null)
+      badArg("viewLocation given with no source");
     mSource = source;
     mViewLocation = viewLocation;
     mModifierFlags = modifierFlags;
@@ -89,9 +90,7 @@ public final class UserEvent extends BaseObject {
   }
 
   public IPoint getWorldLocation() {
-    if (!hasLocation())
-      throw new IllegalStateException();
-    return mSource.viewToWorld(mViewLocation);
+    return mSource.viewToWorld(getViewLocation());
   }
 
   public boolean isDownVariant() {

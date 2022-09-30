@@ -89,7 +89,8 @@ public final class WidgetManager extends BaseObject {
   // ------------------------------------------------------------------
 
   /**
-   * Set widgets' values
+   * Set widgets' values. Used to restore app widgets to a previously saved
+   * state
    */
   public void setWidgetValues(JSMap map) {
     for (Map.Entry<String, Object> entry : map.wrappedMap().entrySet()) {
@@ -101,15 +102,19 @@ public final class WidgetManager extends BaseObject {
   }
 
   /**
-   * Read widgets' values
+   * Read widgets' values. Doesn't include widgets that have no ids, or whose
+   * ids start with "."
    */
   public JSMap readWidgetValues() {
     JSMap m = map();
     for (Map.Entry<String, Widget> ent : mWidgetMap.entrySet()) {
+      String id = ent.getKey();
+      if (id.charAt(0) == '.')
+        continue;
       Widget g = ent.getValue();
       Object v = g.readValue();
       if (v != null)
-        m.putUnsafe(ent.getKey(), v);
+        m.putUnsafe(id, v);
     }
     return m;
   }
