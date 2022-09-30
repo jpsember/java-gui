@@ -27,10 +27,6 @@ public class FrameWrapper extends BaseObject {
     return mFrame;
   }
 
-  public IRect bounds() {
-    return new IRect(frame().getBounds());
-  }
-
   public void setBounds(IRect bounds) {
     if (bounds.minDim() < 40) {
       IPoint screenSize = new IPoint(Toolkit.getDefaultToolkit().getScreenSize());

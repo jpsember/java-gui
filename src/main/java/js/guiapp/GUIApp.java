@@ -48,6 +48,10 @@ import js.widget.WidgetManager;
 
 public abstract class GUIApp extends App {
 
+  // ------------------------------------------------------------------
+  // Construction
+  // ------------------------------------------------------------------
+
   public GUIApp() {
     checkState(sSingleton == null, "app must be a singleton!");
     sSingleton = this;
@@ -63,8 +67,8 @@ public abstract class GUIApp extends App {
   // App configuration
   // ------------------------------------------------------------------
 
-  public static GuiAppConfig.Builder guiAppConfig() {
-    return sConfig;
+  public final GuiAppConfig.Builder guiAppConfig() {
+    return mConfig;
   }
 
   @Override
@@ -72,149 +76,7 @@ public abstract class GUIApp extends App {
     return guiAppConfig().version();
   }
 
-  private static GuiAppConfig.Builder sConfig = GuiAppConfig.DEFAULT_INSTANCE.toBuilder();
-
-  /**
-   * Register the single operation for this application. GUI apps don't support
-   * multiple operations; this singleton operation will forward calls to app
-   * methods for simplicity
-   */
-  @Override
-  protected final void registerOperations() {
-    registerOper(new AppOper() {
-      @Override
-      public String userCommand() {
-        return null;
-      }
-
-      @Override
-      public void perform() {
-        startApplication2();
-      }
-
-      @Override
-      protected List<Object> getAdditionalArgs() {
-        return getOptionalArgDescriptions();
-      }
-    });
-  }
-
-  /**
-   * Perform this app's singleton operation; a continuation of the 'start
-   * application' process
-   */
-  private void startApplication2() {
-    SystemUtil.setConsoleAppFlag(false);
-    processOptionalArgs();
-    if (cmdLineArgs().hasNextArg())
-      throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
-
-    // Continue starting app within the Swing thread
-    //
-    SwingUtilities.invokeLater(() -> {
-      startApplication3();
-    });
-  }
-
-  private void startApplication3() {
-    if (guiAppConfig().devMode() && guiAppConfig().singleInstanceMode()) {
-      String processExpr = getClass().getName();
-      SystemUtil.killProcesses(processExpr);
-      SystemUtil.killAfterDelay(processExpr);
-    }
-
-    UserEventManager.construct(getDefaultUserOperation());
-    UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
-    KeyboardShortcutManager.construct(guiAppConfig().keyboardShortcutRegistry());
-
-    createFrame();
-    startedGUI();
-    // TODO: when switching projects, the frame does a quick 'bounce'; it might be better to hide the frame when a project
-    // is closing, and only make it visible again once a new one is loaded (or if no new project is replacing it)
-    mFrame.frame().setVisible(true);
-    //    mAppStarted = true;
-  }
-
-  // ------------------------------------------------------------------
-  // Widgets
-  // ------------------------------------------------------------------
-
-  public void initWidgets() {
-    mWidgetManager = new WidgetManager();
-    if (false)
-      mWidgetManager.alertVerbose();
-  }
-
-  public WidgetManager widgetManager() {
-    return mWidgetManager;
-  }
-
-  private WidgetManager mWidgetManager;
-
-  // ------------------------------------------------------------------
-
-  /**
-   * Construct the default operation for the event manager. Default returns a
-   * 'do nothing' operation
-   */
-  public UserOperation getDefaultUserOperation() {
-    alert("No default operation implemented");
-    return new UserOperation();
-  }
-
-  /**
-   * A listener for user events; default does nothing
-   */
-  public void userEventManagerListener(UserEvent event) {
-  }
-
-  //------------------------------------------------------------------
-  // Frame
-  // ------------------------------------------------------------------
-
-  public final FrameWrapper appFrame() {
-    return mFrame;
-  }
-
-  private void createFrame() {
-    mFrame = new FrameWrapper();
-    mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    rebuildFrameContent();
-    // We need to make this call to ensure a menu bar exists, and to call revalidate() 
-    performRepaint(~0);
-    startPeriodicBackgroundTask();
-  }
-
-  public final void rebuildFrameContent() {
-    checkState(mFrame != null, "frame doesn't exist yet");
-
-    // Reset the widgets whenever we rebuild the frame
-    initWidgets();
-
-    // Remove any placeholder message (in case no project was open)
-    contentPane().removeAll();
-
-    // We embed a JPanel that serves as a container for other components, 
-    // the main one being the editor window, but others that may include
-    // control panels or informational windows
-
-    JPanel parentPanel = new JPanel(new BorderLayout());
-    populateFrame(parentPanel);
-    contentPane().add(parentPanel);
-    // WTF, apparently this is necessary to get repainting to occur; see
-    // https://groups.google.com/g/comp.lang.java.gui/c/vCbwLOX9Vow?pli=1
-    contentPane().revalidate();
-  }
-
-  /**
-   * Add appropriate components to the app frame's parent panel. Default does
-   * nothing
-   */
-  public void populateFrame(JPanel parentPanel) {
-  }
-
-  private FrameWrapper mFrame;
+  private GuiAppConfig.Builder mConfig = GuiAppConfig.DEFAULT_INSTANCE.toBuilder();
 
   // ------------------------------------------------------------------
   // Command line arguments
@@ -241,19 +103,77 @@ public abstract class GUIApp extends App {
   }
 
   // ------------------------------------------------------------------
+  // App startup
+  // ------------------------------------------------------------------
 
-  public final void updateTitle() {
-    String title = name() + " v" + getVersion();
-    if (guiAppConfig().devMode())
-      title = title + " !!! DEV MODE !!!";
-    String auxTitle = getTitleText();
-    if (!nullOrEmpty(auxTitle))
-      title = "(" + title + ") " + auxTitle;
-    appFrame().frame().setTitle(title);
+  /**
+   * Register the single operation for this application. GUI apps don't support
+   * multiple operations; this singleton operation will forward calls to app
+   * methods for simplicity
+   */
+  @Override
+  protected final void registerOperations() {
+    registerOper(new AppOper() {
+      @Override
+      public String userCommand() {
+        return null;
+      }
+
+      @Override
+      public void perform() {
+        performStartup();
+      }
+
+      @Override
+      protected List<Object> getAdditionalArgs() {
+        return getOptionalArgDescriptions();
+      }
+    });
   }
 
-  public String getTitleText() {
-    return null;
+  /**
+   * Perform startup of app (before switching to Swing thread)
+   */
+  private void performStartup() {
+    SystemUtil.setConsoleAppFlag(false);
+    processOptionalArgs();
+    if (cmdLineArgs().hasNextArg())
+      throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
+
+    // Continue starting app within the Swing thread
+    //
+    SwingUtilities.invokeLater(() -> {
+      continueStartupWithinSwingThread();
+    });
+  }
+
+  /**
+   * Continue startup of app from within Swing thread
+   */
+  private void continueStartupWithinSwingThread() {
+    if (guiAppConfig().devMode() && guiAppConfig().singleInstanceMode()) {
+      String processExpr = getClass().getName();
+      SystemUtil.killProcesses(processExpr);
+      SystemUtil.killAfterDelay(processExpr);
+    }
+
+    UserEventManager.construct(getDefaultUserOperation());
+    UserEventManager.sharedInstance().setListener((x) -> userEventManagerListener(x));
+    KeyboardShortcutManager.construct(guiAppConfig().keyboardShortcutRegistry());
+
+    createFrame();
+    startedGUI();
+
+    mFrame.frame().setVisible(true);
+  }
+
+  /**
+   * Construct the default UserOperation. Default returns a 'do nothing'
+   * operation
+   */
+  public UserOperation getDefaultUserOperation() {
+    alert("No default operation implemented");
+    return new UserOperation();
   }
 
   /**
@@ -262,44 +182,72 @@ public abstract class GUIApp extends App {
   public void startedGUI() {
   }
 
-  // ------------------------------------------------------------------
-  // Menu bar
+  //------------------------------------------------------------------
+  // Frame
   // ------------------------------------------------------------------
 
-  public void discardMenuBar() {
-    mMenuBar = null;
+  public final FrameWrapper appFrame() {
+    return mFrame;
   }
 
-  private void createMenuBarIfNec() {
-    if (mMenuBar != null)
-      return;
-    KeyboardShortcutManager.sharedInstance().clearAssignedOperationList();
-    MenuBarWrapper m = new MenuBarWrapper();
-    mMenuBar = m;
-    populateMenuBar(m);
-    mFrame.frame().setJMenuBar(m.jmenuBar());
+  private void createFrame() {
+    mFrame = new FrameWrapper();
+    mFrame.frame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    rebuildFrameContent();
+    startPeriodicBackgroundTask();
+    if (false) {
+      // We need to make this call to ensure a menu bar exists, and to call revalidate() 
+      performRepaint(~0);
+    }
   }
 
-  public abstract void populateMenuBar(MenuBarWrapper m);
+  public final void rebuildFrameContent() {
+
+    // Reset the widgets whenever we rebuild the frame
+    initWidgets();
+
+    // Remove any placeholder message (in case no project was open)
+    contentPane().removeAll();
+
+    // We embed a JPanel that serves as a container for other components, 
+    // the main one being the editor window, but others that may include
+    // control panels or informational windows
+
+    JPanel parentPanel = new JPanel(new BorderLayout());
+    populateFrame(parentPanel);
+    contentPane().add(parentPanel);
+    // WTF, apparently this is necessary to get repainting to occur; see
+    // https://groups.google.com/g/comp.lang.java.gui/c/vCbwLOX9Vow?pli=1
+    contentPane().revalidate();
+  }
 
   /**
-   * Add an item to the current menu
+   * Add appropriate components to the app frame's parent panel. Default does
+   * nothing
    */
-  public JMenuItem addItem(String hotKeyId, String displayedName, UserOperation operation) {
-    return mMenuBar.addItem(hotKeyId, displayedName, operation);
+  public void populateFrame(JPanel parentPanel) {
   }
 
-  private MenuBarWrapper mMenuBar;
-
+  /**
+   * Get app frame's content pane
+   */
   public final JComponent contentPane() {
     return (JComponent) mFrame.frame().getContentPane();
   }
 
-  public final void setMouseCursor(int type) {
-    if (mFrame != null)
-      mFrame.frame().setCursor(Cursor.getPredefinedCursor(type));
-  }
+  private FrameWrapper mFrame;
 
+  public static final int REPAINT_EDITOR = (1 << 0);
+  public static final int REPAINT_INFO = (1 << 1);
+  public static final int REPAINT_ALL = ~0;
+
+  /**
+   * Trigger a repaint of various app components
+   * 
+   * @param repaintFlags
+   *          a combination of REPAINT_xxx
+   */
   public final void performRepaint(int repaintFlags) {
     // If there is no menu bar, create one
     createMenuBarIfNec();
@@ -325,6 +273,93 @@ public abstract class GUIApp extends App {
   }
 
   // ------------------------------------------------------------------
+  // App title
+  // ------------------------------------------------------------------
+
+  public final void updateTitle() {
+    String title = name() + " v" + getVersion();
+    if (guiAppConfig().devMode())
+      title = title + " !!! DEV MODE !!!";
+    String auxTitle = getTitleText();
+    if (!nullOrEmpty(auxTitle))
+      title = "(" + title + ") " + auxTitle;
+    appFrame().frame().setTitle(title);
+  }
+
+  public String getTitleText() {
+    return null;
+  }
+
+  // ------------------------------------------------------------------
+  // Mouse (or trackpad) pointer
+  // ------------------------------------------------------------------
+
+  public final void setMouseCursor(int type) {
+    if (mFrame != null)
+      mFrame.frame().setCursor(Cursor.getPredefinedCursor(type));
+  }
+
+  // ------------------------------------------------------------------
+  // Menu bar
+  // ------------------------------------------------------------------
+
+  /**
+   * Throw out any existing menu bar. It will get rebuilt by next call to
+   * performRepaint()
+   */
+  public final void discardMenuBar() {
+    mMenuBar = null;
+  }
+
+  private final void createMenuBarIfNec() {
+    if (mMenuBar != null)
+      return;
+    KeyboardShortcutManager.sharedInstance().clearAssignedOperationList();
+    MenuBarWrapper m = new MenuBarWrapper();
+    mMenuBar = m;
+    populateMenuBar(m);
+    mFrame.frame().setJMenuBar(m.jmenuBar());
+  }
+
+  /**
+   * Add menus to menu bar
+   */
+  public abstract void populateMenuBar(MenuBarWrapper m);
+
+  /**
+   * Add an item to the current menu
+   */
+  public final JMenuItem addItem(String hotKeyId, String displayedName, UserOperation operation) {
+    return mMenuBar.addItem(hotKeyId, displayedName, operation);
+  }
+
+  private MenuBarWrapper mMenuBar;
+
+  // ------------------------------------------------------------------
+  // User events
+  // ------------------------------------------------------------------
+
+  /**
+   * A listener for user events; default does nothing
+   */
+  public void userEventManagerListener(UserEvent event) {
+  }
+
+  // ------------------------------------------------------------------
+  // Widgets
+  // ------------------------------------------------------------------
+
+  public void initWidgets() {
+    mWidgetManager = new WidgetManager();
+  }
+
+  public final WidgetManager widgetManager() {
+    return mWidgetManager;
+  }
+
+  private WidgetManager mWidgetManager;
+
+  // ------------------------------------------------------------------
   // Performing periodic tasks on the Swing event thread
   // ------------------------------------------------------------------
 
@@ -333,12 +368,12 @@ public abstract class GUIApp extends App {
     mSwingTasks.addTask(() -> swingBackgroundTask()).start();
   }
 
+  private SwingTaskManager mSwingTasks = new SwingTaskManager();
+
   /**
    * Called every ~3 seconds on the Swing event thread. Default does nothing
    */
   public void swingBackgroundTask() {
   }
-
-  private SwingTaskManager mSwingTasks = new SwingTaskManager();
 
 }
