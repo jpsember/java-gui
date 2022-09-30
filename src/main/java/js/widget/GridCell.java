@@ -30,7 +30,7 @@ import static js.base.Tools.*;
  * Data associated with a view occupying one or more cells within its parent
  * view
  */
-public final class GridCell {
+final class GridCell {
 
   public Object view;
   public int x;
@@ -58,4 +58,3 @@ public final class GridCell {
     return view == null;
   }
 }
-

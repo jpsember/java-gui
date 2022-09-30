@@ -6,10 +6,11 @@ import javax.swing.JButton;
 
 class ButtonWidget extends Widget {
 
-  public ButtonWidget(WidgetListener listener, String key, String label) {
+  public ButtonWidget(WidgetListener listener, String id, String label) {
+    loadTools();
+    setId(id);
     JButton component = new JButton(label);
-    todo("add action listener");
-    //      component.addActionListener(this);
+    component.addActionListener(this);
     setComponent(component);
     registerListener(listener);
   }
@@ -21,12 +22,16 @@ class ButtonWidget extends Widget {
 
   @Override
   public String readValue() {
-    JButton b = swingComponent();
-    return b.getText();
+    return jButton().getText();
   }
 
   @Override
   public void writeValue(Object v) {
-    throw notSupported();
+    String label = (String) v;
+    jButton().setText(label);
+  }
+
+  private JButton jButton() {
+    return swingComponent();
   }
 }

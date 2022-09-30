@@ -48,10 +48,8 @@ public final class UserEventManager extends BaseObject implements UserEvent.List
   }
 
   private UserEventManager(UserOperation defaultOper) {
-    checkArgument(defaultOper != null, "no default operation");
-    mDefaultOperation = defaultOper;
+    mDefaultOperation = checkNotNull(defaultOper);
     setOperation(defaultOper);
-    //alertVerbose();
   }
 
   public UserOperation getOperation() {

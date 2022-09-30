@@ -32,7 +32,7 @@ import js.geometry.IPoint;
 /**
  * Data for a View that contains a grid of child views
  */
-public final class Grid {
+final class Grid {
 
   public void setContext(String debugContext) {
     mDebugContext = debugContext;

@@ -26,6 +26,9 @@ package js.guiapp;
 
 import js.geometry.IPoint;
 
+/**
+ * Interface for objects that can provide extra information about a UserEvent
+ */
 public interface UserEventSource {
 
   /**

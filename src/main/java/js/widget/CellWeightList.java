@@ -28,7 +28,7 @@ import static js.base.Tools.*;
 
 import java.util.List;
 
-public final class CellWeightList {
+final class CellWeightList {
 
   public void set(int index, int weight) {
     growTo(1 + index);

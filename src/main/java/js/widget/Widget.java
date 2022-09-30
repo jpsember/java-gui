@@ -40,6 +40,8 @@ public abstract class Widget implements ActionListener {
 
   public final Widget setId(String id) {
     checkState(!hasId(), "already has an id");
+    // If id is not null, it cannot be empty
+    checkArgument(!"".equals(id));
     mId = id;
     return this;
   }
@@ -52,6 +54,10 @@ public abstract class Widget implements ActionListener {
     if (mId == null)
       throw badState("widget has no id");
     return mId;
+  }
+
+  public final String optionalId() {
+    return ifNullOrEmpty(mId, "<no id>");
   }
 
   private String mId;
@@ -85,7 +91,6 @@ public abstract class Widget implements ActionListener {
       widgets().notifyWidgetListener(this, mListener);
   }
 
- 
   @Override
   public String toString() {
     return id() + ":" + getClass().getSimpleName();

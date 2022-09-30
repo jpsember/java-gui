@@ -1081,6 +1081,7 @@ public final class WidgetManager extends BaseObject {
   }
 
   public WidgetManager addButton(String key) {
+    todo("Have a widget id prefix that prevents it from being serialized/restored");
     ButtonWidget button = new ButtonWidget(consumePendingListener(), key, consumePendingLabel(true));
     return add(button);
   }
