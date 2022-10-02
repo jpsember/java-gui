@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
 
+import js.app.App;
 import js.guiapp.GUIApp;
 
 /**
@@ -80,7 +81,8 @@ public abstract class Widget implements ActionListener {
   }
 
   private WidgetManager widgets() {
-    return GUIApp.sharedInstance().widgetManager();
+    GUIApp app = App.sharedInstance();
+    return app.widgetManager();
   }
 
   /**

@@ -10,6 +10,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import js.app.App;
 import js.guiapp.GUIApp;
 import js.guiapp.UserEvent;
 
@@ -49,7 +50,8 @@ class SliderWidget extends Widget implements ChangeListener {
   @Override
   public void stateChanged(ChangeEvent e) {
     updateDisplayValue();
-    GUIApp.sharedInstance().userEventManagerListener(UserEvent.widgetEvent(id()));
+    GUIApp app = App.sharedInstance();
+    app.userEventManagerListener(UserEvent.widgetEvent(id()));
     notifyListener();
   }
 

@@ -46,6 +46,9 @@ import js.gui.gen.GuiAppConfig;
 import js.system.SystemUtil;
 import js.widget.WidgetManager;
 
+/**
+ * App subclass for applications requiring a graphical user interface
+ */
 public abstract class GUIApp extends App {
 
   // ------------------------------------------------------------------
@@ -53,15 +56,8 @@ public abstract class GUIApp extends App {
   // ------------------------------------------------------------------
 
   public GUIApp() {
-    checkState(sSingleton == null, "app must be a singleton!");
-    sSingleton = this;
+    setSingleton();
   }
-
-  public static <T extends GUIApp> T sharedInstance() {
-    return (T) sSingleton;
-  }
-
-  private static GUIApp sSingleton;
 
   // ------------------------------------------------------------------
   // App configuration
