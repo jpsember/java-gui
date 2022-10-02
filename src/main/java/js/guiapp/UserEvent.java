@@ -57,13 +57,10 @@ public final class UserEvent extends BaseObject {
     return new UserEvent(CODE_WIDGET, null, null, 0, widgetId);
   }
 
-  public UserEvent(int code, UserEventSource source, IPoint viewLocation, int modifierFlags,
-      String widgetId) {
+  public UserEvent(int code, IPoint worldLocation, IPoint viewLocation, int modifierFlags, String widgetId) {
     mCode = code;
-    if (viewLocation != null && source == null)
-      badArg("viewLocation given with no source");
-    mSource = source;
     mViewLocation = viewLocation;
+    mWorldLocation = worldLocation;
     mModifierFlags = modifierFlags;
     mWidgetId = widgetId;
   }
@@ -80,17 +77,13 @@ public final class UserEvent extends BaseObject {
     return mWidgetId;
   }
 
-  public UserEventSource getSource() {
-    return mSource;
-  }
-
   public IPoint getViewLocation() {
     checkState(hasLocation(), "no view location");
     return mViewLocation;
   }
 
   public IPoint getWorldLocation() {
-    return mSource.viewToWorld(getViewLocation());
+    return mWorldLocation;
   }
 
   public boolean isDownVariant() {
@@ -218,8 +211,7 @@ public final class UserEvent extends BaseObject {
   // ------------------------------------------------------------------
 
   private final int mCode;
-  private final UserEventSource mSource;
-  private final IPoint mViewLocation;
+  private final IPoint mWorldLocation, mViewLocation;
   private final int mModifierFlags;
   private final String mWidgetId;
 
