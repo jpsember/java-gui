@@ -1,4 +1,4 @@
-fields {
+class {
 
   // Have this true by default, so we only need to add code when app is 'complete' to disable it
   //

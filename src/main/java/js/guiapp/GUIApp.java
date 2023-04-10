@@ -366,6 +366,10 @@ public abstract class GUIApp extends App {
 
   private SwingTaskManager mSwingTasks = new SwingTaskManager();
 
+  protected SwingTaskManager taskManager() {
+    return mSwingTasks;
+  }
+
   /**
    * Called every ~3 seconds on the Swing event thread. Default does nothing
    */

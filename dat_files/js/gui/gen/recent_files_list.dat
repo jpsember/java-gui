@@ -1,4 +1,4 @@
-fields {
+class {
   bool active;
   *File files;
 }
