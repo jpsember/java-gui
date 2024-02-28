@@ -844,7 +844,7 @@ public final class WidgetManager extends BaseObject {
     add(grid.widget());
     mPanelStack.add(grid);
     log2("added grid to panel stack, its widget:", grid.widget().getClass());
-    return this; //grid.widget();
+    return this; 
   }
 
   /**

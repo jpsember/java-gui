@@ -137,6 +137,7 @@ public final class KeyboardShortcutManager extends BaseObject {
     return s.indexOf(c) >= 0;
   }
 
+  @SuppressWarnings("deprecation")
   private static int[] modifierKeyMasks() {
     if (sModifierKeyMasks == null) {
       int[] m = new int[4];

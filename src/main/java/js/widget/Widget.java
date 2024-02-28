@@ -152,10 +152,6 @@ public abstract class Widget implements ActionListener {
     throw new UnsupportedOperationException();
   }
 
-  //public SwingWidget(WidgetManager manager, String key) {
-  //  super(manager, key);
-  //}
-
   public void actionPerformed(ActionEvent e) {
     notifyListener();
   }
