@@ -28,7 +28,6 @@ import static js.base.Tools.*;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -86,13 +85,6 @@ public abstract class GUIApp extends App {
   }
 
   /**
-   * Get a description of any optional arguments; default returns null
-   */
-  public List<Object> getOptionalArgDescriptions() {
-    return null;
-  }
-
-  /**
    * Process any optional command line arguments
    */
   public void processOptionalArgs() {
@@ -120,10 +112,6 @@ public abstract class GUIApp extends App {
         performStartup();
       }
 
-      @Override
-      protected List<Object> getAdditionalArgs() {
-        return getOptionalArgDescriptions();
-      }
     });
   }
 
