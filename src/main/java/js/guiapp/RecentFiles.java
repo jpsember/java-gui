@@ -105,11 +105,10 @@ public class RecentFiles extends BaseObject {
   public void restore(RecentFilesList recentFilesList) {
     mState = recentFilesList.toBuilder();
     wtf("within restore");
-    
+
     RecentFilesList.Builder validate = RecentFilesList.newBuilder();
     wtf("got validate builder");
-    
-    todo("it is inconvenient to not have a 'fresh' list in the builder; we should make a copy from the built one?");
+
     List<File> fileList = arrayList();
     for (File f : mState.files()) {
       boolean add = (directoryMode() ? f.isDirectory() : f.isFile());
@@ -118,7 +117,6 @@ public class RecentFiles extends BaseObject {
         continue;
       }
       fileList.add(f);
-     
     }
     validate.files(fileList);
     wtf("added to files");

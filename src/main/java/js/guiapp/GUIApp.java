@@ -112,6 +112,10 @@ public abstract class GUIApp extends App {
         performStartup();
       }
 
+      @Override
+      protected String shortHelp() {
+        return "";
+      }
     });
   }
 
@@ -119,7 +123,7 @@ public abstract class GUIApp extends App {
    * Perform startup of app (before switching to Swing thread)
    */
   private void performStartup() {
-    SystemUtil.setConsoleAppFlag(false);
+    SystemUtil.prepareForConsoleOrGUI(false);
     processOptionalArgs();
     if (cmdLineArgs().hasNextArg())
       throw badArg("Unexpected argument(s):", cmdLineArgs().peekNextArg());
