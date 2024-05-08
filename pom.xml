@@ -33,11 +33,16 @@
   <dependencies>
 
     <dependency>
-      <!-- I don't think we need to explicitly include the java-core and java-testutil, as 
-           they are included by java-graphics? -->
       <groupId>com.github.jpsember</groupId>
       <artifactId>java-graphics</artifactId>
       <version>1.3.14</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jpsember</groupId>
+      <artifactId>java-testutil</artifactId>
+      <version>1.3.14</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>
