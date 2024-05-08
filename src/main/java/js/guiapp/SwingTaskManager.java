@@ -47,8 +47,6 @@ public class SwingTaskManager extends BaseObject {
     return this;
   }
 
-  private boolean mDebugMode = alert("debug mode is TRUE");
-
   public void start() {
     assertMutable();
     mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
@@ -76,7 +74,7 @@ public class SwingTaskManager extends BaseObject {
         r.run();
       } catch (Throwable t) {
         pr("*** Caught exception in SwingTaskManager periodic background task:", INDENT, t);
-        if (mDebugMode || alert("always exiting")) {
+        if (alert("always exiting")) {
           pr("Exiting immediately");
           System.exit(1);
         }
