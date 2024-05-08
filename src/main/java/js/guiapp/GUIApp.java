@@ -104,7 +104,7 @@ public abstract class GUIApp extends App {
     registerOper(new AppOper() {
       @Override
       public String userCommand() {
-        return null;
+        return "_unused_";
       }
 
       @Override
