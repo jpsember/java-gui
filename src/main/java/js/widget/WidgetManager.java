@@ -54,6 +54,14 @@ import static js.widget.SwingUtils.*;
  */
 public final class WidgetManager extends BaseObject {
 
+  public void dump() {
+    for (var ent : mWidgetMap.entrySet()) {
+      var w = ent.getValue();
+      pr(ent.getKey(), "=>", w.getClass());
+    }
+
+  }
+
   /**
    * Determine if widget events should be propagated to listeners. False while
    * user interface is still being constructed
@@ -76,7 +84,7 @@ public final class WidgetManager extends BaseObject {
   public Widget get(String id) {
     Widget w = find(id);
     if (w == null)
-      badState("Can't find widget with id:", id);
+      badState("Can't find widget with id:", id, INDENT, mWidgetMap.keySet());
     return w;
   }
 
@@ -844,7 +852,7 @@ public final class WidgetManager extends BaseObject {
     add(grid.widget());
     mPanelStack.add(grid);
     log2("added grid to panel stack, its widget:", grid.widget().getClass());
-    return this; 
+    return this;
   }
 
   /**
@@ -1126,7 +1134,9 @@ public final class WidgetManager extends BaseObject {
 
   public WidgetManager addChoiceBox(String id) {
     ComboBoxWidget c = new ComboBoxWidget(consumePendingListener(), id, mComboChoices);
-    return add(c);
+    mComboChoices = null;
+    add(c);
+    return this;
   }
 
   public void showModalErrorDialog(String message) {

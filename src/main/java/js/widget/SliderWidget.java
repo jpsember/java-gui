@@ -1,5 +1,7 @@
 package js.widget;
 
+import static js.base.Tools.*;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JComponent;
@@ -59,7 +61,7 @@ class SliderWidget extends Widget implements ChangeListener {
     if (mDisplay == null)
       return;
     int numValue = getSlider().getModel().getValue();
-    String value = mStepper.fromInternalUnits(numValue).toString();
+    String value = mStepper.formatNumber(mStepper.fromInternalUnits(numValue));
     mDisplay.setText(value);
   }
 
@@ -69,18 +71,27 @@ class SliderWidget extends Widget implements ChangeListener {
 
   @Override
   public void setValue(Number number) {
-    getSlider().getModel().setValue(number.intValue());
+    var internalValue = mStepper.toInternalUnits(number);
+    if (DEB())
+      pr("setValue", number, "internal:", internalValue);
+    getSlider().getModel().setValue(internalValue);
     updateDisplayValue();
     notifyListener();
   }
 
   @Override
   public Number readValue() {
-    return getSlider().getModel().getValue();
+    var internalValue = getSlider().getModel().getValue();
+    var externalValue = mStepper.fromInternalUnits(internalValue);
+    if (DEB())
+      pr("readValue; internal:", internalValue, "external:", externalValue);
+    return externalValue;
   }
 
   @Override
   public void writeValue(Object v) {
+    if (DEB())
+      pr("writeValue:", v);
     Number number = (Number) v;
     setValue(number);
   }

@@ -34,8 +34,7 @@ import js.geometry.MyMath;
  */
 public final class NumericStepper {
 
-  public NumericStepper(boolean floatsFlag, Number def, Number min, Number max,
-      Number step) {
+  public NumericStepper(boolean floatsFlag, Number def, Number min, Number max, Number step) {
     if (step == null)
       step = 1;
     if (min == null)
@@ -46,8 +45,7 @@ public final class NumericStepper {
     mIntegerFlag = !floatsFlag;
 
     if (!floatsFlag && !(isInt(def) && isInt(min) && isInt(max) && isInt(step))) {
-      throw new IllegalArgumentException(
-          "non-integer values but 'floatsFlag' is false");
+      throw new IllegalArgumentException("non-integer values but 'floatsFlag' is false");
     }
 
     mMinValue = min;
@@ -93,8 +91,7 @@ public final class NumericStepper {
     if (mIntegerFlag)
       result = internalValue + mMinValue.intValue();
     else
-      result = (internalValue
-          * (mMaxValue.floatValue() - mMinValue.floatValue()) / 100)
+      result = (internalValue * (mMaxValue.floatValue() - mMinValue.floatValue()) / 100)
           + mMinValue.floatValue();
     return result;
   }
@@ -106,8 +103,8 @@ public final class NumericStepper {
     if (mIntegerFlag)
       result = ourValue.intValue() - mMinValue.intValue();
     else
-      result = (int) ((100 * (ourValue.floatValue() - mMinValue.floatValue())) / (mMaxValue
-          .floatValue() - mMinValue.floatValue()));
+      result = (int) ((100 * (ourValue.floatValue() - mMinValue.floatValue()))
+          / (mMaxValue.floatValue() - mMinValue.floatValue()));
     return result;
   }
 
@@ -115,11 +112,9 @@ public final class NumericStepper {
     if (value == null)
       value = mDefaultValue;
     if (mIntegerFlag)
-      value = MyMath.clamp(value.intValue(), mMinValue.intValue(),
-          mMaxValue.intValue());
+      value = MyMath.clamp(value.intValue(), mMinValue.intValue(), mMaxValue.intValue());
     else
-      value = MyMath.clamp(value.floatValue(), mMinValue.floatValue(),
-          mMaxValue.floatValue());
+      value = MyMath.clamp(value.floatValue(), mMinValue.floatValue(), mMaxValue.floatValue());
     return value;
   }
 
@@ -173,9 +168,8 @@ public final class NumericStepper {
       mFormatString = "%" + maxIntegerDigits + "d";
       mMaxDisplayedCharacters = maxIntegerDigits;
     } else {
-      int fracDigits = Math.max(0, 4 - maxIntegerDigits);
-      mFormatString = "%" + (maxIntegerDigits + fracDigits) + "." + fracDigits
-          + "f";
+      int fracDigits = Math.max(0, 3 - maxIntegerDigits);
+      mFormatString = "%" + (maxIntegerDigits + fracDigits) + "." + fracDigits + "f";
       int maxDigits = maxIntegerDigits;
       if (fracDigits > 0)
         maxDigits += 1 + fracDigits;

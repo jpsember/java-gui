@@ -9,8 +9,9 @@ import js.data.DataUtil;
 class ComboBoxWidget extends Widget {
   public ComboBoxWidget(WidgetListener listener, String key, SymbolicNameSet choices) {
     mChoices = checkNotNull(choices);
+    setId(key);
     JComboBox<String> component = new JComboBox<>(DataUtil.toStringArray(mChoices.displayNames()));
-    todo("add action listener");
+    todo("!add action listener");
     //      component.addActionListener(this);
     setComponent(component);
     registerListener(listener);
@@ -26,13 +27,12 @@ class ComboBoxWidget extends Widget {
 
   @Override
   public void writeValue(Object v) {
-    todo("not finished");
+    todo("!cbwidget: not finished");
   }
 
   @Override
   public Integer readValue() {
     JComboBox<String> component = swingComponent();
-    todo("not sure this is correct");
     return component.getSelectedIndex();
   }
 

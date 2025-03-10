@@ -39,6 +39,7 @@ import javax.swing.SwingUtilities;
 
 import js.app.App;
 import js.app.AppOper;
+import js.base.BasePrinter;
 import js.data.AbstractData;
 import js.graphics.Paint;
 import js.gui.gen.GuiAppConfig;
@@ -56,6 +57,18 @@ public abstract class GUIApp extends App {
 
   public GUIApp() {
     setSingleton();
+  }
+
+  public static void exitAppIfException() {
+    Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        pr("uncaught exception in thread:", t);
+        System.err.println(BasePrinter.toString(e));
+        System.err.println("...exiting program!");
+        System.exit(1);
+      }
+    });
   }
 
   // ------------------------------------------------------------------

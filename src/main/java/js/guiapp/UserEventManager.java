@@ -81,7 +81,7 @@ public final class UserEventManager extends BaseObject implements UserEvent.List
     }
   }
 
-  void clearOperation() {
+  public void clearOperation() {
     log("clearOperation");
     setOperation(null);
   }

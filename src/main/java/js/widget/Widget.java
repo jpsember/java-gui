@@ -47,6 +47,10 @@ public abstract class Widget implements ActionListener {
     return this;
   }
 
+  public final boolean DEB() {
+    return false && "mt_angle_penalty_exp".equals(mId);
+  }
+
   public final boolean hasId() {
     return mId != null;
   }

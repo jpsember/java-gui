@@ -60,6 +60,7 @@ public final class UserEvent extends BaseObject {
   public UserEvent(int code, IPoint worldLocation, IPoint viewLocation, int modifierFlags, String widgetId) {
     mCode = code;
     mViewLocation = viewLocation;
+    todo("!worldLocation should probably be an FPoint");
     mWorldLocation = worldLocation;
     mModifierFlags = modifierFlags;
     mWidgetId = widgetId;

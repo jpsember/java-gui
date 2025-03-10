@@ -56,8 +56,9 @@ public class SwingTaskManager extends BaseObject {
         return t;
       }
     });
+    long delay = 3000;
     mScheduledThreadPoolExecutor.scheduleWithFixedDelay(
-        () -> SwingUtilities.invokeLater(() -> backgroundTask()), 1000, 3000, TimeUnit.MILLISECONDS);
+        () -> SwingUtilities.invokeLater(() -> backgroundTask()), 1000, delay, TimeUnit.MILLISECONDS);
   }
 
   public void stop() {
