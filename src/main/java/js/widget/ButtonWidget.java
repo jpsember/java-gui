@@ -10,7 +10,11 @@ class ButtonWidget extends Widget {
     loadTools();
     setId(id);
     JButton component = new JButton(label);
-    component.addActionListener(this);
+    component.addActionListener((e) ->
+    {
+      notifyListener();
+      notifyApp();
+    });
     setComponent(component);
     registerListener(listener);
   }

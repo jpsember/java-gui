@@ -26,6 +26,7 @@ public class TabbedPaneWidget extends Widget implements ChangeListener {
   @Override
   public void stateChanged(ChangeEvent e) {
     notifyListener();
+    notifyApp();
   }
 
   private JTabbedPane tabbedPane() {

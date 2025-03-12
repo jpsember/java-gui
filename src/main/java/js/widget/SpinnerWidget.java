@@ -24,6 +24,7 @@ class SpinnerWidget extends Widget implements ChangeListener {
   @Override
   public void stateChanged(ChangeEvent e) {
     notifyListener();
+    notifyApp();
   }
 
   @Override

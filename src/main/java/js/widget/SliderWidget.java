@@ -52,9 +52,8 @@ class SliderWidget extends Widget implements ChangeListener {
   @Override
   public void stateChanged(ChangeEvent e) {
     updateDisplayValue();
-    GUIApp app = App.sharedInstance();
-    app.userEventManagerListener(UserEvent.widgetEvent(id()));
     notifyListener();
+    notifyApp();
   }
 
   private void updateDisplayValue() {
@@ -72,8 +71,6 @@ class SliderWidget extends Widget implements ChangeListener {
   @Override
   public void setValue(Number number) {
     var internalValue = mStepper.toInternalUnits(number);
-    if (DEB())
-      pr("setValue", number, "internal:", internalValue);
     getSlider().getModel().setValue(internalValue);
     updateDisplayValue();
     notifyListener();
@@ -83,15 +80,11 @@ class SliderWidget extends Widget implements ChangeListener {
   public Number readValue() {
     var internalValue = getSlider().getModel().getValue();
     var externalValue = mStepper.fromInternalUnits(internalValue);
-    if (DEB())
-      pr("readValue; internal:", internalValue, "external:", externalValue);
     return externalValue;
   }
 
   @Override
   public void writeValue(Object v) {
-    if (DEB())
-      pr("writeValue:", v);
     Number number = (Number) v;
     setValue(number);
   }

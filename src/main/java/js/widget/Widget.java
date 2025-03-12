@@ -1,18 +1,18 @@
 /**
  * MIT License
- * 
+ *
  * Copyright (c) 2021 Jeff Sember
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,24 +20,21 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
  **/
 package js.widget;
 
 import static js.base.Tools.*;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.JComponent;
 
 import js.app.App;
 import js.guiapp.GUIApp;
+import js.guiapp.UserEvent;
 
 /**
  * Abstract class representing a user interface element
  */
-public abstract class Widget implements ActionListener {
+public abstract class Widget {
 
   public final Widget setId(String id) {
     checkState(!hasId(), "already has an id");
@@ -45,10 +42,6 @@ public abstract class Widget implements ActionListener {
     checkArgument(!"".equals(id));
     mId = id;
     return this;
-  }
-
-  public final boolean DEB() {
-    return false && "mt_angle_penalty_exp".equals(mId);
   }
 
   public final boolean hasId() {
@@ -95,6 +88,18 @@ public abstract class Widget implements ActionListener {
   protected final void notifyListener() {
     if (mListener != null)
       widgets().notifyWidgetListener(this, mListener);
+  }
+
+
+  /**
+   * Call the app's userEventManagerListener with a widget event,
+   * so that e.g. the main view can be re-rendered to reflect an updated
+   * widget value
+   */
+  protected final void notifyApp() {
+    //pr("notifyApp of widget event, id:",id());
+    GUIApp app = App.sharedInstance();
+    app.userEventManagerListener(UserEvent.widgetEvent(id()));
   }
 
   @Override
@@ -154,10 +159,6 @@ public abstract class Widget implements ActionListener {
    */
   public void replaceWith(Widget other) {
     throw new UnsupportedOperationException();
-  }
-
-  public void actionPerformed(ActionEvent e) {
-    notifyListener();
   }
 
   public void setComponent(JComponent component) {

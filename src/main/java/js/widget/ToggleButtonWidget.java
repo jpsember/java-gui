@@ -1,17 +1,22 @@
 package js.widget;
 
+import static js.base.Tools.*;
+
 import javax.swing.JCheckBox;
 
 class ToggleButtonWidget extends Widget {
+
   public ToggleButtonWidget(WidgetListener listener, String key, String label, boolean defaultValue) {
+    loadTools();
     setId(key);
+    registerListener(listener);
     JCheckBox component = new JCheckBox(label, defaultValue);
     setComponent(component);
-
-    if (listener != null) {
-      registerListener(listener);
-      component.addActionListener(this);
-    }
+    component.addActionListener((_) ->
+    {
+      notifyApp();
+      notifyListener();
+    });
   }
 
   @Override
@@ -41,4 +46,5 @@ class ToggleButtonWidget extends Widget {
   public void writeValue(Object v) {
     setChecked((Boolean) v);
   }
+
 }

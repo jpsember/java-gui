@@ -11,10 +11,12 @@ class ComboBoxWidget extends Widget {
     mChoices = checkNotNull(choices);
     setId(key);
     JComboBox<String> component = new JComboBox<>(DataUtil.toStringArray(mChoices.displayNames()));
-    todo("!add action listener");
-    //      component.addActionListener(this);
     setComponent(component);
     registerListener(listener);
+    component.addActionListener((e) -> {
+      notifyListener();
+      notifyApp();
+    });
   }
 
   //    @Override
