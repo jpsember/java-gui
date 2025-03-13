@@ -1,10 +1,14 @@
 class {
 
+  // True if the app is based on projects, vs individual files
+  bool project_based;
+
   // Have this true by default, so we only need to add code when app is 'complete' to disable it
   //
   bool dev_mode = true;
 
-  // If true, and dev_mode is true, other instances of the app are killed when a new one starts; as well,
+  // If true, and dev_mode is true, other instances of the app
+  // are killed when a new one starts; as well,
   // the current instance will kill itself after ~10 minutes
   //
   bool single_instance_mode = true;
@@ -14,4 +18,6 @@ class {
   string version = "1.0";
 
   JSMap keyboard_shortcut_registry;
+
+
 }

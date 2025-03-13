@@ -5,6 +5,10 @@ import js.json.JSMap;
 
 public class GuiAppConfig implements AbstractData {
 
+  public boolean projectBased() {
+    return mProjectBased;
+  }
+
   public boolean devMode() {
     return mDevMode;
   }
@@ -30,11 +34,12 @@ public class GuiAppConfig implements AbstractData {
     return new Builder(this);
   }
 
-  protected static final String _0 = "dev_mode";
-  protected static final String _1 = "single_instance_mode";
-  protected static final String _2 = "app_name";
-  protected static final String _3 = "version";
-  protected static final String _4 = "keyboard_shortcut_registry";
+  protected static final String _0 = "project_based";
+  protected static final String _1 = "dev_mode";
+  protected static final String _2 = "single_instance_mode";
+  protected static final String _3 = "app_name";
+  protected static final String _4 = "version";
+  protected static final String _5 = "keyboard_shortcut_registry";
 
   @Override
   public String toString() {
@@ -44,11 +49,12 @@ public class GuiAppConfig implements AbstractData {
   @Override
   public JSMap toJson() {
     JSMap m = new JSMap();
-    m.putUnsafe(_0, mDevMode);
-    m.putUnsafe(_1, mSingleInstanceMode);
-    m.putUnsafe(_2, mAppName);
-    m.putUnsafe(_3, mVersion);
-    m.putUnsafe(_4, mKeyboardShortcutRegistry);
+    m.putUnsafe(_0, mProjectBased);
+    m.putUnsafe(_1, mDevMode);
+    m.putUnsafe(_2, mSingleInstanceMode);
+    m.putUnsafe(_3, mAppName);
+    m.putUnsafe(_4, mVersion);
+    m.putUnsafe(_5, mKeyboardShortcutRegistry);
     return m;
   }
 
@@ -63,13 +69,14 @@ public class GuiAppConfig implements AbstractData {
   }
 
   private GuiAppConfig(JSMap m) {
-    mDevMode = m.opt(_0, true);
-    mSingleInstanceMode = m.opt(_1, true);
-    mAppName = m.opt(_2, "***NO NAME DEFINED***");
-    mVersion = m.opt(_3, "1.0");
+    mProjectBased = m.opt(_0, false);
+    mDevMode = m.opt(_1, true);
+    mSingleInstanceMode = m.opt(_2, true);
+    mAppName = m.opt(_3, "***NO NAME DEFINED***");
+    mVersion = m.opt(_4, "1.0");
     {
       mKeyboardShortcutRegistry = JSMap.DEFAULT_INSTANCE;
-      JSMap x = m.optJSMap(_4);
+      JSMap x = m.optJSMap(_5);
       if (x != null) {
         mKeyboardShortcutRegistry = x.lock();
       }
@@ -89,6 +96,8 @@ public class GuiAppConfig implements AbstractData {
     GuiAppConfig other = (GuiAppConfig) object;
     if (other.hashCode() != hashCode())
       return false;
+    if (!(mProjectBased == other.mProjectBased))
+      return false;
     if (!(mDevMode == other.mDevMode))
       return false;
     if (!(mSingleInstanceMode == other.mSingleInstanceMode))
@@ -107,6 +116,7 @@ public class GuiAppConfig implements AbstractData {
     int r = m__hashcode;
     if (r == 0) {
       r = 1;
+      r = r * 37 + (mProjectBased ? 1 : 0);
       r = r * 37 + (mDevMode ? 1 : 0);
       r = r * 37 + (mSingleInstanceMode ? 1 : 0);
       r = r * 37 + mAppName.hashCode();
@@ -117,6 +127,7 @@ public class GuiAppConfig implements AbstractData {
     return r;
   }
 
+  protected boolean mProjectBased;
   protected boolean mDevMode;
   protected boolean mSingleInstanceMode;
   protected String mAppName;
@@ -127,6 +138,7 @@ public class GuiAppConfig implements AbstractData {
   public static final class Builder extends GuiAppConfig {
 
     private Builder(GuiAppConfig m) {
+      mProjectBased = m.mProjectBased;
       mDevMode = m.mDevMode;
       mSingleInstanceMode = m.mSingleInstanceMode;
       mAppName = m.mAppName;
@@ -148,12 +160,18 @@ public class GuiAppConfig implements AbstractData {
     @Override
     public GuiAppConfig build() {
       GuiAppConfig r = new GuiAppConfig();
+      r.mProjectBased = mProjectBased;
       r.mDevMode = mDevMode;
       r.mSingleInstanceMode = mSingleInstanceMode;
       r.mAppName = mAppName;
       r.mVersion = mVersion;
       r.mKeyboardShortcutRegistry = mKeyboardShortcutRegistry;
       return r;
+    }
+
+    public Builder projectBased(boolean x) {
+      mProjectBased = x;
+      return this;
     }
 
     public Builder devMode(boolean x) {
