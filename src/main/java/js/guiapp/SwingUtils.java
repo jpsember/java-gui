@@ -35,7 +35,7 @@ import static js.base.Tools.*;
 
 public final class SwingUtils {
 
-  public static final boolean DEBUG_FILEBASED = true && alert("!DEBUG_FILEBASED is true");
+  public static final boolean DEBUG_FILEBASED = false && alert("!DEBUG_FILEBASED is true");
 
   public static File displayOpenDirectoryFileRequester(File startDirOrNull, String prompt) {
     FileDialog fileChooser = new FileDialog((JFrame) null, prompt, FileDialog.LOAD);
