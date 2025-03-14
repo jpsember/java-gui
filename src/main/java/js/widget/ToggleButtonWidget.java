@@ -12,7 +12,7 @@ class ToggleButtonWidget extends Widget {
     registerListener(listener);
     JCheckBox component = new JCheckBox(label, defaultValue);
     setComponent(component);
-    component.addActionListener((_) ->
+    component.addActionListener((x) ->
     {
       notifyApp();
       notifyListener();
