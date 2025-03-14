@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import js.data.AbstractData;
 import js.data.DataUtil;
-import js.file.Files;
 import js.json.JSList;
 import js.json.JSMap;
 
@@ -61,17 +60,9 @@ public class RecentFilesList implements AbstractData {
       List<File> result = new ArrayList<>();
       JSList j = m.optJSList(_1);
       if (j != null) {
-        result = new ArrayList<>(j.size());
-        for (Object z : j.wrappedList()) {
-          File y = Files.DEFAULT;
-          if (z != null) {
-            String x = (String) z;
-            y = new File(x);
-          }
-          result.add(y);
-        }
+        result = DataUtil.parseFileListFrom(j);
       }
-      mFiles = result;
+      mFiles = DataUtil.immutableCopyOf(result) /*DEBUG*/ ;
     }
   }
 
@@ -117,7 +108,7 @@ public class RecentFilesList implements AbstractData {
 
     private Builder(RecentFilesList m) {
       mActive = m.mActive;
-      mFiles = m.mFiles;
+      mFiles = DataUtil.immutableCopyOf(m.mFiles) /*DEBUG*/ ;
     }
 
     @Override
@@ -145,7 +136,7 @@ public class RecentFilesList implements AbstractData {
     }
 
     public Builder files(List<File> x) {
-      mFiles = (x == null) ? DataUtil.emptyList() : x;
+      mFiles = DataUtil.immutableCopyOf((x == null) ? DataUtil.emptyList() : x) /*DEBUG*/ ;
       return this;
     }
 
