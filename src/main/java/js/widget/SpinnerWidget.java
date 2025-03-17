@@ -22,7 +22,10 @@ class SpinnerWidget extends Widget implements ChangeListener {
       var editor = new JButton("editor");
       editor.addActionListener((e) -> {
         pr("action listener:", e);
-
+        var d = new ModalWidgetValueEditor( this);
+        d.pack();
+        d.setLocationRelativeTo(null);
+        d.setVisible(true);
         todo("bring up a modal dialog box");
       });
       c.setEditor(editor);

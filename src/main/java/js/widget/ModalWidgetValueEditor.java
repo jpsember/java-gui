@@ -6,13 +6,14 @@ import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-class CustomDialog extends JDialog
+import static js.base.Tools.*;
+
+class ModalWidgetValueEditor extends JDialog
     implements ActionListener,
     PropertyChangeListener {
   private String typedText = null;
   private JTextField textField;
 
-  private String magicWord;
   private JOptionPane optionPane;
 
   private String btnString1 = "Enter";
@@ -29,19 +30,19 @@ class CustomDialog extends JDialog
   /**
    * Creates the reusable dialog.
    */
-  public CustomDialog(Frame aFrame, String aWord) {
-    super(aFrame, true);
+  public ModalWidgetValueEditor(Widget owner) {
+    super((Frame) null, true);
 
-    magicWord = aWord.toUpperCase();
-    setTitle("Quiz");
+    mOwner = owner;
+    setTitle("Todo: a suitable title");
 
     textField = new JTextField(10);
+    todo("fn to convert widget value to editable text");
+    textField.setText("45"); //mOwner.getText());
 
-    //Create an array of the text and components to be displayed.
-    String msgString1 = "What was Dr. SEUSS's real last name?";
-    String msgString2 = "(The answer is \"" + magicWord
-        + "\".)";
-    Object[] array = {msgString1, msgString2, textField};
+    // Create an array of the text and components to be displayed.
+    String msgString1 = "Modify the value for widget: " + owner.id();
+    Object[] array = {msgString1, textField};
 
     //Create an array specifying the number of dialog buttons
     //and their text.
@@ -99,6 +100,7 @@ class CustomDialog extends JDialog
   public void propertyChange(PropertyChangeEvent e) {
     String prop = e.getPropertyName();
 
+    pr("propertyChange:", e);
     if (isVisible()
         && (e.getSource() == optionPane)
         && (JOptionPane.VALUE_PROPERTY.equals(prop) ||
@@ -120,23 +122,29 @@ class CustomDialog extends JDialog
       if (btnString1.equals(value)) {
         typedText = textField.getText();
         String ucText = typedText.toUpperCase();
-        if (magicWord.equals(ucText)) {
+
+        // Validate the text
+        boolean validated = true;
+        todo("?Add some validation logic here, perhaps?");
+
+        if (validated) {
           //we're done; clear and dismiss the dialog
           clearAndHide();
-        } else {
-          //text was invalid
-          textField.selectAll();
-          JOptionPane.showMessageDialog(
-              CustomDialog.this,
-              "Sorry, \"" + typedText + "\" "
-                  + "isn't a valid response.\n"
-                  + "Please enter "
-                  + magicWord + ".",
-              "Try again",
-              JOptionPane.ERROR_MESSAGE);
-          typedText = null;
-          textField.requestFocusInWindow();
         }
+//        else {
+//          //text was invalid
+//          textField.selectAll();
+//          JOptionPane.showMessageDialog(
+//              CustomDialog.this,
+//              "Sorry, \"" + typedText + "\" "
+//                  + "isn't a valid response.\n"
+//                  + "Please enter "
+//                  + magicWord + ".",
+//              "Try again",
+//              JOptionPane.ERROR_MESSAGE);
+//          typedText = null;
+//          textField.requestFocusInWindow();
+//        }
       } else { //user closed dialog or clicked cancel
 //        dd.setLabel("It's OK.  "
 //            + "We won't force you to type "
@@ -150,8 +158,10 @@ class CustomDialog extends JDialog
   /**
    * This method clears the dialog and hides it.
    */
-  public void clearAndHide() {
+  private void clearAndHide() {
     textField.setText(null);
     setVisible(false);
   }
+
+  private Widget mOwner;
 }
