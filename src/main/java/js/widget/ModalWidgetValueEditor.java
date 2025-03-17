@@ -11,55 +11,41 @@ import static js.base.Tools.*;
 class ModalWidgetValueEditor extends JDialog
     implements ActionListener,
     PropertyChangeListener {
-  private String typedText = null;
-  private JTextField textField;
 
-  private JOptionPane optionPane;
-
-  private String btnString1 = "Enter";
-  private String btnString2 = "Cancel";
-
-  /**
-   * Returns null if the typed string was invalid;
-   * otherwise, returns the string as the user entered it.
-   */
-  public String getValidatedText() {
-    return typedText;
-  }
 
   /**
    * Creates the reusable dialog.
    */
-  public ModalWidgetValueEditor(Widget owner) {
+  public ModalWidgetValueEditor(ModalEditorValueAccessor accessor) {
     super((Frame) null, true);
 
-    mOwner = owner;
-    setTitle("Todo: a suitable title");
+    mAccessor = accessor;
+    setTitle("Value Editor");
 
-    textField = new JTextField(10);
-    todo("fn to convert widget value to editable text");
-    textField.setText("45"); //mOwner.getText());
+    mTextField = new JTextField(10);
+    mTextField.setText(
+        mAccessor.encodeValueToString(accessor.readValue()));
 
     // Create an array of the text and components to be displayed.
-    String msgString1 = "Modify the value for widget: " + owner.id();
-    Object[] array = {msgString1, textField};
+    Object[] array = {mTextField};
 
     //Create an array specifying the number of dialog buttons
     //and their text.
-    Object[] options = {btnString1, btnString2};
+    Object[] options = {mStrEnter, mStrCancel};
 
     //Create the JOptionPane.
-    optionPane = new JOptionPane(array,
-        JOptionPane.QUESTION_MESSAGE,
+    mOptionPane = new JOptionPane(array,
+        JOptionPane.PLAIN_MESSAGE,
         JOptionPane.YES_NO_OPTION,
         null,
         options,
         options[0]);
 
-    //Make this dialog display it.
-    setContentPane(optionPane);
 
-    //Handle window closing correctly.
+    // Make this dialog display it.
+    setContentPane(mOptionPane);
+
+    // Handle window closing correctly.
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent we) {
@@ -68,7 +54,7 @@ class ModalWidgetValueEditor extends JDialog
          * we're going to change the JOptionPane's
          * value property.
          */
-        optionPane.setValue(new Integer(
+        mOptionPane.setValue(new Integer(
             JOptionPane.CLOSED_OPTION));
       }
     });
@@ -76,22 +62,22 @@ class ModalWidgetValueEditor extends JDialog
     //Ensure the text field always gets the first focus.
     addComponentListener(new ComponentAdapter() {
       public void componentShown(ComponentEvent ce) {
-        textField.requestFocusInWindow();
+        mTextField.requestFocusInWindow();
       }
     });
 
     //Register an event handler that puts the text into the option pane.
-    textField.addActionListener(this);
+    mTextField.addActionListener(this);
 
     //Register an event handler that reacts to option pane state changes.
-    optionPane.addPropertyChangeListener(this);
+    mOptionPane.addPropertyChangeListener(this);
   }
 
   /**
    * This method handles events for the text field.
    */
   public void actionPerformed(ActionEvent e) {
-    optionPane.setValue(btnString1);
+    mOptionPane.setValue(mStrEnter);
   }
 
   /**
@@ -100,56 +86,30 @@ class ModalWidgetValueEditor extends JDialog
   public void propertyChange(PropertyChangeEvent e) {
     String prop = e.getPropertyName();
 
-    pr("propertyChange:", e);
     if (isVisible()
-        && (e.getSource() == optionPane)
+        && (e.getSource() == mOptionPane)
         && (JOptionPane.VALUE_PROPERTY.equals(prop) ||
         JOptionPane.INPUT_VALUE_PROPERTY.equals(prop))) {
-      Object value = optionPane.getValue();
+      Object value = mOptionPane.getValue();
 
       if (value == JOptionPane.UNINITIALIZED_VALUE) {
-        //ignore reset
         return;
       }
 
-      //Reset the JOptionPane's value.
-      //If you don't do this, then if the user
-      //presses the same button next time, no
-      //property change event will be fired.
-      optionPane.setValue(
-          JOptionPane.UNINITIALIZED_VALUE);
+      // Reset the JOptionPane's value.
+      // If you don't do this, then if the user
+      // presses the same button next time, no
+      // property change event will be fired.
+      mOptionPane.setValue(JOptionPane.UNINITIALIZED_VALUE);
 
-      if (btnString1.equals(value)) {
-        typedText = textField.getText();
-        String ucText = typedText.toUpperCase();
-
-        // Validate the text
-        boolean validated = true;
-        todo("?Add some validation logic here, perhaps?");
-
-        if (validated) {
-          //we're done; clear and dismiss the dialog
+      if (mStrEnter.equals(value)) {
+        var typedText = mTextField.getText();
+        var parsedValue = mAccessor.parseValueFromString(typedText);
+        if (parsedValue != null) {
           clearAndHide();
+          mAccessor.writeValue(parsedValue);
         }
-//        else {
-//          //text was invalid
-//          textField.selectAll();
-//          JOptionPane.showMessageDialog(
-//              CustomDialog.this,
-//              "Sorry, \"" + typedText + "\" "
-//                  + "isn't a valid response.\n"
-//                  + "Please enter "
-//                  + magicWord + ".",
-//              "Try again",
-//              JOptionPane.ERROR_MESSAGE);
-//          typedText = null;
-//          textField.requestFocusInWindow();
-//        }
-      } else { //user closed dialog or clicked cancel
-//        dd.setLabel("It's OK.  "
-//            + "We won't force you to type "
-//            + magicWord + ".");
-        typedText = null;
+      } else {
         clearAndHide();
       }
     }
@@ -159,9 +119,13 @@ class ModalWidgetValueEditor extends JDialog
    * This method clears the dialog and hides it.
    */
   private void clearAndHide() {
-    textField.setText(null);
+    mTextField.setText(null);
     setVisible(false);
   }
 
-  private Widget mOwner;
+  private JTextField mTextField;
+  private JOptionPane mOptionPane;
+  private String mStrEnter = "Enter";
+  private String mStrCancel = "Cancel";
+  private ModalEditorValueAccessor mAccessor;
 }

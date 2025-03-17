@@ -17,29 +17,45 @@ class SpinnerWidget extends Widget implements ChangeListener {
     var c = new JSpinner(model);
 
     // Change the editor to a button that brings up a modal dialog to modify the value
+    var editor = new JButton("editor");
+    editor.addActionListener((e) -> {
 
-    {
-      var editor = new JButton("editor");
-      editor.addActionListener((e) -> {
-        pr("action listener:", e);
-        var d = new ModalWidgetValueEditor( this);
-        d.pack();
-        d.setLocationRelativeTo(null);
-        d.setVisible(true);
-        todo("bring up a modal dialog box");
-      });
-      c.setEditor(editor);
-      c.addChangeListener(new ChangeListener() {
-        @Override
-        public void stateChanged(ChangeEvent e) {
-          pr("Spinner state changed");
-          SpinnerModel model = c.getModel();
-          var x = String.format("%d", model.getValue());
-          editor.setText("value{   " + x + "   }");
-        }
-      });
-    }
+      var d = new ModalWidgetValueEditor(
+          new ModalEditorValueAccessor() {
+            @Override
+            public Object readValue() {
+              var sw = SpinnerWidget.this;
+              return sw.readValue();
+            }
 
+            @Override
+            public void writeValue(Object value) {
+              var sw = SpinnerWidget.this;
+              sw.writeValue(value);
+            }
+
+            @Override
+            public String encodeValueToString(Object value) {
+              var n = (Number) value;
+              return Integer.toString(n.intValue());
+            }
+
+            @Override
+            public Object parseValueFromString(String string) {
+              try {
+                return Integer.valueOf(string);
+              } catch (NumberFormatException e) {
+                return null;
+              }
+            }
+          });
+      d.pack();
+      d.setLocationRelativeTo(null);
+      d.setVisible(true);
+    });
+    c.setEditor(editor);
+
+    c.addChangeListener(e -> editor.setText(c.getValue().toString()));
 
     model.addChangeListener(this);
     setComponent(c);
@@ -47,20 +63,8 @@ class SpinnerWidget extends Widget implements ChangeListener {
   }
 
 
-  private void updateDisplayValue() {
-//    if (mDisplay == null)
-//      return;
-//    int numValue = getSlider().getModel().getValue();
-//    String value = mStepper.formatNumber(mStepper.fromInternalUnits(numValue));
-//    mDisplay.setText(value);
-  }
-
-
   @Override
   public void stateChanged(ChangeEvent e) {
-
-    updateDisplayValue();
-
     notifyListener();
     notifyApp();
   }
@@ -81,7 +85,6 @@ class SpinnerWidget extends Widget implements ChangeListener {
   public void setValue(Number number) {
     var internalValue = mStepper.toInternalUnits(number);
     spinner().getModel().setValue(internalValue);
-    updateDisplayValue();
     notifyListener();
   }
 
