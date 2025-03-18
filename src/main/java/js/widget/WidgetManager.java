@@ -1,18 +1,18 @@
 /**
  * MIT License
- * 
+ *
  * Copyright (c) 2021 Jeff Sember
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
  **/
 package js.widget;
 
@@ -164,7 +163,7 @@ public final class WidgetManager extends BaseObject {
 
   /**
    * Toggle value of boolean-valued widget
-   * 
+   *
    * @return new value
    */
   public boolean toggle(String id) {
@@ -241,11 +240,11 @@ public final class WidgetManager extends BaseObject {
    * Set the number of columns, and which ones can grow, for the next view in
    * the hierarchy. The columns expression is a string of column expressions,
    * which may be one of:
-   * 
+   *
    *     "."   a column with weight zero
    *     "x"   a column with weight 100
    *     "\d+" column with integer weight
-   * 
+   *
    * Spaces are ignored, except to separate integer weights from each other.
    * </pre>
    */
@@ -788,7 +787,7 @@ public final class WidgetManager extends BaseObject {
 
   /**
    * Open a new tab within the current TabSet
-   * 
+   *
    * @param tabTitle
    *          label for tab; either "{id}", or, if the id is different than what
    *          should be displayed, "{id:display}"
@@ -1065,9 +1064,9 @@ public final class WidgetManager extends BaseObject {
   }
 
   private int mColorIndex;
-  private static Color sColors[] = { Color.BLUE, Color.GREEN, Color.RED, Color.GRAY, Color.MAGENTA,
+  private static Color sColors[] = {Color.BLUE, Color.GREEN, Color.RED, Color.GRAY, Color.MAGENTA,
       Color.pink.darker(), Color.BLUE.darker(), Color.GREEN.darker(), Color.RED.darker(), Color.GRAY.darker(),
-      Color.MAGENTA.darker(), };
+      Color.MAGENTA.darker(),};
 
   private JComponent colorPanel() {
     JPanel panel = new JPanel();
@@ -1213,25 +1212,25 @@ public final class WidgetManager extends BaseObject {
   static Font getFont(boolean monospaced, int widgetFontSize) {
     int fontSize;
     switch (widgetFontSize) {
-    case SIZE_DEFAULT:
-      fontSize = 16;
-      break;
-    case SIZE_MEDIUM:
-      fontSize = 16;
-      break;
-    case SIZE_SMALL:
-      fontSize = 12;
-      break;
-    case SIZE_LARGE:
-      fontSize = 22;
-      break;
-    case SIZE_HUGE:
-      fontSize = 28;
-      break;
-    default:
-      alert("unsupported widget font size:", widgetFontSize);
-      fontSize = 16;
-      break;
+      case SIZE_DEFAULT:
+        fontSize = 16;
+        break;
+      case SIZE_MEDIUM:
+        fontSize = 16;
+        break;
+      case SIZE_SMALL:
+        fontSize = 12;
+        break;
+      case SIZE_LARGE:
+        fontSize = 22;
+        break;
+      case SIZE_HUGE:
+        fontSize = 28;
+        break;
+      default:
+        alert("unsupported widget font size:", widgetFontSize);
+        fontSize = 16;
+        break;
     }
 
     Integer mapKey = fontSize + (monospaced ? 0 : 1000);
