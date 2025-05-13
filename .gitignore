@@ -2,6 +2,7 @@
 .jsproject
 .project
 .settings
+.idea
 target
 
 # Files marked for later removal, or temporary omission

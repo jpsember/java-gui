@@ -92,7 +92,7 @@ public final class MenuBarWrapper {
         KeyStroke s = KeyboardShortcutManager.compileKeystroke(hotKey);
         menuItem.setAccelerator(s);
       } else {
-        alert("no hot key found with id:", hotKeyId);
+        alert("!no hot key found with id: " + hotKeyId);
       }
     }
 
