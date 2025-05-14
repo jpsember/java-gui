@@ -25,6 +25,7 @@ package js.guiapp;
 
 import java.awt.FileDialog;
 import java.io.File;
+import java.io.FilenameFilter;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -35,7 +36,9 @@ import static js.base.Tools.*;
 
 public final class SwingUtils {
 
+  @Deprecated
   public static final boolean DEBUG_FILEBASED = false && alert("!DEBUG_FILEBASED is true");
+
 
   public static File displayOpenDirectoryFileRequester(File startDirOrNull, String prompt) {
     FileDialog fileChooser = new FileDialog((JFrame) null, prompt, FileDialog.LOAD);
@@ -53,14 +56,17 @@ public final class SwingUtils {
   }
 
   public static File displayOpenFileRequester(File startDirOrNull, String prompt) {
+    return displayOpenFileRequester(startDirOrNull, prompt, null);
+  }
+
+
+  public static File displayOpenFileRequester(File startDirOrNull, String prompt, FilenameFilter filter) {
     FileDialog fileChooser = new FileDialog((JFrame) null, prompt, FileDialog.LOAD);
-    todo("why is prompt not showing up?", quote(prompt));
+    // I think prompts just won't show up on Mac.
     if (Files.nonEmpty(startDirOrNull))
       fileChooser.setDirectory(startDirOrNull.getPath());
-
-    new PathFilter(Files.EXT_JSON);
-
-    fileChooser.setFilenameFilter(new PathFilter(Files.EXT_JSON));
+    if (filter != null)
+      fileChooser.setFilenameFilter(filter);
     fileChooser.setVisible(true);
     String filename = fileChooser.getFile();
     String directory = fileChooser.getDirectory();
@@ -70,12 +76,18 @@ public final class SwingUtils {
     return new File(directory, filename);
   }
 
+// ----------------------------------------------------------------------------------------------
+
+
+  public static FilenameFilter filenameFilterForExtension(final String ext, final String description) {
+    return (dir, name) -> Files.getExtension(name).equals(ext);
+  }
 
   // https://stackoverflow.com/questions/9796800/jfilechooser-vs-jdialog-vs-filedialog
 
 
+  @Deprecated // Use displayOpenFileRequester instead
   public static File displayOpenFileChooser(File startDirOrNull, String prompt, FileFilter filter) {
-    //todo("!consider setting os-specific appearance");
     File output = null;
     File dir = Files.currentDirectory();
     var fc = new JFileChooser(dir);
@@ -85,11 +97,10 @@ public final class SwingUtils {
     int x = fc.showOpenDialog(null);
     if (x == JFileChooser.APPROVE_OPTION)
       output = fc.getSelectedFile();
-    if (DEBUG_FILEBASED)
-      pr("returning:", output, INDENT, Files.infoMap(output));
     return output;
   }
 
+  @Deprecated // Create a 'save' analogy to displayOpenFileRequester and use that instead
   public static File displaySaveFileChooser(File startFileOrNull, String prompt, FileFilter filter) {
     File output = null;
     File dir = Files.currentDirectory();
@@ -100,20 +111,7 @@ public final class SwingUtils {
     var x = fc.showSaveDialog(null);
     if (x == JFileChooser.APPROVE_OPTION)
       output = fc.getSelectedFile();
-    if (DEBUG_FILEBASED)
-      pr("returning:", output, INDENT, Files.infoMap(output));
     return output;
   }
 
-  // Doesn't seem to have an effect
-//  static {
-//    if (false)
-//    try {
-//      var cl = UIManager.getSystemLookAndFeelClassName();
-//      pr("UIManager class name:",cl);
-//      UIManager.setLookAndFeel(cl);
-//    } catch (Throwable e) {
-//      pr("setLookAndFeel failed to set system look and feel;", INDENT, e.getMessage());
-//    }
-//  }
 }
