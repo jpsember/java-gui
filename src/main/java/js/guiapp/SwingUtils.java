@@ -76,6 +76,22 @@ public final class SwingUtils {
     return new File(directory, filename);
   }
 
+  public static File displaySaveFileRequester(File startDirOrNull, String prompt, FilenameFilter filter) {
+    FileDialog fileChooser = new FileDialog((JFrame) null, prompt, FileDialog.SAVE);
+    // I think prompts just won't show up on Mac.
+    if (Files.nonEmpty(startDirOrNull))
+      fileChooser.setDirectory(startDirOrNull.getPath());
+    if (filter != null)
+      fileChooser.setFilenameFilter(filter);
+    fileChooser.setVisible(true);
+    String filename = fileChooser.getFile();
+    String directory = fileChooser.getDirectory();
+    fileChooser.setVisible(false);
+    if (filename == null)
+      return null;
+    return new File(directory, filename);
+  }
+  
 // ----------------------------------------------------------------------------------------------
 
 
